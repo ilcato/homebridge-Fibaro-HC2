@@ -31,11 +31,19 @@ function FibaroHC2Platform(log, config){
 	startPollingUpdate( this );
 }
 
-function registry(homebridge) {
-	console.log("HERE: hombridge-Fibaro-HC2/index.js/registry()");
-	Service = homebridge.hap.Service;
-	Characteristic = homebridge.hap.Characteristic;
-	homebridge.registerPlatform("FibaroHC2", FibaroHC2Platform);
+//function registry(homebridge) {
+//	console.log("HERE: hombridge-Fibaro-HC2/index.js/registry()");
+//	Service = homebridge.hap.Service;
+//	Characteristic = homebridge.hap.Characteristic;
+//	homebridge.registerPlatform("FibaroHC2", FibaroHC2Platform);
+//}
+
+module.exports = function(homebridge) {
+  console.log("HERE: hombridge-Fibaro-HC2 exports");
+  Service = homebridge.hap.Service;
+  Characteristic = homebridge.hap.Characteristic;
+  
+  homebridge.registerPlatform("FibaroHC2", FibaroHC2Platform);
 }
 
 FibaroHC2Platform.prototype = {
@@ -261,7 +269,7 @@ function startPollingUpdate( platform )
           					var value=parseInt(s.value);
           					if (isNaN(value))
           						value=(s.value === "true");
-          					for (i=0;i<updateSubscriptions.length; i++) {
+          					for (var i=0;i<updateSubscriptions.length; i++) {
           						var subscription = updateSubscriptions[i];
           						if (subscription.id == s.id) {
           							if (s.power != undefined && subscription.characteristic.UUID == "00000026-0000-1000-8000-0026BB765291") {
