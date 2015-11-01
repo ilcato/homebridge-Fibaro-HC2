@@ -31,15 +31,7 @@ function FibaroHC2Platform(log, config){
 	startPollingUpdate( this );
 }
 
-//function registry(homebridge) {
-//	console.log("HERE: hombridge-Fibaro-HC2/index.js/registry()");
-//	Service = homebridge.hap.Service;
-//	Characteristic = homebridge.hap.Characteristic;
-//	homebridge.registerPlatform("FibaroHC2", FibaroHC2Platform);
-//}
-
 module.exports = function(homebridge) {
-  console.log("HERE: hombridge-Fibaro-HC2 exports");
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
   
