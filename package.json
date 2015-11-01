@@ -1,0 +1,35 @@
+{
+  "name": "homebridge-Fibaro-HC2",
+  "version": "0.1.0",
+  "description": "Homebridge shim for Fibaro Home Center 2 - 0.1.0 working with homebridge plugin system branch",
+  "note":"peerDependencies is hardcoded to peerDepdendencies in homebridge!!!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "echo \"Error: configure and run homebridge to start\" && exit 1"
+  },
+  "engines":{"node":">4.0.0"},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ilcato/homebridge-Fibaro-HC2.git"
+  },
+  "keywords": [
+    "homebridge-plugin",
+    "Fibaro",
+    "Home Center",
+    "homekit",
+    "z-wave",
+    "Siri"
+  ],
+  "dependencies": {
+	  },
+  "peerDepdendencies": {
+	  "homebridge": ">=0.2.0"
+  },
+  "author": "ilcato",
+  "license": "GPL2",
+  "bugs": {
+    "url": "https://github.com/ilcato/homebridge-Fibaro-HC2/issues"
+  },
+  "homepage": "https://github.com/ilcato/homebridge-Fibaro-HC2"
+}
