@@ -22,9 +22,10 @@
     "Siri"
   ],
   "dependencies": {
+	"request": "^2.65.0"
 	  },
   "peerDepdendencies": {
-	  "homebridge": ">=0.2.0"
+	"homebridge": ">=0.2.0"
   },
   "author": "ilcato",
   "license": "GPL2",
