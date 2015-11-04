@@ -68,7 +68,7 @@ FibaroHC2Platform.prototype = {
             		accessory = new FibaroBridgedAccessory([{controlService: new Service.MotionSensor(s.name), characteristics: [Characteristic.MotionDetected]}]);
 				else if (s.type == "com.fibaro.temperatureSensor")
             		accessory = new FibaroBridgedAccessory([{controlService: new Service.TemperatureSensor(s.name), characteristics: [Characteristic.CurrentTemperature]}]);
-				else if (s.type == "com.fibaro.doorSensor")
+				else if (s.type == "com.fibaro.doorSensor" || s.type == "com.fibaro.windowSensor")
             		accessory = new FibaroBridgedAccessory([{controlService: new Service.ContactSensor(s.name), characteristics: [Characteristic.ContactSensorState]}]);
 				else if (s.type == "com.fibaro.lightSensor")
             		accessory = new FibaroBridgedAccessory([{controlService: new Service.LightSensor(s.name), characteristics: [Characteristic.CurrentAmbientLightLevel]}]);
