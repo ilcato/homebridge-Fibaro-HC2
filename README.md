@@ -8,8 +8,8 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
 
 # Configuration
-Remember to configure the plugin in config.json in your home directory inside the .homebridge directory
-Look for a sample config in https://github.com/ilcato/homebridge-Fibaro-HC2
+Remember to configure the plugin in config.json in your home directory inside the .homebridge directory.
+Look for a sample config in [config.json example](https://github.com/ilcato/homebridge-Fibaro-HC2/blob/master/config.json)
 
 
 
