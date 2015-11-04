@@ -35,7 +35,7 @@ module.exports = function(homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
   
-  homebridge.registerPlatform("FibaroHC2", FibaroHC2Platform);
+  homebridge.registerPlatform("homebridge-fibaro-hc2", "FibaroHC2", FibaroHC2Platform);
 }
 
 FibaroHC2Platform.prototype = {
@@ -291,5 +291,3 @@ function subscribeUpdate(characteristic, accessory, onOff)
 // TODO: optimized management of updateSubscription data structure (no array with sequential access)
   updateSubscriptions.push({ 'id': accessory.id, 'characteristic': characteristic, 'accessory': accessory, 'onOff': onOff });
 }
-
-module.exports.platform = FibaroHC2Platform;
