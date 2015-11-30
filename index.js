@@ -1,4 +1,4 @@
-// Fibaro Home Center 2 Platform Shim for HomeBridge
+// Fibaro Home Center 2 Platform plugin for HomeBridge
 //
 // Remember to add platform to config.json. Example:
 // "platforms": [
@@ -73,7 +73,7 @@ FibaroHC2Platform.prototype = {
 				else if (s.type == "com.fibaro.lightSensor")
             		accessory = new FibaroBridgedAccessory([{controlService: new Service.LightSensor(s.name), characteristics: [Characteristic.CurrentAmbientLightLevel]}]);
             	else if (s.type == "com.fibaro.FGWP101")
-            		accessory = new FibaroBridgedAccessory([{ controlService: new Service.Outlet(s.name), characteristics: [Characteristic.On, Characteristic.OutletInUse]}]);
+            		accessory = new FibaroBridgedAccessory([{controlService: new Service.Outlet(s.name), characteristics: [Characteristic.On, Characteristic.OutletInUse]}]);
             	else if (s.type == "virtual_device" && s.name.charAt(0) != "_") {
             		var services = [];
             		for (var r = 0; r < s.properties.rows.length; r++) {
@@ -125,7 +125,7 @@ FibaroHC2Platform.prototype = {
 		method: method,
         headers: {
             "Authorization" : this.auth
-    	},
+    	}
     }, function(err, response) {
       if (err) {
         that.platform.log("There was a problem sending command " + c + " to" + that.name);
