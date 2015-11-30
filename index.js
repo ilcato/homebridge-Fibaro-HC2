@@ -97,6 +97,7 @@ FibaroHC2Platform.prototype = {
   					accessory.platform 			= that;
 				  	accessory.remoteAccessory	= s;
   					accessory.id 				= s.id;
+  					accessory.uuid_base			= s.id;
   					accessory.name				= s.name;
   					accessory.model				= s.type;
   					accessory.manufacturer		= "Fibaro";
