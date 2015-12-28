@@ -134,7 +134,7 @@ FibaroHC2Platform.prototype = {
          	if (s.visible == true && s.name.charAt(0) != "_") {
           		if (s.roomID != currentRoomID) {
           			if (services.length != 0) {
-						foundAccessories.push(that.createAccessory(services, that, currentRoomID));
+						foundAccessories.push(that.createAccessory(services, that, null, currentRoomID));
 						services = [];
 					}
 					currentRoomID = s.roomID;
@@ -160,20 +160,22 @@ FibaroHC2Platform.prototype = {
             	else if (s.type == "com.fibaro.thermostatDanfoss")
             		service = {controlService: new Service.DanfossRadiatorThermostat(s.name), characteristics: [Characteristic.CurrentTemperature, Characteristic.TargetTemperature, Characteristic.TimeInterval]};
             	else if (s.type == "virtual_device") {
+					var pushButtonServices = [];
+					var pushButtonService = null;
             		for (var r = 0; r < s.properties.rows.length; r++) {
             			if (s.properties.rows[r].type == "button") {
             				for (var e = 0; e < s.properties.rows[r].elements.length; e++) {
-            					service = {
+            					pushButtonService  = {
             						controlService: new Service.Switch(s.properties.rows[r].elements[e].caption),
             						characteristics: [Characteristic.On]
             					};
-								service.controlService.subtype = s.id + "-" + s.properties.rows[r].elements[e].id; // For Virtual devices it is device_id + "-" + button_id
-								service.controlService.isVirtual = true;
-            					services.push(service);
+								pushButtonService.controlService.subtype = s.id + "-" + s.properties.rows[r].elements[e].id; // For Virtual devices it is device_id + "-" + button_id
+								pushButtonService.controlService.isVirtual = true;
+            					pushButtonServices.push(pushButtonService);
             				}
             			} 
             		}
-            		service = null;
+					foundAccessories.push(that.createAccessory(pushButtonServices, that, s.name, null));
             	}
             	if (service != null) {
 					service.controlService.subtype = s.id + "-"; // For not Virtual devices it is device_id
@@ -183,7 +185,7 @@ FibaroHC2Platform.prototype = {
 			}
           });
 		  if (services.length != 0) {
-			foundAccessories.push(that.createAccessory(services, that, currentRoomID));
+			foundAccessories.push(that.createAccessory(services, that, null, currentRoomID));
 		  }
         }
 //        Only for test purposes
@@ -211,7 +213,7 @@ FibaroHC2Platform.prototype = {
     });
 
   },
-  createAccessory: function(services, that, currentRoomID) {
+  createAccessory: function(services, that, name, currentRoomID) {
 	var accessory = new FibaroBridgedAccessory(services);
 	accessory.getServices = function() {
 			return that.getServices(accessory);
@@ -220,7 +222,7 @@ FibaroHC2Platform.prototype = {
 //	accessory.remoteAccessory	= s;
 //	accessory.id 				= s.id;
 //	accessory.uuid_base			= s.id;
-	accessory.name				= that.rooms[currentRoomID] + "-Devices";
+	accessory.name				= (name) ? name : that.rooms[currentRoomID] + "-Devices";
 	accessory.model				= "HomeCenterBridgedAccessory";
 	accessory.manufacturer		= "IlCato";
 	accessory.serialNumber		= "<unknown>";
