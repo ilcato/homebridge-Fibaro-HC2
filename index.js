@@ -141,9 +141,13 @@ FibaroHC2Platform.prototype = {
 				}
           		if (s.type == "com.fibaro.multilevelSwitch")
    					service = {controlService: new Service.Lightbulb(s.name), characteristics: [Characteristic.On, Characteristic.Brightness]};
-				else if (s.type == "com.fibaro.FGRGBW441M" || s.type == "com.fibaro.colorController")
-            		service = {controlService: new Service.Lightbulb(s.name), characteristics: [Characteristic.On, Characteristic.Brightness, Characteristic.Hue, Characteristic.Saturation]};
-				else if (s.type == "com.fibaro.FGRM222" || s.type == "com.fibaro.FGR221")
+				else if (s.type == "com.fibaro.FGRGBW441M" || s.type == "com.fibaro.colorController") {
+            		service = {	controlService: new Service.Lightbulb(s.name),
+            					characteristics: [Characteristic.On, Characteristic.Brightness, Characteristic.Hue, Characteristic.Saturation],
+            					HSBValue: {hue: 0, saturation: 0, brightness: 0},
+            					RGBValue: {red: 0, green: 0, blue: 0}
+            		};
+				} else if (s.type == "com.fibaro.FGRM222" || s.type == "com.fibaro.FGR221")
             		service = {controlService: new Service.WindowCovering(s.name), characteristics: [Characteristic.CurrentPosition, Characteristic.TargetPosition, Characteristic.PositionState]};
 				else if (s.type == "com.fibaro.binarySwitch" || s.type == "com.fibaro.developer.bxs.virtualBinarySwitch")
             		service = {controlService: new Service.Switch(s.name), characteristics: [Characteristic.On]};
@@ -246,26 +250,40 @@ FibaroHC2Platform.prototype = {
         that.platform.log("There was a problem sending command " + c + " to" + that.name);
         that.platform.log(url);
       } else {
-        that.platform.log(that.name + " sent command " + c);
-        that.platform.log(url);
+        that.platform.log("Command: " + url + ((value != undefined) ? ", value: " + value : ""));
       }
     });
   },
+  updateHomeKitColorFromHomeCenter: function(color, service) {
+	var colors = color.split(",");
+	var r = parseInt(colors[0]);
+	var g = parseInt(colors[1]);
+	var b = parseInt(colors[2]);
+	service.RGBValue.red = r;
+	service.RGBValue.green = g;
+	service.RGBValue.blue = b;
+	var hsv = RGBtoHSV(r, g, b);
+	service.HSBValue.hue = hsv.h;
+	service.HSBValue.saturation = hsv.s;
+	service.HSBValue.brightness = hsv.v;
+	return hsv;  	
+  },
+  updateHomeCenterColorFromHomeKit: function(h, s, v, service) {
+	if (h != null)
+		service.HSBValue.hue = h;
+	if (s != null)
+		service.HSBValue.saturation = s;
+	if (v != null)
+		service.HSBValue.brightness = v;
+	var rgb = HSVtoRGB(service.HSBValue.hue, service.HSBValue.saturation, service.HSBValue.brightness);
+	service.RGBValue.red = rgb.r;
+	service.RGBValue.green = rgb.g;
+	service.RGBValue.blue = rgb.b;
+	return rgb;  	
+  },
   getAccessoryValue: function(callback, returnBoolean, homebridgeAccessory, characteristic, service, IDs) {
-  	var powerValue = false;
-  	var intervalValue = false;
-    var url = "http://"+homebridgeAccessory.platform.host+"/api/devices/"+IDs[0]+"/properties/";
-	if (characteristic.UUID == (new Characteristic.OutletInUse()).UUID) {
-    	url = url + "power";
-    	powerValue = true;
-	} else if (characteristic.UUID == (new Characteristic.TimeInterval()).UUID) {
-    	url = url + "timestamp";
-    	intervalValue = true;
-	} else if (characteristic.UUID == (new Characteristic.TargetTemperature()).UUID)
-    	url = url + "targetLevel";
-    else    
-    	url = url + "value";
-    	
+    var url = "http://"+homebridgeAccessory.platform.host+"/api/devices/"+IDs[0];
+    var that = this;
     request.get({
           headers : {
             "Authorization" : homebridgeAccessory.platform.auth
@@ -275,17 +293,40 @@ FibaroHC2Platform.prototype = {
     }, function(err, response, json) {
       homebridgeAccessory.platform.log(url);
       if (!err && response.statusCode == 200) {
-      	if (powerValue) {
-      		callback(undefined, parseFloat(json.value) > 1.0 ? true : false);
-      	} else if (returnBoolean)
-      	   	callback(undefined, json.value == 0 ? 0 : 1);
-		else if (intervalValue) {
+		if (characteristic.UUID == (new Characteristic.OutletInUse()).UUID) {
+      		callback(undefined, parseFloat(json.properties.power) > 1.0 ? true : false);
+		} else if (characteristic.UUID == (new Characteristic.TimeInterval()).UUID) {
 			var t = (new Date()).getTime();
-			t = json.value - t;
+			t = parseInt(json.properties.timestamp) - t;
 			if (t < 0) t = 0;
 	      	callback(undefined, t);
-	    } else
-	    	callback(undefined, json.value);
+		} else if (characteristic.UUID == (new Characteristic.TargetTemperature()).UUID) {
+	    	callback(undefined, parseFloat(json.properties.targetLevel));
+	    } else if (characteristic.UUID == (new Characteristic.Hue()).UUID) {
+	    	var hsv = that.updateHomeKitColorFromHomeCenter(json.properties.color, service);
+	    	callback(undefined, Math.round(hsv.h));
+	    } else if (characteristic.UUID == (new Characteristic.Saturation()).UUID) {
+	    	var hsv = that.updateHomeKitColorFromHomeCenter(json.properties.color, service);
+	    	callback(undefined, Math.round(hsv.s));
+		} else if (characteristic.UUID == (new Characteristic.ContactSensorState()).UUID) {
+      	   	callback(undefined, json.properties.value == "true" ? 1 : 0);
+	    } else if (characteristic.UUID == (new Characteristic.Brightness()).UUID) {
+			if (service.HSBValue != null) {
+		    	var hsv = that.updateHomeKitColorFromHomeCenter(json.properties.color, service);
+		    	callback(undefined, Math.round(hsv.v));
+		    } else {
+		    	callback(undefined, parseFloat(json.properties.value));
+		    }
+    	} else if (returnBoolean) {
+    		var v = json.properties.value;
+    		if (v == "true" || v == "false") {
+		    	callback(undefined, (v == "false") ? false : true);
+    		} else {
+	      	   	callback(undefined, (parseInt(v) == 0) ? false : true);
+    		}
+		} else {
+	    	callback(undefined, parseFloat(json.properties.value));
+		}
       } else {
         homebridgeAccessory.platform.log("There was a problem getting value from" + service.controlService.subtype);
       }
@@ -308,7 +349,10 @@ FibaroHC2Platform.prototype = {
 			readOnly = false;
 	var IDs = service.controlService.subtype.split("-"); // IDs[0] is always device ID; for virtual device IDs[1] is the button ID
 	if (!service.controlService.isVirtual) {
-	    subscribeUpdate(service, characteristic, homebridgeAccessory, onOff); // TODO CHECK
+		var propertyChanged = "value"; // subscribe to the changes of this property
+		if (service.HSBValue != undefined)
+			propertyChanged = "color";	 		
+	    subscribeUpdate(service, characteristic, homebridgeAccessory, onOff, propertyChanged); // TODO CHECK
 	}
 	if (!readOnly) {
     	characteristic
@@ -328,12 +372,30 @@ FibaroHC2Platform.prototype = {
         	            		} else if (characteristic.UUID == (new Characteristic.TimeInterval()).UUID) {
 									homebridgeAccessory.platform.command("setTime", value + (new Date()).getTime(), homebridgeAccessory, service, IDs);
 								} else if (characteristic.UUID == (new Characteristic.Hue()).UUID) {
-									// TODO: implement characteristic, need to maintain the status of all 3 parameters
+							    	var rgb = homebridgeAccessory.platform.updateHomeCenterColorFromHomeKit(value, null, null, service);
+					    	        this.log("Hue: setting color to:\n " + "R: " + rgb.r + "\nG: " + rgb.g + "\nB: " + rgb.b + "\n" );
+
+									homebridgeAccessory.platform.command("setR", rgb.r, homebridgeAccessory, service, IDs);
+									homebridgeAccessory.platform.command("setG", rgb.g, homebridgeAccessory, service, IDs);
+									homebridgeAccessory.platform.command("setB", rgb.b, homebridgeAccessory, service, IDs);
 								} else if (characteristic.UUID == (new Characteristic.Saturation()).UUID) {
-									// TODO: implement characteristic, need to maintain the status of all 3 parameters
+							    	var rgb = homebridgeAccessory.platform.updateHomeCenterColorFromHomeKit(null, value, null, service);
+					    	        this.log("Saturation: setting color to:\n " + "R: " + rgb.r + "\nG: " + rgb.g + "\nB: " + rgb.b + "\n" );
+
+									homebridgeAccessory.platform.command("setR", rgb.r, homebridgeAccessory, service, IDs);
+									homebridgeAccessory.platform.command("setG", rgb.g, homebridgeAccessory, service, IDs);
+									homebridgeAccessory.platform.command("setB", rgb.b, homebridgeAccessory, service, IDs);
 								} else if (characteristic.UUID == (new Characteristic.Brightness()).UUID) {
-									homebridgeAccessory.platform.command("setValue", value, homebridgeAccessory, service, IDs);
-									// TODO: implement characteristic, need to maintain the status of all 3 parameters
+									if (service.HSBValue != null) {
+								    	var rgb = homebridgeAccessory.platform.updateHomeCenterColorFromHomeKit(null, null, value, service);
+						    	        this.log("Brightness: setting color to:\n " + "R: " + rgb.r + "\nG: " + rgb.g + "\nB: " + rgb.b + "\n" );
+
+										homebridgeAccessory.platform.command("setR", rgb.r, homebridgeAccessory, service, IDs);
+										homebridgeAccessory.platform.command("setG", rgb.g, homebridgeAccessory, service, IDs);
+										homebridgeAccessory.platform.command("setB", rgb.b, homebridgeAccessory, service, IDs);
+									} else {
+										homebridgeAccessory.platform.command("setValue", value, homebridgeAccessory, service, IDs);
+									}
 								} else {
 									homebridgeAccessory.platform.command("setValue", value, homebridgeAccessory, service, IDs);
 								}
@@ -404,7 +466,7 @@ function startPollingUpdate( platform )
           						value=(s.value === "true");
           					for (var i=0;i<updateSubscriptions.length; i++) {
           						var subscription = updateSubscriptions[i];
-          						if (subscription.id == s.id) {
+          						if (subscription.id == s.id && subscription.property == "value") {
 								  	var powerValue = false;
   									var intervalValue = false;
 									if (subscription.characteristic.UUID == (new Characteristic.OutletInUse()).UUID)
@@ -421,6 +483,22 @@ function startPollingUpdate( platform )
           						}
           					}
           				}
+          				if (s.color != undefined) {
+          					for (var i=0;i<updateSubscriptions.length; i++) {
+          						var subscription = updateSubscriptions[i];
+          						if (subscription.id == s.id && subscription.property == "color") {
+							    	var hsv = subscription.accessory.platform.updateHomeKitColorFromHomeCenter(s.color, subscription.service);
+									if (subscription.characteristic.UUID == (new Characteristic.On()).UUID)
+	    	      						subscription.characteristic.setValue(hsv.v == 0 ? false : true, undefined, 'fromFibaro');
+									else if (subscription.characteristic.UUID == (new Characteristic.Hue()).UUID)
+	    	      						subscription.characteristic.setValue(Math.round(hsv.h), undefined, 'fromFibaro');
+									else if (subscription.characteristic.UUID == (new Characteristic.Saturation()).UUID)
+	    	      						subscription.characteristic.setValue(Math.round(hsv.s), undefined, 'fromFibaro');
+									else if (subscription.characteristic.UUID == (new Characteristic.Brightness()).UUID)
+	    	      						subscription.characteristic.setValue(Math.round(hsv.v), undefined, 'fromFibaro');
+          						}
+          					}
+          				}
           			});
           		}
         	}
@@ -434,11 +512,11 @@ function startPollingUpdate( platform )
 }
 
 var updateSubscriptions = [];
-function subscribeUpdate(service, characteristic, accessory, onOff)
+function subscribeUpdate(service, characteristic, accessory, onOff, propertyChanged)
 {
 // TODO: optimized management of updateSubscription data structure (no array with sequential access)
   var IDs = service.controlService.subtype.split("-"); // IDs[0] is always device ID; for virtual device IDs[1] is the button ID
-  updateSubscriptions.push({ 'id': IDs[0], 'service': service, 'characteristic': characteristic, 'accessory': accessory, 'onOff': onOff });
+  updateSubscriptions.push({ 'id': IDs[0], 'service': service, 'characteristic': characteristic, 'accessory': accessory, 'onOff': onOff, "property": propertyChanged });
 }
 
 
@@ -467,5 +545,29 @@ function HSVtoRGB(hue, saturation, value) {
         r: Math.round(r * 255),
         g: Math.round(g * 255),
         b: Math.round(b * 255)
+    };
+}
+
+function RGBtoHSV(r, g, b) {
+    if (arguments.length === 1) {
+        g = r.g, b = r.b, r = r.r;
+    }
+    var max = Math.max(r, g, b), min = Math.min(r, g, b),
+        d = max - min,
+        h,
+        s = (max === 0 ? 0 : d / max),
+        v = max / 255;
+
+    switch (max) {
+        case min: h = 0; break;
+        case r: h = (g - b) + d * (g < b ? 6: 0); h /= 6 * d; break;
+        case g: h = (b - r) + d * 2; h /= 6 * d; break;
+        case b: h = (r - g) + d * 4; h /= 6 * d; break;
+    }
+
+    return {
+        h: h * 360.0,
+        s: s * 100.0,
+        v: v * 100.0
     };
 }
