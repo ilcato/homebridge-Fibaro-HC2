@@ -80,6 +80,7 @@ module.exports = function(homebridge) {
 
 FibaroHC2Platform.prototype = {
   accessories: function(callback) {
+
     this.log("Fetching Fibaro Home Center rooms...");
     var that = this;
   	var url = "http://"+this.host+"/api/rooms";
@@ -145,7 +146,9 @@ FibaroHC2Platform.prototype = {
             		service = {	controlService: new Service.Lightbulb(s.name),
             					characteristics: [Characteristic.On, Characteristic.Brightness, Characteristic.Hue, Characteristic.Saturation],
             					HSBValue: {hue: 0, saturation: 0, brightness: 0},
-            					RGBValue: {red: 0, green: 0, blue: 0}
+            					RGBValue: {red: 0, green: 0, blue: 0},
+            					countColorCharacteristics: 0,
+            					timeoutIdColorCharacteristics: 0
             		};
 				} else if (s.type == "com.fibaro.FGRM222" || s.type == "com.fibaro.FGR221")
             		service = {controlService: new Service.WindowCovering(s.name), characteristics: [Characteristic.CurrentPosition, Characteristic.TargetPosition, Characteristic.PositionState]};
@@ -233,26 +236,26 @@ FibaroHC2Platform.prototype = {
 	return accessory;
   },
   command: function(c,value, that, service, IDs) {
-    var url = "http://"+this.host+"/api/devices/"+IDs[0]+"/action/"+c;
-  	var body = value != undefined ? JSON.stringify({
-		  "args": [	value ]
-	}) : null;
-	var method = "post";
-    request({
-	    url: url,
-    	body: body,
-		method: method,
-        headers: {
-            "Authorization" : this.auth
-    	}
-    }, function(err, response) {
-      if (err) {
-        that.platform.log("There was a problem sending command " + c + " to" + that.name);
-        that.platform.log(url);
-      } else {
-        that.platform.log("Command: " + url + ((value != undefined) ? ", value: " + value : ""));
-      }
-    });
+		var url = "http://"+this.host+"/api/devices/"+IDs[0]+"/action/"+c;
+		var body = value != undefined ? JSON.stringify({
+			  "args": [	value ]
+		}) : null;
+		var method = "post";
+		request({
+			url: url,
+			body: body,
+			method: method,
+			headers: {
+				"Authorization" : this.auth
+			}
+		}, function(err, response) {
+		  if (err) {
+			that.platform.log("There was a problem sending command " + c + " to" + that.name);
+			that.platform.log(url);
+		  } else {
+			that.platform.log("Command: " + url + ((value != undefined) ? ", value: " + value : ""));
+		  }
+		});
   },
   updateHomeKitColorFromHomeCenter: function(color, service) {
 	var colors = color.split(",");
@@ -341,6 +344,31 @@ FibaroHC2Platform.prototype = {
 			    .setCharacteristic(Characteristic.SerialNumber, homebridgeAccessory.serialNumber);
   	return informationService;
   },
+  syncColorCharacteristics: function(rgb, homebridgeAccessory, service, IDs) {
+	switch (--service.countColorCharacteristics) {
+		case -1:
+			service.countColorCharacteristics = 2;
+			service.timeoutIdColorCharacteristics = setTimeout(function () {
+				if (service.countColorCharacteristics < 2)
+					return;
+				homebridgeAccessory.platform.command("setR", rgb.r, homebridgeAccessory, service, IDs);
+				homebridgeAccessory.platform.command("setG", rgb.g, homebridgeAccessory, service, IDs);
+				homebridgeAccessory.platform.command("setB", rgb.b, homebridgeAccessory, service, IDs);
+				service.countColorCharacteristics = 0;
+				service.timeoutIdColorCharacteristics = 0;
+			}, 1000);
+			break;
+		case 0:
+			homebridgeAccessory.platform.command("setR", rgb.r, homebridgeAccessory, service, IDs);
+			homebridgeAccessory.platform.command("setG", rgb.g, homebridgeAccessory, service, IDs);
+			homebridgeAccessory.platform.command("setB", rgb.b, homebridgeAccessory, service, IDs);
+			service.countColorCharacteristics = 0;
+			service.timeoutIdColorCharacteristics = 0;
+			break;
+		default:
+			break;
+	}
+  },
   bindCharacteristicEvents: function(characteristic, service, homebridgeAccessory) {
 	var onOff = characteristic.props.format == "bool" ? true : false;
   	var readOnly = true;
@@ -374,25 +402,16 @@ FibaroHC2Platform.prototype = {
 								} else if (characteristic.UUID == (new Characteristic.Hue()).UUID) {
 							    	var rgb = homebridgeAccessory.platform.updateHomeCenterColorFromHomeKit(value, null, null, service);
 					    	        this.log("Hue: setting color to:\n " + "R: " + rgb.r + "\nG: " + rgb.g + "\nB: " + rgb.b + "\n" );
-
-									homebridgeAccessory.platform.command("setR", rgb.r, homebridgeAccessory, service, IDs);
-									homebridgeAccessory.platform.command("setG", rgb.g, homebridgeAccessory, service, IDs);
-									homebridgeAccessory.platform.command("setB", rgb.b, homebridgeAccessory, service, IDs);
+									homebridgeAccessory.platform.syncColorCharacteristics(rgb, homebridgeAccessory, service, IDs);
 								} else if (characteristic.UUID == (new Characteristic.Saturation()).UUID) {
 							    	var rgb = homebridgeAccessory.platform.updateHomeCenterColorFromHomeKit(null, value, null, service);
 					    	        this.log("Saturation: setting color to:\n " + "R: " + rgb.r + "\nG: " + rgb.g + "\nB: " + rgb.b + "\n" );
-
-									homebridgeAccessory.platform.command("setR", rgb.r, homebridgeAccessory, service, IDs);
-									homebridgeAccessory.platform.command("setG", rgb.g, homebridgeAccessory, service, IDs);
-									homebridgeAccessory.platform.command("setB", rgb.b, homebridgeAccessory, service, IDs);
+									homebridgeAccessory.platform.syncColorCharacteristics(rgb, homebridgeAccessory, service, IDs);
 								} else if (characteristic.UUID == (new Characteristic.Brightness()).UUID) {
 									if (service.HSBValue != null) {
 								    	var rgb = homebridgeAccessory.platform.updateHomeCenterColorFromHomeKit(null, null, value, service);
 						    	        this.log("Brightness: setting color to:\n " + "R: " + rgb.r + "\nG: " + rgb.g + "\nB: " + rgb.b + "\n" );
-
-										homebridgeAccessory.platform.command("setR", rgb.r, homebridgeAccessory, service, IDs);
-										homebridgeAccessory.platform.command("setG", rgb.g, homebridgeAccessory, service, IDs);
-										homebridgeAccessory.platform.command("setB", rgb.b, homebridgeAccessory, service, IDs);
+										homebridgeAccessory.platform.syncColorCharacteristics(rgb, homebridgeAccessory, service, IDs);
 									} else {
 										homebridgeAccessory.platform.command("setValue", value, homebridgeAccessory, service, IDs);
 									}
