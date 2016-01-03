@@ -8,6 +8,9 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 0.5.1
++ Full implementation of Fibaro RGB controller
+
 Version 0.5.0
 + In order to cope with the limits of HomeKit accessory per bridge (100 maximum) the plugin now group Home Center devices into a single HomeKit accessory per room.
 + Virtual devices are managed in the old way: an Accessory for each virtual device that contains a push button for each virtual button
