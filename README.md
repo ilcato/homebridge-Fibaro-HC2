@@ -8,8 +8,12 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 0.5.2
++ Added configuration parameter "grouping": put "room" for grouping devices by room, "none" for no grouping at all
+
 Version 0.5.1
-+ Full implementation of Fibaro RGB controller
++ Full support for Fibaro RGB controller
++ Full support for Danfoss Thermostat
 
 Version 0.5.0
 + In order to cope with the limits of HomeKit accessory per bridge (100 maximum) the plugin now group Home Center devices into a single HomeKit accessory per room.
@@ -18,7 +22,12 @@ Version 0.5.0
 + Initial support for Danfoss Thermostat (only temperature commands works for now)
 
 # Configuration
-Remember to configure the plugin in config.json in your home directory inside the .homebridge directory.
+Remember to configure the plugin in config.json in your home directory inside the .homebridge directory. Configuration parameters:
++ "host": "PUT IP ADDRESS OF YOUR HC2 HERE",
++ "username": "PUT USERNAME OF YOUR HC2 HERE",
++ "password": "PUT PASSWORD OF YOUR HC2 HERE",
++ "grouping": "PUT none OR room"
+
 Look for a sample config in [config.json example](https://github.com/ilcato/homebridge-Fibaro-HC2/blob/master/config.json)
 
 
