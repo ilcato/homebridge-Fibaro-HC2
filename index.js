@@ -8,6 +8,7 @@
 //            "host": "PUT IP ADDRESS OF YOUR HC2 HERE",
 //            "username": "PUT USERNAME OF YOUR HC2 HERE",
 //            "password": "PUT PASSWORD OF YOUR HC2 HERE"
+//            "grouping": "PUT none OR room"
 //     }
 // ],
 //
@@ -26,6 +27,7 @@ function FibaroHC2Platform(log, config){
   	this.host     = config["host"];
   	this.username = config["username"];
   	this.password = config["password"];
+  	this.grouping = config["grouping"];
   	this.auth = "Basic " + new Buffer(this.username + ":" + this.password).toString("base64");
   	this.url = "http://"+this.host+"/api/devices";
   	this.rooms = {};
@@ -133,12 +135,14 @@ FibaroHC2Platform.prototype = {
           json.map(function(s, i, a) {
           	that.log("Found: " + s.type);
          	if (s.visible == true && s.name.charAt(0) != "_") {
-          		if (s.roomID != currentRoomID) {
-          			if (services.length != 0) {
-						foundAccessories.push(that.createAccessory(services, that, null, currentRoomID));
-						services = [];
+				if (that.grouping == "room") {         	
+					if (s.roomID != currentRoomID) {
+						if (services.length != 0) {
+							foundAccessories.push(that.createAccessory(services, that, null, currentRoomID));
+							services = [];
+						}
+						currentRoomID = s.roomID;
 					}
-					currentRoomID = s.roomID;
 				}
           		if (s.type == "com.fibaro.multilevelSwitch")
    					service = {controlService: new Service.Lightbulb(s.name), characteristics: [Characteristic.On, Characteristic.Brightness]};
@@ -189,28 +193,18 @@ FibaroHC2Platform.prototype = {
    					services.push(service);
             		service = null;
             	}
+				if (that.grouping == "none") {         	
+					if (services.length != 0) {
+						foundAccessories.push(that.createAccessory(services, that, s.name, currentRoomID));
+						services = [];
+					}
+				}
 			}
           });
 		  if (services.length != 0) {
 			foundAccessories.push(that.createAccessory(services, that, null, currentRoomID));
 		  }
         }
-//        Only for test purposes
-/*          		var accessory = null;
-           		accessory = new FibaroBridgedAccessory([{controlService: new Service.DanfossRadiatorThermostat("Prova termostato"), characteristics: [Characteristic.CurrentTemperature, Characteristic.TargetTemperature, Characteristic.TimeInterval]}]);
-				accessory.getServices = function() {
-					return that.getServices(accessory);
-				};
-				accessory.platform 			= that;
-			  	accessory.remoteAccessory	= null;
-				accessory.id 				= null;
-				accessory.uuid_base			= null;
-				accessory.name				= "Prova termostato";
-				accessory.model				= "Danfoss Radiator Thermostat";
-				accessory.manufacturer		= "Danfoss";
-				accessory.serialNumber		= "<unknown>";
-           		foundAccessories.push(accessory); */
-//        End test
         callback(foundAccessories);
        	startPollingUpdate( that );
 
