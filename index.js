@@ -168,7 +168,7 @@ FibaroHC2Platform.prototype = {
             		service = {controlService: new Service.LightSensor(s.name), characteristics: [Characteristic.CurrentAmbientLightLevel]};
             	else if (s.type == "com.fibaro.FGWP101")
             		service = {controlService: new Service.Outlet(s.name), characteristics: [Characteristic.On, Characteristic.OutletInUse]};
-            	else if (s.type == "com.fibaro.thermostatDanfoss")
+            	else if (s.type == "com.fibaro.thermostatDanfoss" || s.type == "com.fibaro.thermostatHorstmann")
             		service = {controlService: new Service.DanfossRadiatorThermostat(s.name), characteristics: [Characteristic.CurrentTemperature, Characteristic.TargetTemperature, Characteristic.TimeInterval]};
             	else if (s.type == "virtual_device") {
 					var pushButtonServices = [];
@@ -390,21 +390,28 @@ FibaroHC2Platform.prototype = {
         	            		} else if (characteristic.UUID == (new Characteristic.On()).UUID) {
 									homebridgeAccessory.platform.command(value == 0 ? "turnOff": "turnOn", null, homebridgeAccessory, service, IDs);
         	            		} else if (characteristic.UUID == (new Characteristic.TargetTemperature()).UUID) {
-									homebridgeAccessory.platform.command("setTargetLevel", value, homebridgeAccessory, service, IDs);
+        	            			if (Math.abs(value - characteristic.value) >= 0.5) {
+										value = parseFloat( (Math.round(value / 0.5) * 0.5).toFixed(1) );
+										homebridgeAccessory.platform.command("setTargetLevel", value, homebridgeAccessory, service, IDs);
+										// automatically set the interval to 2 hours
+										homebridgeAccessory.platform.command("setTime", 2*3600 + Math.trunc((new Date()).getTime()/1000), homebridgeAccessory, service, IDs);
+							    	} else {
+							    		value = characteristic.value;
+							    	}
+									setTimeout( function(){
+										characteristic.setValue(value, undefined, 'fromSetValue');
+									}, 100 );
         	            		} else if (characteristic.UUID == (new Characteristic.TimeInterval()).UUID) {
-									homebridgeAccessory.platform.command("setTime", value + (new Date()).getTime(), homebridgeAccessory, service, IDs);
+									homebridgeAccessory.platform.command("setTime", value + Math.trunc((new Date()).getTime()/1000), homebridgeAccessory, service, IDs);
 								} else if (characteristic.UUID == (new Characteristic.Hue()).UUID) {
 							    	var rgb = homebridgeAccessory.platform.updateHomeCenterColorFromHomeKit(value, null, null, service);
-					    	        this.log("Hue: setting color to:\n " + "R: " + rgb.r + "\nG: " + rgb.g + "\nB: " + rgb.b + "\n" );
 									homebridgeAccessory.platform.syncColorCharacteristics(rgb, homebridgeAccessory, service, IDs);
 								} else if (characteristic.UUID == (new Characteristic.Saturation()).UUID) {
 							    	var rgb = homebridgeAccessory.platform.updateHomeCenterColorFromHomeKit(null, value, null, service);
-					    	        this.log("Saturation: setting color to:\n " + "R: " + rgb.r + "\nG: " + rgb.g + "\nB: " + rgb.b + "\n" );
 									homebridgeAccessory.platform.syncColorCharacteristics(rgb, homebridgeAccessory, service, IDs);
 								} else if (characteristic.UUID == (new Characteristic.Brightness()).UUID) {
 									if (service.HSBValue != null) {
 								    	var rgb = homebridgeAccessory.platform.updateHomeCenterColorFromHomeKit(null, null, value, service);
-						    	        this.log("Brightness: setting color to:\n " + "R: " + rgb.r + "\nG: " + rgb.g + "\nB: " + rgb.b + "\n" );
 										homebridgeAccessory.platform.syncColorCharacteristics(rgb, homebridgeAccessory, service, IDs);
 									} else {
 										homebridgeAccessory.platform.command("setValue", value, homebridgeAccessory, service, IDs);
