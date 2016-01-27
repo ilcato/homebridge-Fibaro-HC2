@@ -8,6 +8,9 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 0.5.3
++ Added support for Horstmann thermostat (eg.: Horstmann HRT4-ZW, Secure SRT321, ...)
+
 Version 0.5.2
 + Added configuration parameter "grouping": put "room" for grouping devices by room, "none" for no grouping at all
 
