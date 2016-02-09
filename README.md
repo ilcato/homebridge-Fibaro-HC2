@@ -8,6 +8,9 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 0.5.4
++ Added support for Forest Shuttle curtain system
+
 Version 0.5.3
 + Added support for Horstmann thermostat (eg.: Horstmann HRT4-ZW, Secure SRT321, ...)
 
