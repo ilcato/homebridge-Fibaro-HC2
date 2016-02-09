@@ -154,7 +154,7 @@ FibaroHC2Platform.prototype = {
             					countColorCharacteristics: 0,
             					timeoutIdColorCharacteristics: 0
             		};
-				} else if (s.type == "com.fibaro.FGRM222" || s.type == "com.fibaro.FGR221")
+				} else if (s.type == "com.fibaro.FGRM222" || s.type == "com.fibaro.FGR221" || s.type == "com.fibaro.rollerShutter")
             		service = {controlService: new Service.WindowCovering(s.name), characteristics: [Characteristic.CurrentPosition, Characteristic.TargetPosition, Characteristic.PositionState]};
 				else if (s.type == "com.fibaro.binarySwitch" || s.type == "com.fibaro.developer.bxs.virtualBinarySwitch")
             		service = {controlService: new Service.Switch(s.name), characteristics: [Characteristic.On]};
