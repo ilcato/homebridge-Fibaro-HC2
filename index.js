@@ -22,47 +22,6 @@ var http = require('http');
 var request = require("request");
 var inherits = require('util').inherits;
 
-
-function FibaroHC2Platform(log, config, api){
-	this.config = config || {};
-	this.api = api;
-	this.accessories = [];
-  	this.log = log;
-  	this.host = config["host"];
-  	this.username = config["username"];
-  	this.password = config["password"];
-  	this.grouping = config["grouping"];
-  	this.auth = "Basic " + new Buffer(this.username + ":" + this.password).toString("base64");
-  	this.url = "http://"+this.host+"/api/devices";
-  	this.rooms = {};
-  	this.updateSubscriptions = [];
-  	this.lastPoll=0;
-  	this.pollingUpdateRunning = false;
-
-	var self = this;
-	this.requestServer = http.createServer();
-	this.requestServer.on('error', function(err) {
-
-    });
-    this.requestServer.listen(18091, function() {
-        self.log("Server Listening...");
-    });
-	
-	if (api) {
-    	// Save the API object as plugin needs to register new accessory via this object.
-      	this.api = api;
-
-      	// Listen to event "didFinishLaunching", this means homebridge already finished loading cached accessories
-	    // Platform Plugin should only register new accessory that doesn't exist in homebridge after this event.
-      	// Or start discover new accessories
-      	this.api.on('didFinishLaunching', function() {
-        	console.log("Plugin - DidFinishLaunching");
-			this.addAccessories();
-			this.startPollingUpdate();
-      	}.bind(this));
- 	}
-}
-
 module.exports = function(homebridge) {
 	Accessory = homebridge.platformAccessory;
 	Service = homebridge.hap.Service;
@@ -110,10 +69,48 @@ module.exports = function(homebridge) {
 
   	// End of custom Services and Characteristics
 
-
 	homebridge.registerPlatform("homebridge-fibaro-hc2", "FibaroHC2", FibaroHC2Platform, true);
 }
 
+function FibaroHC2Platform(log, config, api){
+	this.config = config || {};
+	this.api = api;
+	this.accessories = [];
+  	this.log = log;
+  	this.host = config["host"];
+  	this.username = config["username"];
+  	this.password = config["password"];
+  	this.grouping = config["grouping"];
+  	this.auth = "Basic " + new Buffer(this.username + ":" + this.password).toString("base64");
+  	this.url = "http://"+this.host+"/api/devices";
+  	this.rooms = {};
+  	this.updateSubscriptions = [];
+  	this.lastPoll=0;
+  	this.pollingUpdateRunning = false;
+
+	var self = this;
+	this.requestServer = http.createServer();
+	this.requestServer.on('error', function(err) {
+
+    });
+    this.requestServer.listen(18091, function() {
+        self.log("Server Listening...");
+    });
+	
+	if (api) {
+    	// Save the API object as plugin needs to register new accessory via this object.
+      	this.api = api;
+
+      	// Listen to event "didFinishLaunching", this means homebridge already finished loading cached accessories
+	    // Platform Plugin should only register new accessory that doesn't exist in homebridge after this event.
+      	// Or start discover new accessories
+      	this.api.on('didFinishLaunching', function() {
+        	console.log("Plugin - DidFinishLaunching");
+			this.addAccessories();
+			this.startPollingUpdate();
+      	}.bind(this));
+ 	}
+}
 FibaroHC2Platform.prototype.addAccessories = function() {
     this.log("Fetching Fibaro Home Center rooms...");
     var that = this;
@@ -167,7 +164,6 @@ FibaroHC2Platform.prototype.getFibaroDevices = function() {
  	  	  var services = [];
  	  	  var service = null;
           json.map(function(s, i, a) {
-          	that.log("Found: " + s.type);
          	if (s.visible == true && s.name.charAt(0) != "_") {
 				if (that.grouping == "room") {         	
 					if (s.roomID != currentRoomID) {
@@ -186,13 +182,12 @@ FibaroHC2Platform.prototype.getFibaroDevices = function() {
           		if (s.type == "com.fibaro.multilevelSwitch")
    					service = {controlService: new Service.Lightbulb(s.name), characteristics: [Characteristic.On, Characteristic.Brightness]};
 				else if (s.type == "com.fibaro.FGRGBW441M" || s.type == "com.fibaro.colorController") {
-            		service = {	controlService: new Service.Lightbulb(s.name),
-            					characteristics: [Characteristic.On, Characteristic.Brightness, Characteristic.Hue, Characteristic.Saturation],
-            					HSBValue: {hue: 0, saturation: 0, brightness: 0},
-            					RGBValue: {red: 0, green: 0, blue: 0},
-            					countColorCharacteristics: 0,
-            					timeoutIdColorCharacteristics: 0
-            		};
+            		service = {controlService: new Service.Lightbulb(s.name), characteristics: [Characteristic.On, Characteristic.Brightness, Characteristic.Hue, Characteristic.Saturation]};
+					service.controlService.HSBValue = {hue: 0, saturation: 0, brightness: 0};
+            		service.controlService.RGBValue = {red: 0, green: 0, blue: 0};
+            		service.controlService.countColorCharacteristics = 0;
+            		service.controlService.timeoutIdColorCharacteristics = 0;
+            		service.controlService.subtype = "RGB"; // for RGB color add a subtype parameter; it will go into 3rd position: "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
 				} else if (s.type == "com.fibaro.FGRM222" || s.type == "com.fibaro.FGR221" || s.type == "com.fibaro.rollerShutter")
             		service = {controlService: new Service.WindowCovering(s.name), characteristics: [Characteristic.CurrentPosition, Characteristic.TargetPosition, Characteristic.PositionState]};
 				else if (s.type == "com.fibaro.binarySwitch" || s.type == "com.fibaro.developer.bxs.virtualBinarySwitch")
@@ -232,7 +227,9 @@ FibaroHC2Platform.prototype.getFibaroDevices = function() {
 					}
             	}
             	if (service != null) {
-					service.controlService.subtype = s.id + "-"; // For not Virtual devices it is device_id
+            		if (service.controlService.subtype == undefined)
+            			service.controlService.subtype = "";
+					service.controlService.subtype = s.id + "--" + service.controlService.subtype; // "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
    					services.push(service);
             		service = null;
             	}
@@ -277,21 +274,23 @@ FibaroHC2Platform.prototype.addAccessory = function(fibaroAccessory) {
   	});
   	fibaroAccessory.initAccessory(newAccessory);
 
-/*  newAccessory.addService(Service.Lightbulb, "Test Light")
-  .getCharacteristic(Characteristic.On)
-  .on('set', function(value, callback) {
-    console.log("Light -> " + value);
-    callback();
-  });
-*/
-  this.accessories[fibaroAccessory.UUID] = fibaroAccessory;
-  this.api.registerPlatformAccessories("homebridge-fibaro-hc2", "FibaroHC2", [newAccessory]);
+	this.accessories[fibaroAccessory.UUID] = fibaroAccessory;
+	this.api.registerPlatformAccessories("homebridge-fibaro-hc2", "FibaroHC2", [newAccessory]);
 }
-
 FibaroHC2Platform.prototype.configureAccessory = function(accessory) {
-	console.log("Plugin - Configure Accessory: " + accessory.displayName);
 	for (var s = 0; s < accessory.services.length; s++) {
 		var service = accessory.services[s];
+		this.log("Configuring service: " + accessory.displayName + "-" + service.displayName + "-" + service.subtype);
+		if (service.subtype != undefined) {
+			var subtypeParams = service.subtype.split("-"); // "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
+			if (subtypeParams.length == 3 && subtypeParams[2] == "RGB") {
+				// For RGB devices add specific attributes for managing it
+				service.HSBValue = {hue: 0, saturation: 0, brightness: 0};
+				service.RGBValue = {red: 0, green: 0, blue: 0};
+				service.countColorCharacteristics = 0;
+				service.timeoutIdColorCharacteristics = 0;
+			}
+		}
 		for (var i=0; i < service.characteristics.length; i++) {
 			var characteristic = service.characteristics[i];
 			if (characteristic.props.needsBinding)
@@ -300,7 +299,6 @@ FibaroHC2Platform.prototype.configureAccessory = function(accessory) {
 	}
 	this.accessories[accessory.UUID] = accessory;
 }
-
 FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, service) {
 	var onOff = characteristic.props.format == "bool" ? true : false;
   	var readOnly = true;
@@ -311,8 +309,8 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
 	service.isVirtual = IDs[1] != "" ? true : false;
 	if (!service.isVirtual) {
 		var propertyChanged = "value"; // subscribe to the changes of this property
-//		if (service.HSBValue != undefined)
-//			propertyChanged = "color";	 		
+		if (service.HSBValue != undefined)
+			propertyChanged = "color";	 		
 	    this.subscribeUpdate(service, characteristic, onOff, propertyChanged); // TODO CHECK
 	}
 	if (!readOnly) {
@@ -343,15 +341,15 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
         	            		} else if (characteristic.UUID == (new Characteristic.TimeInterval()).UUID) {
 									this.command("setTime", value + Math.trunc((new Date()).getTime()/1000), service, IDs);
 								} else if (characteristic.UUID == (new Characteristic.Hue()).UUID) {
-//							    	var rgb = homebridgeAccessory.platform.updateHomeCenterColorFromHomeKit(value, null, null, service);
-//									homebridgeAccessory.platform.syncColorCharacteristics(rgb, homebridgeAccessory, service, IDs);
+							    	var rgb = this.updateHomeCenterColorFromHomeKit(value, null, null, service);
+									this.syncColorCharacteristics(rgb, service, IDs);
 								} else if (characteristic.UUID == (new Characteristic.Saturation()).UUID) {
-//							    	var rgb = homebridgeAccessory.platform.updateHomeCenterColorFromHomeKit(null, value, null, service);
-//									homebridgeAccessory.platform.syncColorCharacteristics(rgb, homebridgeAccessory, service, IDs);
+							    	var rgb = this.updateHomeCenterColorFromHomeKit(null, value, null, service);
+									this.syncColorCharacteristics(rgb, service, IDs);
 								} else if (characteristic.UUID == (new Characteristic.Brightness()).UUID) {
 									if (service.HSBValue != null) {
-//								    	var rgb = homebridgeAccessory.platform.updateHomeCenterColorFromHomeKit(null, null, value, service);
-//										homebridgeAccessory.platform.syncColorCharacteristics(rgb, homebridgeAccessory, service, IDs);
+								    	var rgb = this.updateHomeCenterColorFromHomeKit(null, null, value, service);
+										this.syncColorCharacteristics(rgb, service, IDs);
 									} else {
 										this.command("setValue", value, service, IDs);
 									}
@@ -368,12 +366,11 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
      	            		// a push button is normally off
 					      	callback(undefined, false);
      	            	} else {
-					  		this.getAccessoryValue(callback, onOff, characteristic, IDs);
+					  		this.getAccessoryValue(callback, onOff, characteristic, service, IDs);
 						}
                    }.bind(this) );
 }
-
-FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean, characteristic, IDs) {
+FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean, characteristic, service, IDs) {
     var url = "http://"+this.host+"/api/devices/"+IDs[0];
     var that = this;
     request.get({
@@ -395,17 +392,17 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 		} else if (characteristic.UUID == (new Characteristic.TargetTemperature()).UUID) {
 	    	callback(undefined, parseFloat(json.properties.targetLevel));
 	    } else if (characteristic.UUID == (new Characteristic.Hue()).UUID) {
-//	    	var hsv = that.updateHomeKitColorFromHomeCenter(json.properties.color, service);
-//	    	callback(undefined, Math.round(hsv.h));
+	    	var hsv = that.updateHomeKitColorFromHomeCenter(json.properties.color, service);
+	    	callback(undefined, Math.round(hsv.h));
 	    } else if (characteristic.UUID == (new Characteristic.Saturation()).UUID) {
-//	    	var hsv = that.updateHomeKitColorFromHomeCenter(json.properties.color, service);
-//	    	callback(undefined, Math.round(hsv.s));
+	    	var hsv = that.updateHomeKitColorFromHomeCenter(json.properties.color, service);
+	    	callback(undefined, Math.round(hsv.s));
 		} else if (characteristic.UUID == (new Characteristic.ContactSensorState()).UUID) {
       	   	callback(undefined, json.properties.value == "true" ? 1 : 0);
 	    } else if (characteristic.UUID == (new Characteristic.Brightness()).UUID) {
 			if (service.HSBValue != null) {
-//		    	var hsv = that.updateHomeKitColorFromHomeCenter(json.properties.color, service);
-//		    	callback(undefined, Math.round(hsv.v));
+		    	var hsv = that.updateHomeKitColorFromHomeCenter(json.properties.color, service);
+		    	callback(undefined, Math.round(hsv.v));
 		    } else {
 		    	callback(undefined, parseFloat(json.properties.value));
 		    }
@@ -453,9 +450,10 @@ FibaroHC2Platform.prototype.subscribeUpdate = function(service, characteristic, 
   	this.updateSubscriptions.push({ 'id': IDs[0], 'service': service, 'characteristic': characteristic, 'onOff': onOff, "property": propertyChanged });
 }
 FibaroHC2Platform.prototype.startPollingUpdate = function() {
-	if(this.pollingUpdateRunning )
+	if(this.pollingUpdateRunning ) {
     	return;
-  	pollingUpdateRunning = true;
+    }
+  	this.pollingUpdateRunning = true;
   	
   	var updateUrl = "http://"+ this.host +"/api/refreshStates?last=" + this.lastPoll;
 	var that = this;
@@ -497,7 +495,7 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
           					for (var i=0; i < that.updateSubscriptions.length; i++) {
           						var subscription = that.updateSubscriptions[i];
           						if (subscription.id == s.id && subscription.property == "color") {
-//							    	var hsv = that.updateHomeKitColorFromHomeCenter(s.color, subscription.service);
+							    	var hsv = that.updateHomeKitColorFromHomeCenter(s.color, subscription.service);
 									if (subscription.characteristic.UUID == (new Characteristic.On()).UUID)
 	    	      						subscription.characteristic.setValue(hsv.v == 0 ? false : true, undefined, 'fromFibaro');
 									else if (subscription.characteristic.UUID == (new Characteristic.Hue()).UUID)
@@ -513,45 +511,26 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
           		}
         	}
       	} else {
-        	platform.log("There was a problem connecting with FibaroHC2.");
+        	that.log("There was a problem connecting with FibaroHC2.");
       	}
-	  	pollingUpdateRunning = false;
+	  	that.pollingUpdateRunning = false;
     	setTimeout( function() { that.startPollingUpdate()}, 2000 );
     });
 }
-
-function FibaroBridgedAccessory(services) {
-    this.services = services;
+FibaroHC2Platform.prototype.updateHomeCenterColorFromHomeKit = function(h, s, v, service) {
+	if (h != null)
+		service.HSBValue.hue = h;
+	if (s != null)
+		service.HSBValue.saturation = s;
+	if (v != null)
+		service.HSBValue.brightness = v;
+	var rgb = HSVtoRGB(service.HSBValue.hue, service.HSBValue.saturation, service.HSBValue.brightness);
+	service.RGBValue.red = rgb.r;
+	service.RGBValue.green = rgb.g;
+	service.RGBValue.blue = rgb.b;
+	return rgb;  	
 }
-
-FibaroBridgedAccessory.prototype.initAccessory = function (newAccessory) {
-	newAccessory.getService(Service.AccessoryInformation)
-                    .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
-                    .setCharacteristic(Characteristic.Model, this.model)
-                    .setCharacteristic(Characteristic.SerialNumber, this.serialNumber);
-
-  	for (var s = 0; s < this.services.length; s++) {
-		var service = this.services[s];
-		newAccessory.addService(service.controlService);
-		for (var i=0; i < service.characteristics.length; i++) {
-			var characteristic = service.controlService.getCharacteristic(service.characteristics[i]);
-			characteristic.props.needsBinding = true;
-			this.platform.bindCharacteristicEvents(characteristic, service, this);
-		}
-    }
-}
-
-
-/*FibaroHC2Platform.prototype = {
-  accessories: function(callback) {
-  },
-  getFibaroDevices: function(callback) {
-  },
-  createAccessory: function(services, that, name, currentRoomID) {
-  },
-  command: function(c,value, that, service, IDs) {
-  },
-  updateHomeKitColorFromHomeCenter: function(color, service) {
+FibaroHC2Platform.prototype.updateHomeKitColorFromHomeCenter = function(color, service) {
 	var colors = color.split(",");
 	var r = parseInt(colors[0]);
 	var g = parseInt(colors[1]);
@@ -564,68 +543,54 @@ FibaroBridgedAccessory.prototype.initAccessory = function (newAccessory) {
 	service.HSBValue.saturation = hsv.s;
 	service.HSBValue.brightness = hsv.v;
 	return hsv;  	
-  },
-  updateHomeCenterColorFromHomeKit: function(h, s, v, service) {
-	if (h != null)
-		service.HSBValue.hue = h;
-	if (s != null)
-		service.HSBValue.saturation = s;
-	if (v != null)
-		service.HSBValue.brightness = v;
-	var rgb = HSVtoRGB(service.HSBValue.hue, service.HSBValue.saturation, service.HSBValue.brightness);
-	service.RGBValue.red = rgb.r;
-	service.RGBValue.green = rgb.g;
-	service.RGBValue.blue = rgb.b;
-	return rgb;  	
-  },
-  getAccessoryValue: function(callback, returnBoolean, homebridgeAccessory, characteristic, service, IDs) {
-  },
-  getInformationService: function(homebridgeAccessory) {
-
-  },
-  syncColorCharacteristics: function(rgb, homebridgeAccessory, service, IDs) {
+}
+FibaroHC2Platform.prototype.syncColorCharacteristics = function(rgb, service, IDs) {
 	switch (--service.countColorCharacteristics) {
 		case -1:
 			service.countColorCharacteristics = 2;
+			var that = this;
 			service.timeoutIdColorCharacteristics = setTimeout(function () {
 				if (service.countColorCharacteristics < 2)
 					return;
-				homebridgeAccessory.platform.command("setR", rgb.r, homebridgeAccessory, service, IDs);
-				homebridgeAccessory.platform.command("setG", rgb.g, homebridgeAccessory, service, IDs);
-				homebridgeAccessory.platform.command("setB", rgb.b, homebridgeAccessory, service, IDs);
+				that.command("setR", rgb.r, service, IDs);
+				that.command("setG", rgb.g, service, IDs);
+				that.command("setB", rgb.b, service, IDs);
 				service.countColorCharacteristics = 0;
 				service.timeoutIdColorCharacteristics = 0;
 			}, 1000);
 			break;
 		case 0:
-			homebridgeAccessory.platform.command("setR", rgb.r, homebridgeAccessory, service, IDs);
-			homebridgeAccessory.platform.command("setG", rgb.g, homebridgeAccessory, service, IDs);
-			homebridgeAccessory.platform.command("setB", rgb.b, homebridgeAccessory, service, IDs);
+			this.command("setR", rgb.r, service, IDs);
+			this.command("setG", rgb.g, service, IDs);
+			this.command("setB", rgb.b, service, IDs);
 			service.countColorCharacteristics = 0;
 			service.timeoutIdColorCharacteristics = 0;
 			break;
 		default:
 			break;
 	}
-  },
-  bindCharacteristicEvents: function(characteristic, service, homebridgeAccessory) {
-
-  },
-  getServices: function(homebridgeAccessory) {
-
-  }  
 }
 
 
-
-function startPollingUpdate( platform )
-{
+function FibaroBridgedAccessory(services) {
+    this.services = services;
 }
+FibaroBridgedAccessory.prototype.initAccessory = function (newAccessory) {
+	newAccessory.getService(Service.AccessoryInformation)
+                    .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
+                    .setCharacteristic(Characteristic.Model, this.model)
+                    .setCharacteristic(Characteristic.SerialNumber, this.serialNumber);
 
-function subscribeUpdate(service, characteristic, accessory, onOff, propertyChanged)
-{
+  	for (var s = 0; s < this.services.length; s++) {
+		var service = this.services[s];
+		newAccessory.addService(service.controlService);
+		for (var i=0; i < service.characteristics.length; i++) {
+			var characteristic = service.controlService.getCharacteristic(service.characteristics[i]);
+			characteristic.props.needsBinding = true;
+			this.platform.bindCharacteristicEvents(characteristic, service.controlService);
+		}
+    }
 }
-
 
 function HSVtoRGB(hue, saturation, value) {
 	var h = hue/360.0;
@@ -654,7 +619,6 @@ function HSVtoRGB(hue, saturation, value) {
         b: Math.round(b * 255)
     };
 }
-
 function RGBtoHSV(r, g, b) {
     if (arguments.length === 1) {
         g = r.g, b = r.b, r = r.r;
@@ -678,4 +642,3 @@ function RGBtoHSV(r, g, b) {
         v: v * 100.0
     };
 }
-*/
