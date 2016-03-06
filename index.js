@@ -298,6 +298,7 @@ FibaroHC2Platform.prototype.configureAccessory = function(accessory) {
 		}
 	}
 	this.accessories[accessory.UUID] = accessory;
+	accessory.reachable = true;
 }
 FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, service) {
 	var onOff = characteristic.props.format == "bool" ? true : false;
