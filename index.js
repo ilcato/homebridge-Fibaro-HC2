@@ -243,13 +243,8 @@ FibaroHC2Platform.prototype.addAccessory = function(fibaroAccessory) {
 		return;
 	}
   	var newAccessory = new Accessory(fibaroAccessory.name, fibaroAccessory.uuid);
-	newAccessory.on('identify', function(paired, callback) {
-    	this.log("Identify!!!");
-    	callback();
-  	});
   	fibaroAccessory.initAccessory(newAccessory);
 	newAccessory.reachable = true;
-
 
 	this.accessories[fibaroAccessory.UUID] = fibaroAccessory;
 	this.api.registerPlatformAccessories("homebridge-fibaro-hc2", "FibaroHC2", [newAccessory]);
@@ -514,89 +509,6 @@ FibaroHC2Platform.prototype.syncColorCharacteristics = function(rgb, service, ID
 		default:
 			break;
 	}
-}
-FibaroHC2Platform.prototype.configurationRequestHandler = function(context, request, callback) {
-  console.log("Context: ", JSON.stringify(context));
-  console.log("Request: ", JSON.stringify(request));
-
-  // Check the request response
-  if (request && request.response && request.response.inputs) {
-//    this.addAccessory(request.response.inputs.name);
-
-    // Invoke callback with config will let homebridge save the new config into config.json
-    // Callback = function(response, type, replace, config)
-    // set "type" to platform if the plugin is trying to modify platforms section
-    // set "replace" to true will let homebridge replace existing config in config.json
-    // "config" is the data platform trying to save
-    if (request.response.inputs.password1 != null && request.response.inputs.password1 == request.response.inputs.password2) {
-    	this.config.password = request.response.inputs.password1;
-//	    callback(null, "platform", true, {"platform":"FibaroHC2", "otherConfig":"SomeData"});
-	    callback(null, "platform", true, this.config);
-    }
-    return;
-  }
-
-  // - UI Type: Input
-  // Can be used to request input from user
-  // User response can be retrieved from request.response.inputs next time
-  // when configurationRequestHandler being invoked
-
-  var respDict = {
-    "type": "Interface",
-    "interface": "input",
-    "title": "Add Accessory",
-    "items": [
-		{
-        	"id": "password1",
-        	"title": "Password",
-        	"placeholder": "********",
-      		"secure": true
-      	}, 
-    	{
-      		"id": "password2",
-         	"title": "Confirm new password",
-        	"placeholder": "********",
-      		"secure": true
-      	}
-    ]
-  }
-
-  // - UI Type: List
-  // Can be used to ask user to select something from the list
-  // User response can be retrieved from request.response.selections next time
-  // when configurationRequestHandler being invoked
-
-  // var respDict = {
-  //   "type": "Interface",
-  //   "interface": "list",
-  //   "title": "Select Something",
-  //   "allowMultipleSelection": true,
-  //   "items": [
-  //     "A","B","C"
-  //   ]
-  // }
-
-  // - UI Type: Instruction
-  // Can be used to ask user to do something (other than text input)
-  // Hero image is base64 encoded image data. Not really sure the maximum length HomeKit allows.
-
-  // var respDict = {
-  //   "type": "Interface",
-  //   "interface": "instruction",
-  //   "title": "Almost There",
-  //   "detail": "Please press the button on the bridge to finish the setup.",
-  //   "heroImage": "base64 image data",
-  //   "showActivityIndicator": true,
-  // "showNextButton": true,
-  // "buttonText": "Login in browser",
-  // "actionURL": "https://google.com"
-  // }
-
-  // Plugin can set context to allow it track setup process
-  context.ts = "Hello";
-
-  //invoke callback to update setup UI
-  callback(respDict);
 }
 
 function FibaroBridgedAccessory(services) {
