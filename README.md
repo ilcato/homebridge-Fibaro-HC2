@@ -8,6 +8,9 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 0.6.0
++ Migrated to the new homebridge 2.0 API
+
 Version 0.5.4
 + Added support for Forest Shuttle curtain system
 
