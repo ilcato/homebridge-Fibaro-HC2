@@ -170,7 +170,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 				service = {controlService: new Service.WindowCovering(s.name), characteristics: [Characteristic.CurrentPosition, Characteristic.TargetPosition, Characteristic.PositionState]};
 			else if (s.type == "com.fibaro.binarySwitch" || s.type == "com.fibaro.developer.bxs.virtualBinarySwitch")
 				service = {controlService: new Service.Switch(s.name), characteristics: [Characteristic.On]};
-			else if (s.type == "com.fibaro.FGMS001" || s.type == "com.fibaro.motionSensor")
+			else if (s.type.substring(0, 18) == "com.fibaro.FGMS001" || s.type == "com.fibaro.motionSensor")
 				service = {controlService: new Service.MotionSensor(s.name), characteristics: [Characteristic.MotionDetected]};
 			else if (s.type == "com.fibaro.temperatureSensor")
 				service = {controlService: new Service.TemperatureSensor(s.name), characteristics: [Characteristic.CurrentTemperature]};
