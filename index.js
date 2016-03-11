@@ -360,7 +360,7 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 				var hsv = that.updateHomeKitColorFromHomeCenter(properties.color, service);
 				callback(undefined, Math.round(hsv.s));
 			} else if (characteristic.UUID == (new Characteristic.ContactSensorState()).UUID) {
-				callback(undefined, properties.value == "true" ? 1 : 0);
+				callback(undefined, properties.value == "true" ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED);
 			} else if (characteristic.UUID == (new Characteristic.Brightness()).UUID) {
 				if (service.HSBValue != null) {
 					var hsv = that.updateHomeKitColorFromHomeCenter(properties.color, service);
