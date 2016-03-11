@@ -526,6 +526,11 @@ FibaroBridgedAccessory.prototype.initAccessory = function (newAccessory) {
 		for (var i=0; i < service.characteristics.length; i++) {
 			var characteristic = service.controlService.getCharacteristic(service.characteristics[i]);
 			characteristic.props.needsBinding = true;
+			if (characteristic.UUID == (new Characteristic.CurrentAmbientLightLevel()).UUID) {
+				characteristic.props.maxValue = 1000;
+				characteristic.props.minStep = 1;
+				characteristic.props.minValue = 1;
+			}
 			this.platform.bindCharacteristicEvents(characteristic, service.controlService);
 		}
     }
