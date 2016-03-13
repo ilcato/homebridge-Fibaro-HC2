@@ -247,6 +247,7 @@ FibaroHC2Platform.prototype.addAccessory = function(fibaroAccessory) {
 	newAccessory.reachable = true;
 
 	this.accessories[fibaroAccessory.UUID] = fibaroAccessory;
+    this.log("Adding Accessory: " + fibaroAccessory.name);
 	this.api.registerPlatformAccessories("homebridge-fibaro-hc2", "FibaroHC2", [newAccessory]);
 }
 FibaroHC2Platform.prototype.configureAccessory = function(accessory) {
@@ -268,6 +269,7 @@ FibaroHC2Platform.prototype.configureAccessory = function(accessory) {
 				this.bindCharacteristicEvents(characteristic, service);
 		}
 	}
+    this.log("Configuring Accessory: " + accessory.displayName);
 	this.accessories[accessory.UUID] = accessory;
 	accessory.reachable = true;
 }
@@ -454,7 +456,7 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
     		setTimeout( function() { that.startPollingUpdate()}, 2000 );
   		})
   		.catch(function(err, response) {
- 			that.log("Error fetching updates.");
+ 			that.log("Error fetching updates: " + err);
   		});
 }
 FibaroHC2Platform.prototype.updateHomeCenterColorFromHomeKit = function(h, s, v, service) {
