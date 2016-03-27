@@ -370,6 +370,8 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 				} else {
 					callback(undefined, parseFloat(properties.value));
 				}
+			} else if (characteristic.UUID == (new Characteristic.PositionState()).UUID) {
+				callback(undefined, Characteristic.PositionState.STOPPED);
 			} else if (returnBoolean) {
 				var v = properties.value;
 				if (v == "true" || v == "false") {
