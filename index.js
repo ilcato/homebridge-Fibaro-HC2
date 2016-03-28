@@ -372,6 +372,14 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 				}
 			} else if (characteristic.UUID == (new Characteristic.PositionState()).UUID) {
 				callback(undefined, Characteristic.PositionState.STOPPED);
+			} else if (characteristic.UUID == (new Characteristic.CurrentPosition()).UUID || characteristic.UUID == (new Characteristic.TargetPosition()).UUID) {
+				var v = parseInt(properties.value);
+				if (v >= characteristic.props.minValue && v <= characteristic.props.maxValue)
+					callback(undefined, v);
+				else {
+					that.log("There was a problem getting value for blind" + IDs[0] + ", value = " + v);
+					callback("Error value window position", null);
+				}
 			} else if (returnBoolean) {
 				var v = properties.value;
 				if (v == "true" || v == "false") {
@@ -398,7 +406,9 @@ FibaroHC2Platform.prototype.command = function(c,value, service, IDs) {
 		});
 }
 FibaroHC2Platform.prototype.subscribeUpdate = function(service, characteristic, onOff, propertyChanged) {
-// TODO: optimized management of updateSubscription data structure (no array with sequential access)
+	if (characteristic.UUID == (new Characteristic.PositionState()).UUID)
+		return;
+
 	var IDs = service.subtype.split("-"); // IDs[0] is always device ID; for virtual device IDs[1] is the button ID
   	this.updateSubscriptions.push({ 'id': IDs[0], 'service': service, 'characteristic': characteristic, 'onOff': onOff, "property": propertyChanged });
 }
@@ -429,12 +439,16 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
 									intervalValue = true;
 								if (subscription.characteristic.UUID == (new Characteristic.ContactSensorState()).UUID)
 									subscription.characteristic.setValue(value == "true" ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED, undefined, 'fromFibaro');
-								else if (s.power != undefined && powerValue)
+								else if (subscription.characteristic.UUID == (new Characteristic.CurrentPosition()).UUID || subscription.characteristic.UUID == (new Characteristic.TargetPosition()).UUID) {
+									if (value >= subscription.characteristic.props.minValue && value <= subscription.characteristic.props.maxValue)
+										subscription.characteristic.setValue(value, undefined, 'fromFibaro');
+								} else if (s.power != undefined && powerValue) {
 									subscription.characteristic.setValue(parseFloat(s.power) > 1.0 ? true : false, undefined, 'fromFibaro');
-								else if ((subscription.onOff && typeof(value) == "boolean") || !subscription.onOff)
-									subscription.characteristic.setValue(value, undefined, 'fromFibaro');
-								else
+								} else if ((subscription.onOff && typeof(value) == "boolean") || !subscription.onOff) {
+									 subscription.characteristic.setValue(value, undefined, 'fromFibaro');
+								} else {
 									subscription.characteristic.setValue(value == 0 ? false : true, undefined, 'fromFibaro');
+								}
 							}
 						}
 					}
@@ -453,7 +467,7 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
 									subscription.characteristic.setValue(Math.round(hsv.v), undefined, 'fromFibaro');
 							}
 						}
-					}
+					} 
 				});
 			}
 		  	that.pollingUpdateRunning = false;
