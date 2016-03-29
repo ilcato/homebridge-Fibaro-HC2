@@ -8,7 +8,8 @@
 //            "host": "PUT IP ADDRESS OF YOUR HC2 HERE",
 //            "username": "PUT USERNAME OF YOUR HC2 HERE",
 //            "password": "PUT PASSWORD OF YOUR HC2 HERE",
-//            "grouping": "PUT none OR room"
+//            "grouping": "PUT none OR room",
+//            "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 2 SECONDS IS THE DEFAULT"
 //     }
 // ],
 //
@@ -82,6 +83,11 @@ function FibaroHC2Platform(log, config, api){
   	this.updateSubscriptions = [];
   	this.lastPoll=0;
   	this.pollingUpdateRunning = false;
+  	this.pollerPeriod = config["pollerperiod"];
+  	if (typeof this.pollerPeriod == 'string')
+  		 this.pollerPeriod = parseInt(this.pollerPeriod);
+  	else if (this.pollerPeriod == undefined)
+  		 this.pollerPeriod = 2;
 
 	var self = this;
 	this.requestServer = http.createServer();
@@ -225,7 +231,8 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 		}
 	  });
 	}
-	this.startPollingUpdate();
+	if (this.pollerPeriod >= 1 && this.pollerPeriod <= 100)
+		this.startPollingUpdate();
 }
 FibaroHC2Platform.prototype.createAccessory = function(services, name, currentRoomID) {
 	var accessory = new FibaroBridgedAccessory(services);
@@ -471,7 +478,7 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
 				});
 			}
 		  	that.pollingUpdateRunning = false;
-    		setTimeout( function() { that.startPollingUpdate()}, 2000 );
+    		setTimeout( function() { that.startPollingUpdate()}, that.pollerPeriod * 1000);
   		})
   		.catch(function(err, response) {
  			that.log("Error fetching updates: " + err);
