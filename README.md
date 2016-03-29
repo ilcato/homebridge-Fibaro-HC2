@@ -45,6 +45,7 @@ Remember to configure the plugin in config.json in your home directory inside th
 + "username": "PUT USERNAME OF YOUR HC2 HERE",
 + "password": "PUT PASSWORD OF YOUR HC2 HERE",
 + "grouping": "PUT none OR room"
++ "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 2 SECONDS IS THE DEFAULT"
 
 Look for a sample config in [config.json example](https://github.com/ilcato/homebridge-Fibaro-HC2/blob/master/config.json)
 
