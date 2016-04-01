@@ -8,6 +8,9 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 0.6.3
++ Bug fixes in room grouping
+
 Version 0.6.2
 + Bug fixes in Windows Covering in iOs 9.3
 + Added configuration parameter "pollerperiod"
