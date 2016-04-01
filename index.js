@@ -231,6 +231,16 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 		}
 	  });
 	}
+	if (that.grouping == "room") {         	
+		if (services.length != 0) {
+			var a = that.createAccessory(services, null, currentRoomID)
+			var name = a.name;
+			var uuid = UUIDGen.generate(name);
+			if (!that.accessories[uuid]) {
+				that.addAccessory(a);
+			}
+		}
+	}
 	if (this.pollerPeriod >= 1 && this.pollerPeriod <= 100)
 		this.startPollingUpdate();
 }
