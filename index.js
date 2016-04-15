@@ -180,6 +180,8 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 				service = {controlService: new Service.MotionSensor(s.name), characteristics: [Characteristic.MotionDetected]};
 			else if (s.type == "com.fibaro.temperatureSensor")
 				service = {controlService: new Service.TemperatureSensor(s.name), characteristics: [Characteristic.CurrentTemperature]};
+			else if (s.type == "com.fibaro.humiditySensor")
+				service = {controlService: new Service.HumiditySensor(s.name), characteristics: [Characteristic.CurrentRelativeHumidity]};
 			else if (s.type == "com.fibaro.doorSensor" || s.type == "com.fibaro.windowSensor")
 				service = {controlService: new Service.ContactSensor(s.name), characteristics: [Characteristic.ContactSensorState]};
 			else if (s.type == "com.fibaro.lightSensor")
