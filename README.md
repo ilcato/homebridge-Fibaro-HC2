@@ -9,6 +9,9 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     
 # Release notes
 Version 0.6.4
++ Fixed bug in contact sensors detection
+
+Version 0.6.4
 + Added support for Humidity sensors
 
 Version 0.6.3
