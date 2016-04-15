@@ -11,7 +11,6 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
 Version 0.6.4
 + Added support for Humidity sensors
 
-# Release notes
 Version 0.6.3
 + Bug fixes in room grouping
 
