@@ -8,7 +8,7 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
-Version 0.6.4
+Version 0.6.5
 + Fixed bug in contact sensors detection
 
 Version 0.6.4
