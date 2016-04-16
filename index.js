@@ -188,6 +188,8 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 				service = {controlService: new Service.LightSensor(s.name), characteristics: [Characteristic.CurrentAmbientLightLevel]};
 			else if (s.type == "com.fibaro.FGWP101")
 				service = {controlService: new Service.Outlet(s.name), characteristics: [Characteristic.On, Characteristic.OutletInUse]};
+			else if (s.type == "com.fibaro.doorLock")
+				service = {controlService: new Service.LockMechanism(s.name), characteristics: [Characteristic.LockCurrentState, Characteristic.LockTargetState]};
 			else if (s.type == "com.fibaro.thermostatDanfoss" || s.type == "com.fibaro.thermostatHorstmann")
 				service = {controlService: new Service.DanfossRadiatorThermostat(s.name), characteristics: [Characteristic.CurrentTemperature, Characteristic.TargetTemperature, Characteristic.TimeInterval]};
 			else if (s.type == "virtual_device") {
@@ -332,6 +334,9 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
 					}, 100 );
 				} else if (characteristic.UUID == (new Characteristic.TimeInterval()).UUID) {
 					this.command("setTime", value + Math.trunc((new Date()).getTime()/1000), service, IDs);
+				} else if (characteristic.UUID == (new Characteristic.LockTargetState()).UUID) {
+					var action = value == Characteristic.LockTargetState.UNSECURED ? "unsecure" : "secure";
+					this.command(action, 0, service, IDs);
 				} else if (characteristic.UUID == (new Characteristic.Hue()).UUID) {
 					var rgb = this.updateHomeCenterColorFromHomeKit(value, null, null, service);
 					this.syncColorCharacteristics(rgb, service, IDs);
@@ -391,6 +396,8 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 				}
 			} else if (characteristic.UUID == (new Characteristic.PositionState()).UUID) {
 				callback(undefined, Characteristic.PositionState.STOPPED);
+			} else if (characteristic.UUID == (new Characteristic.LockCurrentState()).UUID || characteristic.UUID == (new Characteristic.LockTargetState()).UUID) {
+				callback(undefined, properties.value == "true" ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
 			} else if (characteristic.UUID == (new Characteristic.CurrentPosition()).UUID || characteristic.UUID == (new Characteristic.TargetPosition()).UUID) {
 				var v = parseInt(properties.value);
 				if (v >= characteristic.props.minValue && v <= characteristic.props.maxValue)
@@ -458,6 +465,8 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
 									intervalValue = true;
 								if (subscription.characteristic.UUID == (new Characteristic.ContactSensorState()).UUID)
 									subscription.characteristic.setValue(value == true ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED, undefined, 'fromFibaro');
+								else if (subscription.characteristic.UUID == (new Characteristic.LockCurrentState()).UUID || subscription.characteristic.UUID == (new Characteristic.LockTargetState()).UUID)
+									subscription.characteristic.setValue(value == true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED, undefined, 'fromFibaro');
 								else if (subscription.characteristic.UUID == (new Characteristic.CurrentPosition()).UUID || subscription.characteristic.UUID == (new Characteristic.TargetPosition()).UUID) {
 									if (value >= subscription.characteristic.props.minValue && value <= subscription.characteristic.props.maxValue)
 										subscription.characteristic.setValue(value, undefined, 'fromFibaro');
