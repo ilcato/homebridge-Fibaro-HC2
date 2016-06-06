@@ -153,9 +153,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 				if (s.roomID != currentRoomID) {
 					if (services.length != 0) {
 						var a = that.createAccessory(services, null, currentRoomID)
-						var name = a.name;
-						var uuid = UUIDGen.generate(name);
-						if (!that.accessories[uuid]) {
+						if (!that.accessories[a.uuid]) {
 							that.addAccessory(a);
 						}
 						services = [];
@@ -207,10 +205,8 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 						}
 					} 
 				}
-				var fa = that.createAccessory(pushButtonServices, s.name, null)
-				var name = fa.name;
-				var uuid = UUIDGen.generate(name);
-				if (!that.accessories[uuid]) {
+				var fa = that.createAccessory(pushButtonServices, s.name, currentRoomID)
+				if (!that.accessories[fa.uuid]) {
 					that.addAccessory(fa);
 				}
 			}
@@ -224,9 +220,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 			if (that.grouping == "none") {         	
 				if (services.length != 0) {
 					var a = that.createAccessory(services, s.name, currentRoomID)
-					var name = a.name;
-					var uuid = UUIDGen.generate(name);
-					if (!that.accessories[uuid]) {
+					if (!that.accessories[a.uuid]) {
 						that.addAccessory(a);
 					}
 					services = [];
@@ -238,9 +232,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 	if (that.grouping == "room") {         	
 		if (services.length != 0) {
 			var a = that.createAccessory(services, null, currentRoomID)
-			var name = a.name;
-			var uuid = UUIDGen.generate(name);
-			if (!that.accessories[uuid]) {
+			if (!that.accessories[a.uuid]) {
 				that.addAccessory(a);
 			}
 		}
@@ -252,7 +244,7 @@ FibaroHC2Platform.prototype.createAccessory = function(services, name, currentRo
 	var accessory = new FibaroBridgedAccessory(services);
 	accessory.platform 			= this;
 	accessory.name				= (name) ? name : this.rooms[currentRoomID] + "-Devices";
-	accessory.uuid 				= UUIDGen.generate(accessory.name);
+	accessory.uuid 				= UUIDGen.generate(accessory.name + currentRoomID);
 	accessory.model				= "HomeCenterBridgedAccessory";
 	accessory.manufacturer		= "IlCato";
 	accessory.serialNumber		= "<unknown>";
