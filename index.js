@@ -205,7 +205,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 						}
 					} 
 				}
-				var fa = that.createAccessory(pushButtonServices, s.name, currentRoomID)
+				var fa = that.createAccessory(pushButtonServices, s.name, s.roomID)
 				if (!that.accessories[fa.uuid]) {
 					that.addAccessory(fa);
 				}
@@ -219,7 +219,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 			}
 			if (that.grouping == "none") {         	
 				if (services.length != 0) {
-					var a = that.createAccessory(services, s.name, currentRoomID)
+					var a = that.createAccessory(services, s.name, s.roomID)
 					if (!that.accessories[a.uuid]) {
 						that.addAccessory(a);
 					}
