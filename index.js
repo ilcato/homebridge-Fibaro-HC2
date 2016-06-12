@@ -238,8 +238,8 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 			}
 		}
 	}
-	if (this.pollerPeriod >= 1 && this.pollerPeriod <= 100)
-		this.startPollingUpdate();
+//	if (this.pollerPeriod >= 1 && this.pollerPeriod <= 100)
+//		this.startPollingUpdate();
 }
 FibaroHC2Platform.prototype.createAccessory = function(services, name, currentRoomID) {
 	this.log("Creating accessory: " + name);
