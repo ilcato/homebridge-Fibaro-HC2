@@ -79,6 +79,9 @@ function FibaroHC2Platform(log, config, api){
   	this.log = log;
   	this.fibaroClient = require('./lib/fibaro-api').createClient(config["host"], config["username"], config["password"]);
   	this.grouping = config["grouping"];
+  	if (this.grouping == undefined) {
+		this.grouping = "none"
+  	}
   	this.rooms = {};
   	this.updateSubscriptions = [];
   	this.lastPoll=0;
