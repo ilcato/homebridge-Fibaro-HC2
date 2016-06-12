@@ -149,6 +149,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 	  var that = this;
 	  devices.map(function(s, i, a) {
 		if (s.visible == true && s.name.charAt(0) != "_") {
+			that.log("Fetched device: " + s.name);
 			if (that.grouping == "room") {         	
 				if (s.roomID != currentRoomID) {
 					if (services.length != 0) {
@@ -241,6 +242,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 		this.startPollingUpdate();
 }
 FibaroHC2Platform.prototype.createAccessory = function(services, name, currentRoomID) {
+	this.log("Creating accessory: " + name);
 	var accessory = new FibaroBridgedAccessory(services);
 	accessory.platform 			= this;
 	accessory.name				= (name) ? name : this.rooms[currentRoomID] + "-Devices";
