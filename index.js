@@ -212,16 +212,21 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 				}
 			}
 			if (service != null) {
+				that.log("Test 0 device: " + s.name);
 				if (service.controlService.subtype == undefined)
 					service.controlService.subtype = "";
 				service.controlService.subtype = s.id + "--" + service.controlService.subtype; // "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
 				services.push(service);
 				service = null;
 			}
+			that.log("Test 1 device: " + s.name);
 			if (that.grouping == "none") {         	
+				that.log("Test 2 device: " + s.name);
 				if (services.length != 0) {
+					that.log("Test 3 device: " + s.name);
 					var a = that.createAccessory(services, s.name, s.roomID)
 					if (!that.accessories[a.uuid]) {
+						that.log("Test 4 device: " + s.name);
 						that.addAccessory(a);
 					}
 					services = [];
