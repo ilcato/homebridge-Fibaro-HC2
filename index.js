@@ -90,7 +90,7 @@ function FibaroHC2Platform(log, config, api){
   	if (typeof this.pollerPeriod == 'string')
   		 this.pollerPeriod = parseInt(this.pollerPeriod);
   	else if (this.pollerPeriod == undefined)
-  		 this.pollerPeriod = 2;
+  		 this.pollerPeriod = 5;
 
 	var self = this;
 	this.requestServer = http.createServer();
@@ -152,7 +152,6 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 	  var that = this;
 	  devices.map(function(s, i, a) {
 		if (s.visible == true && s.name.charAt(0) != "_") {
-			that.log("Fetched device: " + s.name);
 			if (that.grouping == "room") {         	
 				if (s.roomID != currentRoomID) {
 					if (services.length != 0) {
@@ -215,21 +214,16 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 				}
 			}
 			if (service != null) {
-				that.log("Test 0 device: " + s.name);
 				if (service.controlService.subtype == undefined)
 					service.controlService.subtype = "";
 				service.controlService.subtype = s.id + "--" + service.controlService.subtype; // "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
 				services.push(service);
 				service = null;
 			}
-			that.log("Test 1 device: " + s.name);
 			if (that.grouping == "none") {         	
-				that.log("Test 2 device: " + s.name);
 				if (services.length != 0) {
-					that.log("Test 3 device: " + s.name);
 					var a = that.createAccessory(services, s.name, s.roomID)
 					if (!that.accessories[a.uuid]) {
-						that.log("Test 4 device: " + s.name);
 						that.addAccessory(a);
 					}
 					services = [];
@@ -246,11 +240,10 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 			}
 		}
 	}
-//	if (this.pollerPeriod >= 1 && this.pollerPeriod <= 100)
-//		this.startPollingUpdate();
+	if (this.pollerPeriod >= 1 && this.pollerPeriod <= 100)
+		this.startPollingUpdate();
 }
 FibaroHC2Platform.prototype.createAccessory = function(services, name, currentRoomID) {
-	this.log("Creating accessory: " + name);
 	var accessory = new FibaroBridgedAccessory(services);
 	accessory.platform 			= this;
 	accessory.name				= (name) ? name : this.rooms[currentRoomID] + "-Devices";
