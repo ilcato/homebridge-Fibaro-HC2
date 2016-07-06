@@ -8,6 +8,10 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 0.6.7
++ Fixed contact sensor status detection
++ Fixed management of multiple devices with the same name
+
 Version 0.6.6
 + Added support for Door Locks (tested on Danalock and Yale devices)
 
