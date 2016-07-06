@@ -9,7 +9,7 @@
 //            "username": "PUT USERNAME OF YOUR HC2 HERE",
 //            "password": "PUT PASSWORD OF YOUR HC2 HERE",
 //            "grouping": "PUT none OR room",
-//            "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 2 SECONDS IS THE DEFAULT"
+//            "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 5 SECONDS IS THE DEFAULT"
 //     }
 // ],
 //
@@ -381,7 +381,7 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 				var hsv = that.updateHomeKitColorFromHomeCenter(properties.color, service);
 				callback(undefined, Math.round(hsv.s));
 			} else if (characteristic.UUID == (new Characteristic.ContactSensorState()).UUID) {
-				callback(undefined, properties.value == "true" ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED);
+				callback(undefined, properties.value == "false" ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED);
 			} else if (characteristic.UUID == (new Characteristic.Brightness()).UUID) {
 				if (service.HSBValue != null) {
 					var hsv = that.updateHomeKitColorFromHomeCenter(properties.color, service);
