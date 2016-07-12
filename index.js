@@ -463,10 +463,14 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
 								else if (subscription.characteristic.UUID == (new Characteristic.LockCurrentState()).UUID || subscription.characteristic.UUID == (new Characteristic.LockTargetState()).UUID)
 									subscription.characteristic.setValue(value == true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED, undefined, 'fromFibaro');
 								else if (subscription.characteristic.UUID == (new Characteristic.CurrentPosition()).UUID || subscription.characteristic.UUID == (new Characteristic.TargetPosition()).UUID) {
-									if (value >= subscription.characteristic.props.minValue && value <= subscription.characteristic.props.maxValue)
+									if (value >= subscription.characteristic.props.minValue && value <= subscription.characteristic.props.maxValue) {
 										subscription.characteristic.setValue(value, undefined, 'fromFibaro');
+									}
 								} else if (s.power != undefined && powerValue) {
 									subscription.characteristic.setValue(parseFloat(s.power) > 1.0 ? true : false, undefined, 'fromFibaro');
+								} else if (subscription.characteristic.UUID == (new Characteristic.Brightness()).UUID) {
+									 if (value == 99) value = 100;								
+									 subscription.characteristic.setValue(value, undefined, 'fromFibaro');
 								} else if ((subscription.onOff && typeof(value) == "boolean") || !subscription.onOff) {
 									 subscription.characteristic.setValue(value, undefined, 'fromFibaro');
 								} else {
