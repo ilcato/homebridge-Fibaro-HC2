@@ -181,6 +181,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 				
 				switch (s.properties.deviceControlType) {
 				case "2": // Lighting
+				case "5": // Bedside Lamp
 				case "7": // Wall Lamp
 					controlService = new Service.Lightbulb(s.name);
 					break;
