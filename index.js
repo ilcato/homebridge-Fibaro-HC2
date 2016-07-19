@@ -175,9 +175,22 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 				service.controlService.subtype = "RGB"; // for RGB color add a subtype parameter; it will go into 3rd position: "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
 			} else if (s.type == "com.fibaro.FGRM222" || s.type == "com.fibaro.FGR221" || s.type == "com.fibaro.rollerShutter")
 				service = {controlService: new Service.WindowCovering(s.name), characteristics: [Characteristic.CurrentPosition, Characteristic.TargetPosition, Characteristic.PositionState]};
-			else if (s.type == "com.fibaro.binarySwitch" || s.type == "com.fibaro.developer.bxs.virtualBinarySwitch")
-				service = {controlService: new Service.Switch(s.name), characteristics: [Characteristic.On]};
-			else if (s.type.substring(0, 18) == "com.fibaro.FGMS001" || s.type == "com.fibaro.motionSensor")
+			else if (s.type == "com.fibaro.binarySwitch" || s.type == "com.fibaro.developer.bxs.virtualBinarySwitch") {
+				
+				var controlService;
+				
+				switch (s.properties.deviceControlType) {
+				case "2": // Lighting
+				case "7": // Wall Lamp
+					controlService = new Service.Lightbulb(s.name);
+					break;
+				default:
+					controlService = new Service.Switch(s.name)
+					break;
+				}
+				
+				service = {controlService: controlService, characteristics: [Characteristic.On]};
+			} else if (s.type.substring(0, 18) == "com.fibaro.FGMS001" || s.type == "com.fibaro.motionSensor")
 				service = {controlService: new Service.MotionSensor(s.name), characteristics: [Characteristic.MotionDetected]};
 			else if (s.type == "com.fibaro.temperatureSensor")
 				service = {controlService: new Service.TemperatureSensor(s.name), characteristics: [Characteristic.CurrentTemperature]};
