@@ -328,8 +328,7 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
 						characteristic.setValue(false, undefined, 'fromSetValue');
 					}, 100 );
 				} else if (characteristic.UUID == (new Characteristic.On()).UUID) {
-					if (characteristic.value == true && value == 0 || characteristic.value == false && value == 1)
-						this.command(value == 0 ? "turnOff": "turnOn", null, service, IDs);
+					this.command(value == 0 ? "turnOff": "turnOn", null, service, IDs);
 				} else if (characteristic.UUID == (new Characteristic.TargetTemperature()).UUID) {
 					if (Math.abs(value - characteristic.value) >= 0.5) {
 						value = parseFloat( (Math.round(value / 0.5) * 0.5).toFixed(1) );
@@ -358,17 +357,7 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
 						var rgb = this.updateHomeCenterColorFromHomeKit(null, null, value, service);
 						this.syncColorCharacteristics(rgb, service, IDs);
 					} else {
-						this.log("Brightness target value: " + value);
-						service.targetBrightness = value;
-						if (!service.timeout) {
-							this.command("setValue", service.targetBrightness, service, IDs);
-							service.timeout = setTimeout( 
-								function() {
-									this.command("setValue", service.targetBrightness, service, IDs);
-									service.timeout = null;
-								}.bind(this)
-							, 500);
-						}
+						this.command("setValue", value, service, IDs);
 					}
 				} else {
 					this.command("setValue", value, service, IDs);
@@ -495,12 +484,8 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
 								} else if (s.power != undefined && powerValue) {
 									subscription.characteristic.setValue(parseFloat(s.power) > 1.0 ? true : false, undefined, 'fromFibaro');
 								} else if (subscription.characteristic.UUID == (new Characteristic.Brightness()).UUID) {
-									that.log("Brightness read value: " + value);
-
-									if (!subscription.service.timeout) {
-										if (value == 99) value = 100;								
-									 	subscription.characteristic.setValue(value, undefined, 'fromFibaro');
-									}
+									 if (value == 99) value = 100;								
+									 subscription.characteristic.setValue(value, undefined, 'fromFibaro');
 								} else if ((subscription.onOff && typeof(value) == "boolean") || !subscription.onOff) {
 									 subscription.characteristic.setValue(value, undefined, 'fromFibaro');
 								} else {
