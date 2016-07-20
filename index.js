@@ -176,9 +176,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 			} else if (s.type == "com.fibaro.FGRM222" || s.type == "com.fibaro.FGR221" || s.type == "com.fibaro.rollerShutter")
 				service = {controlService: new Service.WindowCovering(s.name), characteristics: [Characteristic.CurrentPosition, Characteristic.TargetPosition, Characteristic.PositionState]};
 			else if (s.type == "com.fibaro.binarySwitch" || s.type == "com.fibaro.developer.bxs.virtualBinarySwitch") {
-				
 				var controlService;
-				
 				switch (s.properties.deviceControlType) {
 				case "2": // Lighting
 				case "5": // Bedside Lamp
@@ -189,8 +187,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 					controlService = new Service.Switch(s.name)
 					break;
 				}
-				
-				service = {controlService: controlService, characteristics: [Characteristic.On]};
+				service = {controlService: controlService, characteristics: [Characteristic.On]};			
 			} else if (s.type.substring(0, 18) == "com.fibaro.FGMS001" || s.type == "com.fibaro.motionSensor")
 				service = {controlService: new Service.MotionSensor(s.name), characteristics: [Characteristic.MotionDetected]};
 			else if (s.type == "com.fibaro.temperatureSensor")
@@ -328,7 +325,8 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
 						characteristic.setValue(false, undefined, 'fromSetValue');
 					}, 100 );
 				} else if (characteristic.UUID == (new Characteristic.On()).UUID) {
-					this.command(value == 0 ? "turnOff": "turnOn", null, service, IDs);
+					if (characteristic.value == true && value == 0 || characteristic.value == false && value == 1)
+						this.command(value == 0 ? "turnOff": "turnOn", null, service, IDs);
 				} else if (characteristic.UUID == (new Characteristic.TargetTemperature()).UUID) {
 					if (Math.abs(value - characteristic.value) >= 0.5) {
 						value = parseFloat( (Math.round(value / 0.5) * 0.5).toFixed(1) );
@@ -401,7 +399,7 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 					var hsv = that.updateHomeKitColorFromHomeCenter(properties.color, service);
 					callback(undefined, Math.round(hsv.v));
 				} else {
-					if (properties.value == 99) properties.value = 100;								
+					if (properties.value == 99) properties.value = 100;
 					callback(undefined, parseFloat(properties.value));
 				}
 			} else if (characteristic.UUID == (new Characteristic.PositionState()).UUID) {
