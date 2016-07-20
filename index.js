@@ -9,7 +9,8 @@
 //            "username": "PUT USERNAME OF YOUR HC2 HERE",
 //            "password": "PUT PASSWORD OF YOUR HC2 HERE",
 //            "grouping": "PUT none OR room",
-//            "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 5 SECONDS IS THE DEFAULT"
+//            "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 5 SECONDS IS THE DEFAULT",
+//            "brightnesstimeout": "PUT THE NUMBER OF MILLISECONDS FOR THE BRIGTHNESS TIME OUT FILTER. 500 MILLISECONDS IS THE DEFAULT"
 //     }
 // ],
 //
@@ -91,7 +92,12 @@ function FibaroHC2Platform(log, config, api){
   		 this.pollerPeriod = parseInt(this.pollerPeriod);
   	else if (this.pollerPeriod == undefined)
   		 this.pollerPeriod = 5;
-
+	this.brightnesstimeout = config["brightnesstimeout"];
+  	if (typeof this.brightnesstimeout == 'string')
+  		 this.brightnesstimeout = parseInt(this.brightnesstimeout);
+  	else if (this.brightnesstimeout == undefined)
+  		 this.brightnesstimeout = 500;
+	
 	var self = this;
 	this.requestServer = http.createServer();
 	this.requestServer.on('error', function(err) {
@@ -358,7 +364,7 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
 						var rgb = this.updateHomeCenterColorFromHomeKit(null, null, value, service);
 						this.syncColorCharacteristics(rgb, service, IDs);
 					} else {
-						this.log("Brightness target value: " + value);
+//						this.log("Brightness target value: " + value);
 						service.targetBrightness = value;
 						if (!service.timeout) {
 							this.command("setValue", service.targetBrightness, service, IDs);
@@ -367,7 +373,7 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
 									this.command("setValue", service.targetBrightness, service, IDs);
 									service.timeout = null;
 								}.bind(this)
-							, 500);
+							, this.brightnesstimeout);
 						}
 					}
 				} else {
@@ -495,7 +501,7 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
 								} else if (s.power != undefined && powerValue) {
 									subscription.characteristic.setValue(parseFloat(s.power) > 1.0 ? true : false, undefined, 'fromFibaro');
 								} else if (subscription.characteristic.UUID == (new Characteristic.Brightness()).UUID) {
-									that.log("Brightness read value: " + value);
+//									that.log("Brightness read value: " + value);
 
 									if (!subscription.service.timeout) {
 										if (value == 99) value = 100;								
