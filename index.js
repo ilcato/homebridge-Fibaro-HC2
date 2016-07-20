@@ -412,6 +412,7 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 					var hsv = that.updateHomeKitColorFromHomeCenter(properties.color, service);
 					callback(undefined, Math.round(hsv.v));
 				} else {
+					if (properties.value == 99) properties.value = 100;								
 					callback(undefined, parseFloat(properties.value));
 				}
 			} else if (characteristic.UUID == (new Characteristic.PositionState()).UUID) {
