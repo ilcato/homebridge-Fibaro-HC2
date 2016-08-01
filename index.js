@@ -196,6 +196,8 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 				service = {controlService: new Service.HumiditySensor(s.name), characteristics: [Characteristic.CurrentRelativeHumidity]};
 			else if (s.type == "com.fibaro.doorSensor" || s.type == "com.fibaro.windowSensor")
 				service = {controlService: new Service.ContactSensor(s.name), characteristics: [Characteristic.ContactSensorState]};
+			else if (s.type == "com.fibaro.FGFS101" || s.type == "com.fibaro.floodSensor")
+				service = {controlService: new Service.LeakSensor(s.name), characteristics: [Characteristic.LeakDetected]};
 			else if (s.type == "com.fibaro.lightSensor")
 				service = {controlService: new Service.LightSensor(s.name), characteristics: [Characteristic.CurrentAmbientLightLevel]};
 			else if (s.type == "com.fibaro.FGWP101")
@@ -394,6 +396,8 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 				callback(undefined, Math.round(hsv.s));
 			} else if (characteristic.UUID == (new Characteristic.ContactSensorState()).UUID) {
 				callback(undefined, properties.value == "false" ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED);
+			} else if (characteristic.UUID == (new Characteristic.LeakDetected()).UUID) {
+				callback(undefined, properties.value == "true" ? Characteristic.LeakDetected.LEAK_DETECTED : Characteristic.LeakDetected.LEAK_NOT_DETECTED);
 			} else if (characteristic.UUID == (new Characteristic.Brightness()).UUID) {
 				if (service.HSBValue != null) {
 					var hsv = that.updateHomeKitColorFromHomeCenter(properties.color, service);
@@ -473,6 +477,8 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
 									intervalValue = true;
 								if (subscription.characteristic.UUID == (new Characteristic.ContactSensorState()).UUID)
 									subscription.characteristic.setValue(value == true ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED, undefined, 'fromFibaro');
+								else if (subscription.characteristic.UUID == (new Characteristic.LeakDetected()).UUID)
+									subscription.characteristic.setValue(value == true ? Characteristic.LeakDetected.LEAK_DETECTED : Characteristic.LeakDetected.LEAK_NOT_DETECTED, undefined, 'fromFibaro');
 								else if (subscription.characteristic.UUID == (new Characteristic.LockCurrentState()).UUID || subscription.characteristic.UUID == (new Characteristic.LockTargetState()).UUID)
 									subscription.characteristic.setValue(value == true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED, undefined, 'fromFibaro');
 								else if (subscription.characteristic.UUID == (new Characteristic.CurrentPosition()).UUID || subscription.characteristic.UUID == (new Characteristic.TargetPosition()).UUID) {
