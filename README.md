@@ -8,6 +8,11 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 0.6.8
++ Added new type definition for Fibaro Dimmer 2
++ Managed remapping of 99% to 100% between homekit and Home Center
++ Managed automatic setting of manage devices for relay associated to lights
+
 Version 0.6.7
 + Fixed contact sensor status detection
 + Fixed management of multiple devices with the same name
