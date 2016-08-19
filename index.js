@@ -164,7 +164,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 					currentRoomID = s.roomID;
 				}
 			}
-			if (s.type == "com.fibaro.multilevelSwitch")
+			if (s.type == "com.fibaro.multilevelSwitch" || s.type == "com.fibaro.FGD212")
 				service = {controlService: new Service.Lightbulb(s.name), characteristics: [Characteristic.On, Characteristic.Brightness]};
 			else if (s.type == "com.fibaro.FGRGBW441M" || s.type == "com.fibaro.colorController") {
 				service = {controlService: new Service.Lightbulb(s.name), characteristics: [Characteristic.On, Characteristic.Brightness, Characteristic.Hue, Characteristic.Saturation]};
