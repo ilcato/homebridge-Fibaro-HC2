@@ -412,9 +412,10 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 				callback(undefined, properties.value == "true" ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED);
 			} else if (characteristic.UUID == (new Characteristic.CurrentPosition()).UUID || characteristic.UUID == (new Characteristic.TargetPosition()).UUID) {
 				var v = parseInt(properties.value);
-				if (v >= characteristic.props.minValue && v <= characteristic.props.maxValue)
+				if (v >= characteristic.props.minValue && v <= characteristic.props.maxValue) {
+					if (v == 99) v = 100;
 					callback(undefined, v);
-				else {
+				} else {
 					that.log("There was a problem getting value for blind" + IDs[0] + ", value = " + v);
 					callback("Error value window position", null);
 				}
@@ -483,6 +484,7 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
 									subscription.characteristic.setValue(value == true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED, undefined, 'fromFibaro');
 								else if (subscription.characteristic.UUID == (new Characteristic.CurrentPosition()).UUID || subscription.characteristic.UUID == (new Characteristic.TargetPosition()).UUID) {
 									if (value >= subscription.characteristic.props.minValue && value <= subscription.characteristic.props.maxValue) {
+										if (value == 99) value = 100;
 										subscription.characteristic.setValue(value, undefined, 'fromFibaro');
 									}
 								} else if (s.power != undefined && powerValue) {
