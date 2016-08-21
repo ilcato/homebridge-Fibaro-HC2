@@ -1,4 +1,4 @@
-# homebridge-Fibaro-HC2
+# homebridge-Fibaro-HC2 [![npm version](https://badge.fury.io/js/homebridge-fibaro-hc2.svg)](https://badge.fury.io/js/homebridge-fibaro-hc2)
 Homebridge plugin for Fibaro Home Center 2
 
 # Installation
