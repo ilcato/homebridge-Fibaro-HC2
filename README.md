@@ -1,4 +1,4 @@
-# homebridge-Fibaro-HC2
+# homebridge-Fibaro-HC2 [![npm version](https://badge.fury.io/js/homebridge-fibaro-hc2.svg)](https://badge.fury.io/js/homebridge-fibaro-hc2)
 Homebridge plugin for Fibaro Home Center 2
 
 # Installation
@@ -8,6 +8,10 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 0.6.9
++ Added support for flood/leak sensors (thanks to leoneleone)
++ Managed remapping of 99% to 100% between homekit and Home Center also for blinds (thanks ryanmaxwell)
+
 Version 0.6.8
 + Added new type definition for Fibaro Dimmer 2
 + Managed remapping of 99% to 100% between homekit and Home Center
