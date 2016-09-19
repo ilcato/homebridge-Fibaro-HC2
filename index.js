@@ -477,7 +477,7 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
 								if (subscription.characteristic.UUID == (new Characteristic.TimeInterval()).UUID)
 									intervalValue = true;
 								if (subscription.characteristic.UUID == (new Characteristic.ContactSensorState()).UUID)
-									subscription.characteristic.setValue(value == true ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED, undefined, 'fromFibaro');
+									subscription.characteristic.setValue(value == false ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED, undefined, 'fromFibaro');
 								else if (subscription.characteristic.UUID == (new Characteristic.LeakDetected()).UUID)
 									subscription.characteristic.setValue(value == true ? Characteristic.LeakDetected.LEAK_DETECTED : Characteristic.LeakDetected.LEAK_NOT_DETECTED, undefined, 'fromFibaro');
 								else if (subscription.characteristic.UUID == (new Characteristic.LockCurrentState()).UUID || subscription.characteristic.UUID == (new Characteristic.LockTargetState()).UUID)

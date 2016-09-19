@@ -8,6 +8,9 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 0.7.0
++ Fixed bug in managing door/window sensor automatic status update
+
 Version 0.6.9
 + Added support for flood/leak sensors (thanks to leoneleone)
 + Managed remapping of 99% to 100% between homekit and Home Center also for blinds (thanks ryanmaxwell)
