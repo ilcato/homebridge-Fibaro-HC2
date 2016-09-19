@@ -9,6 +9,7 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     
 # Release notes
 Version 0.7.0
++ Managed negative value for temperature sensors
 + Fixed bug in managing door/window sensor automatic status update
 
 Version 0.6.9
