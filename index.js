@@ -522,7 +522,7 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
     		setTimeout( function() { that.startPollingUpdate()}, that.pollerPeriod * 1000);
   		})
   		.catch(function(err, response) {
- 			that.log("Error fetching updates: " + err);
+ 			that.log("Error fetching updates: " + err + response);
   		});
 }
 FibaroHC2Platform.prototype.updateHomeCenterColorFromHomeKit = function(h, s, v, service) {
