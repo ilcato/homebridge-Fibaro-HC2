@@ -473,7 +473,7 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 			}
 		})
 		.catch(function(err, response) {
-			that.log("There was a problem getting value from" + IDs[0] + "-" + err);
+			that.log("There was a problem getting value from: " + IDs[0] + " - Err: " + err + " - Response: " + response);
 		});
 }
 FibaroHC2Platform.prototype.command = function(c,value, service, IDs) {
@@ -620,34 +620,6 @@ FibaroHC2Platform.prototype.syncColorCharacteristics = function(rgb, service, ID
 			break;
 	}
 }
-
-function FibaroBridgedAccessory(services) {
-    this.services = services;
-}
-// FibaroBridgedAccessory.prototype.initAccessory = function (newAccessory) {
-// 	newAccessory.getService(Service.AccessoryInformation)
-//                     .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
-//                     .setCharacteristic(Characteristic.Model, this.model)
-//                     .setCharacteristic(Characteristic.SerialNumber, this.serialNumber);
-// 
-//   	for (var s = 0; s < this.services.length; s++) {
-// 		var service = this.services[s];
-// 		newAccessory.addService(service.controlService);
-// 		for (var i=0; i < service.characteristics.length; i++) {
-// 			var characteristic = service.controlService.getCharacteristic(service.characteristics[i]);
-// 			characteristic.props.needsBinding = true;
-// 			if (characteristic.UUID == (new Characteristic.CurrentAmbientLightLevel()).UUID) {
-// 				characteristic.props.maxValue = 1000;
-// 				characteristic.props.minStep = 1;
-// 				characteristic.props.minValue = 1;
-// 			}
-// 			if (characteristic.UUID == (new Characteristic.CurrentTemperature()).UUID) {
-// 				characteristic.props.minValue = -50;
-// 			}
-// 			this.platform.bindCharacteristicEvents(characteristic, service.controlService);
-// 		}
-//     }
-// }
 
 function HSVtoRGB(hue, saturation, value) {
 	var h = hue/360.0;
