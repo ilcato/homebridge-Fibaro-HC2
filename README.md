@@ -8,6 +8,11 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 1.0.0
++ Managed automatic update of the additions, deletions and changes of Home Center devices into HomeBridge: simply restart HomeBridge every time you make a change in HomeCenter
+	This is the first (maybe the last) production ready version of the plugin.
+	If an existing installation of the plugin exists you MUST delete the accessories folder within the .homebridge folder. This will invalidate existing homekit scenes or triggers that MUST be recreated
+
 Version 0.7.0
 + Managed negative value for temperature sensors
 + Fixed bug in managing door/window sensor automatic status update
