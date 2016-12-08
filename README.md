@@ -8,6 +8,9 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 1.0.1
++ Managed the case of Virtual Devices without any buttons in it: no accessory creation
+
 Version 1.0.0
 + Managed automatic update of the additions, deletions and changes of Home Center devices into HomeBridge: simply restart HomeBridge every time you make a change in Home Center.  
 This is the first (maybe the last) production ready version of the plugin.  
