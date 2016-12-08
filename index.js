@@ -216,7 +216,9 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 						}
 					} 
 				}
-				that.addAccessory(pushButtonServices, s.name, s.roomID, s.ID)
+				if (pushButtonServices.length > 0) {
+					that.addAccessory(pushButtonServices, s.name, s.roomID, s.ID)
+				}
 			}
 			if (service != null) {
 				if (service.controlService.subtype == undefined)
