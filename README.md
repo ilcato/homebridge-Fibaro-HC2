@@ -10,6 +10,7 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
 # Release notes
 Version 1.0.2
 + Managed danalock correctly
++ Added support for new Fibaro wall plug
 
 Version 1.0.1
 + Managed the case of Virtual Devices without any buttons in it: no accessory creation
