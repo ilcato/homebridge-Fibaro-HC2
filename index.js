@@ -297,7 +297,7 @@ FibaroHC2Platform.prototype.addAccessory = function(services, name, currentRoomI
 				if (characteristic.UUID == (new Characteristic.CurrentAmbientLightLevel()).UUID) {
 					characteristic.props.maxValue = 1000;
 					characteristic.props.minStep = 1;
-					characteristic.props.minValue = 1;
+					characteristic.props.minValue = 0;
 				}
 				if (characteristic.UUID == (new Characteristic.CurrentTemperature()).UUID) {
 					characteristic.props.minValue = -50;
