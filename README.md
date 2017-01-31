@@ -8,6 +8,9 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 1.0.5
++ Fixed problem with thermostat.
+
 Version 1.0.4
 + Fixed problem displaying 0 lux luminosity sensor value.
 
