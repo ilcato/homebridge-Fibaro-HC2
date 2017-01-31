@@ -201,7 +201,11 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 				service = {controlService: new Service.Outlet(s.name), characteristics: [Characteristic.On, Characteristic.OutletInUse]};
 			else if (s.type == "com.fibaro.doorLock" || s.type == "com.fibaro.gerda")
 				service = {controlService: new Service.LockMechanism(s.name), characteristics: [Characteristic.LockCurrentState, Characteristic.LockTargetState]};
-			else if (s.type == "com.fibaro.thermostatDanfoss" || s.type == "com.fibaro.thermostatHorstmann")
+			else if (s.type == "com.fibaro.setPoint") {
+				service = {controlService: new Service.Thermostat(s.name), characteristics: [Characteristic.CurrentTemperature, Characteristic.TargetTemperature]};
+			} else if (s.type == "com.fibaro.thermostatDanfoss"){
+				service = {controlService: new Service.Thermostat(s.name), characteristics: [Characteristic.CurrentTemperature, Characteristic.TargetTemperature]};
+			} else if (s.type == "com.fibaro.thermostatHorstmann")
 				service = {controlService: new Service.DanfossRadiatorThermostat(s.name), characteristics: [Characteristic.CurrentTemperature, Characteristic.TargetTemperature, Characteristic.TimeInterval]};
 			else if (s.type == "virtual_device") {
 				var pushButtonServices = [];
@@ -312,6 +316,7 @@ FibaroHC2Platform.prototype.addAccessory = function(services, name, currentRoomI
 	    this.log("Adding Accessory: " + accessoryName);
 		this.api.registerPlatformAccessories("homebridge-fibaro-hc2", "FibaroHC2", [a]);
 	} else {
+		this.log("Updating Accessory: " + accessoryName);
 		this.api.updatePlatformAccessories([a]);
 	}
 	a.reviewed = true;
