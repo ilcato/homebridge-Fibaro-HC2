@@ -299,7 +299,7 @@ FibaroHC2Platform.prototype.addAccessory = function(services, name, currentRoomI
 				var characteristic = service.controlService.getCharacteristic(service.characteristics[i]);
 				characteristic.props.needsBinding = true;
 				if (characteristic.UUID == (new Characteristic.CurrentAmbientLightLevel()).UUID) {
-					characteristic.props.maxValue = 1000;
+					characteristic.props.maxValue = 10000;
 					characteristic.props.minStep = 1;
 					characteristic.props.minValue = 0;
 				}
