@@ -204,7 +204,13 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 			else if (s.type == "com.fibaro.setPoint") {
 				service = {controlService: new Service.Thermostat(s.name), characteristics: [Characteristic.CurrentTemperature, Characteristic.TargetTemperature]};
 			} else if (s.type == "com.fibaro.thermostatDanfoss"){
-				service = {controlService: new Service.Thermostat(s.name), characteristics: [Characteristic.CurrentTemperature, Characteristic.TargetTemperature]};
+				service = {controlService: new Service.Thermostat(s.name), characteristics: [
+									Characteristic.CurrentHeatingCoolingState,
+									Characteristic.TargetHeatingCoolingState,
+									Characteristic.CurrentTemperature,
+									Characteristic.TargetTemperature,
+									Characteristic.TemperatureDisplayUnits
+						 ]};
 			} else if (s.type == "com.fibaro.thermostatHorstmann")
 				service = {controlService: new Service.DanfossRadiatorThermostat(s.name), characteristics: [Characteristic.CurrentTemperature, Characteristic.TargetTemperature, Characteristic.TimeInterval]};
 			else if (s.type == "virtual_device") {
@@ -384,8 +390,8 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
 					if (Math.abs(value - characteristic.value) >= 0.5) {
 						value = parseFloat( (Math.round(value / 0.5) * 0.5).toFixed(1) );
 						this.command("setTargetLevel", value, service, IDs);
-						// automatically set the interval to 2 hours
-						this.command("setTime", 2*3600 + Math.trunc((new Date()).getTime()/1000), service, IDs);
+						// automatically set the interval to 0 hours --> means always
+						this.command("setTime", 0*3600 + Math.trunc((new Date()).getTime()/1000), service, IDs);
 					} else {
 						value = characteristic.value;
 					}
@@ -437,6 +443,12 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 				t = parseInt(properties.timestamp) - t;
 				if (t < 0) t = 0;
 				callback(undefined, t);
+			} else if (characteristic.UUID == (new Characteristic.CurrentHeatingCoolingState()).UUID) {
+				callback(undefined, Characteristic.TargetHeatingCoolingState.HEAT);
+			} else if (characteristic.UUID == (new Characteristic.TargetHeatingCoolingState()).UUID) {
+				callback(undefined, Characteristic.TargetHeatingCoolingState.HEAT);
+			} else if (characteristic.UUID == (new Characteristic.TemperatureDisplayUnits()).UUID) {
+				callback(undefined, Characteristic.TemperatureDisplayUnits.CELSIUS);
 			} else if (characteristic.UUID == (new Characteristic.TargetTemperature()).UUID) {
 				callback(undefined, parseFloat(properties.targetLevel));
 			} else if (characteristic.UUID == (new Characteristic.Hue()).UUID) {
