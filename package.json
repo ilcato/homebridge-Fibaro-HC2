@@ -1,6 +1,6 @@
 {
   "name": "homebridge-fibaro-hc2",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Homebridge plugin for Fibaro Home Center 2 ",
   "note": "peerDependencies is hardcoded to peerDepdendencies in homebridge!!!",
   "main": "index.js",
