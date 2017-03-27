@@ -391,7 +391,7 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
 						value = parseFloat( (Math.round(value / 0.5) * 0.5).toFixed(1) );
 						this.command("setTargetLevel", value, service, IDs);
 						// automatically set the interval to 0 hours --> means always
-						this.command("setTime", 0*3600 + Math.trunc((new Date()).getTime()/1000), service, IDs);
+						this.command("setTime", 2*3600 + Math.trunc((new Date()).getTime()/1000), service, IDs);
 					} else {
 						value = characteristic.value;
 					}

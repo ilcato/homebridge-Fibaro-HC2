@@ -8,6 +8,9 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 1.0.7
++ Fixed Danfoss thermostat. Default 2 hours delay.
+
 Version 1.0.6
 + Fixed Danfoss thermostat. It now correctly appears on Home app.
 
