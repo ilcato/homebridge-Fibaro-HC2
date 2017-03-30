@@ -79,7 +79,7 @@ function FibaroHC2Platform(log, config, api){
   	this.log = log;
   	this.fibaroClient = require('./lib/fibaro-api').createClient(config["host"], config["username"], config["password"]);
   	this.grouping = config["grouping"];
-  	if (this.grouping == undefined) {
+  	if (this.grouping == undefined || this.grouping == "") {
 		this.grouping = "none"
   	}
   	this.rooms = {};
@@ -115,14 +115,12 @@ function FibaroHC2Platform(log, config, api){
  	}
 }
 FibaroHC2Platform.prototype.addAccessories = function() {
-    this.log("Fetching Fibaro Home Center rooms ...");
     var that = this;
     this.fibaroClient.getRooms()
     	.then(function (rooms) {
         	rooms.map(function(s, i, a) {
         		that.rooms[s.id] = s.name;
         	});
-		    that.log("Fetching Fibaro Home Center devices ...");
         	return that.fibaroClient.getDevices();
     	})
     	.then(function (devices) {
@@ -155,10 +153,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 			if (that.grouping == "room") {         	
 				if (s.roomID != currentRoomID) {
 					if (services.length != 0) {
-						var a = that.createAccessory(services, null, currentRoomID)
-						if (!that.accessories[a.uuid]) {
-							that.addAccessory(a);
-						}
+						that.addAccessory(services, null, currentRoomID, null)
 						services = [];
 					}
 					currentRoomID = s.roomID;
@@ -198,13 +193,25 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 				service = {controlService: new Service.ContactSensor(s.name), characteristics: [Characteristic.ContactSensorState]};
 			else if (s.type == "com.fibaro.FGFS101" || s.type == "com.fibaro.floodSensor")
 				service = {controlService: new Service.LeakSensor(s.name), characteristics: [Characteristic.LeakDetected]};
+			else if (s.type == "com.fibaro.FGSS001")
+				service = {controlService: new Service.SmokeSensor(s.name), characteristics: [Characteristic.SmokeDetected]};
 			else if (s.type == "com.fibaro.lightSensor")
 				service = {controlService: new Service.LightSensor(s.name), characteristics: [Characteristic.CurrentAmbientLightLevel]};
-			else if (s.type == "com.fibaro.FGWP101")
+			else if (s.type == "com.fibaro.FGWP101" || s.type == "com.fibaro.FGWP102")
 				service = {controlService: new Service.Outlet(s.name), characteristics: [Characteristic.On, Characteristic.OutletInUse]};
-			else if (s.type == "com.fibaro.doorLock")
+			else if (s.type == "com.fibaro.doorLock" || s.type == "com.fibaro.gerda")
 				service = {controlService: new Service.LockMechanism(s.name), characteristics: [Characteristic.LockCurrentState, Characteristic.LockTargetState]};
-			else if (s.type == "com.fibaro.thermostatDanfoss" || s.type == "com.fibaro.thermostatHorstmann")
+			else if (s.type == "com.fibaro.setPoint") {
+				service = {controlService: new Service.Thermostat(s.name), characteristics: [Characteristic.CurrentTemperature, Characteristic.TargetTemperature]};
+			} else if (s.type == "com.fibaro.thermostatDanfoss"){
+				service = {controlService: new Service.Thermostat(s.name), characteristics: [
+									Characteristic.CurrentHeatingCoolingState,
+									Characteristic.TargetHeatingCoolingState,
+									Characteristic.CurrentTemperature,
+									Characteristic.TargetTemperature,
+									Characteristic.TemperatureDisplayUnits
+						 ]};
+			} else if (s.type == "com.fibaro.thermostatHorstmann")
 				service = {controlService: new Service.DanfossRadiatorThermostat(s.name), characteristics: [Characteristic.CurrentTemperature, Characteristic.TargetTemperature, Characteristic.TimeInterval]};
 			else if (s.type == "virtual_device") {
 				var pushButtonServices = [];
@@ -221,9 +228,8 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 						}
 					} 
 				}
-				var fa = that.createAccessory(pushButtonServices, s.name, s.roomID)
-				if (!that.accessories[fa.uuid]) {
-					that.addAccessory(fa);
+				if (pushButtonServices.length > 0) {
+					that.addAccessory(pushButtonServices, s.name, s.roomID, s.ID)
 				}
 			}
 			if (service != null) {
@@ -235,10 +241,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 			}
 			if (that.grouping == "none") {         	
 				if (services.length != 0) {
-					var a = that.createAccessory(services, s.name, s.roomID)
-					if (!that.accessories[a.uuid]) {
-						that.addAccessory(a);
-					}
+					that.addAccessory(services, s.name, s.roomID, s.ID)
 					services = [];
 				}
 			}
@@ -247,37 +250,91 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 	}
 	if (that.grouping == "room") {         	
 		if (services.length != 0) {
-			var a = that.createAccessory(services, null, currentRoomID)
-			if (!that.accessories[a.uuid]) {
-				that.addAccessory(a);
-			}
+			that.addAccessory(services, null, currentRoomID, null)
 		}
 	}
+	// Remove not reviewd accessories: cached accessories no more present in Home Center
+	for (var a in this.accessories) {
+		if (!this.accessories[a].reviewed) {
+		    this.log("Removing Accessory: " + this.accessories[a].displayName);
+			this.api.unregisterPlatformAccessories("homebridge-fibaro-hc2", "FibaroHC2", [this.accessories[a]]);
+		}
+	}
+
 	if (this.pollerPeriod >= 1 && this.pollerPeriod <= 100)
 		this.startPollingUpdate();
 }
-FibaroHC2Platform.prototype.createAccessory = function(services, name, currentRoomID) {
-	var accessory = new FibaroBridgedAccessory(services);
-	accessory.platform 			= this;
-	accessory.name				= (name) ? name : this.rooms[currentRoomID] + "-Devices";
-	accessory.uuid 				= UUIDGen.generate(accessory.name + currentRoomID);
-	accessory.model				= "HomeCenterBridgedAccessory";
-	accessory.manufacturer		= "IlCato";
-	accessory.serialNumber		= "<unknown>";
-	return accessory;
-}
-FibaroHC2Platform.prototype.addAccessory = function(fibaroAccessory) {
-
-	if (!fibaroAccessory) {
-		return;
+FibaroHC2Platform.prototype.addAccessory = function(services, name, currentRoomID, deviceID) {
+	var accessoryName = (name) ? name : this.rooms[currentRoomID] + "-Devices";
+	var uniqueSeed = accessoryName + currentRoomID;
+	var a = this.existingAccessory(uniqueSeed);
+	var isNewAccessory = false;
+	if (a == null) {
+		isNewAccessory = true;
+		var uuid = UUIDGen.generate(uniqueSeed);
+	  	a = new Accessory(accessoryName, uuid);
+		a.context.uniqueSeed = uniqueSeed;
+		this.accessories[uuid] = a;
 	}
-  	var newAccessory = new Accessory(fibaroAccessory.name, fibaroAccessory.uuid);
-  	fibaroAccessory.initAccessory(newAccessory);
-	newAccessory.reachable = true;
+  	// init accessory
+	a.getService(Service.AccessoryInformation)
+                    .setCharacteristic(Characteristic.Manufacturer, "IlCato")
+                    .setCharacteristic(Characteristic.Model, "HomeCenterBridgedAccessory")
+                    .setCharacteristic(Characteristic.SerialNumber, "<unknown>");
 
-	this.accessories[fibaroAccessory.UUID] = fibaroAccessory;
-    this.log("Adding Accessory: " + fibaroAccessory.name);
-	this.api.registerPlatformAccessories("homebridge-fibaro-hc2", "FibaroHC2", [newAccessory]);
+	// Remove services existing in HomeKit accessory no more present in Home Center
+  	for (var t = 0; t < a.services.length; t++) {
+  		var found = false;
+	  	for (var s = 0; s < services.length; s++) {
+	  		if (a.services[t].displayName == undefined || services[s].controlService.displayName == a.services[t].displayName) {
+				found = true;
+				break;	  		
+	  		}
+		}
+		if (!found) {
+			a.removeService(a.services[t]);
+		}
+	}    
+	// Add services present in Home Center and not existing in Homekit accessory
+  	for (var s = 0; s < services.length; s++) {
+		var service = services[s];
+		var serviceExists = a.getService(service.controlService.displayName);
+		if (!serviceExists) {
+			a.addService(service.controlService);
+			for (var i=0; i < service.characteristics.length; i++) {
+				var characteristic = service.controlService.getCharacteristic(service.characteristics[i]);
+				characteristic.props.needsBinding = true;
+				if (characteristic.UUID == (new Characteristic.CurrentAmbientLightLevel()).UUID) {
+					characteristic.props.maxValue = 10000;
+					characteristic.props.minStep = 1;
+					characteristic.props.minValue = 0;
+				}
+				if (characteristic.UUID == (new Characteristic.CurrentTemperature()).UUID) {
+					characteristic.props.minValue = -50;
+				}
+				this.bindCharacteristicEvents(characteristic, service.controlService);
+			}
+		}
+    }
+	
+	a.reachable = true;
+	if (isNewAccessory) {
+	    this.log("Adding Accessory: " + accessoryName);
+		this.api.registerPlatformAccessories("homebridge-fibaro-hc2", "FibaroHC2", [a]);
+	} else {
+		this.log("Updating Accessory: " + accessoryName);
+		this.api.updatePlatformAccessories([a]);
+	}
+	a.reviewed = true;
+	// Mark accessory as reviewed in order to remove the not reviewed ones
+}
+FibaroHC2Platform.prototype.existingAccessory = function(uniqueSeed) {
+	for (var a in this.accessories) {
+		if (this.accessories[a].context.uniqueSeed == uniqueSeed) {
+			return this.accessories[a];
+		}
+	}
+	return null;
 }
 FibaroHC2Platform.prototype.configureAccessory = function(accessory) {
 	for (var s = 0; s < accessory.services.length; s++) {
@@ -324,7 +381,7 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
 					this.command("pressButton", IDs[1], service, IDs);
 					// In order to behave like a push button reset the status to off
 					setTimeout( function(){
-						characteristic.setValue(false, undefined, 'fromSetValue');
+						characteristic.setValue(0, undefined, 'fromSetValue');
 					}, 100 );
 				} else if (characteristic.UUID == (new Characteristic.On()).UUID) {
 					if (characteristic.value == true && value == 0 || characteristic.value == false && value == 1)
@@ -333,7 +390,7 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
 					if (Math.abs(value - characteristic.value) >= 0.5) {
 						value = parseFloat( (Math.round(value / 0.5) * 0.5).toFixed(1) );
 						this.command("setTargetLevel", value, service, IDs);
-						// automatically set the interval to 2 hours
+						// automatically set the interval to 0 hours --> means always
 						this.command("setTime", 2*3600 + Math.trunc((new Date()).getTime()/1000), service, IDs);
 					} else {
 						value = characteristic.value;
@@ -386,6 +443,12 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 				t = parseInt(properties.timestamp) - t;
 				if (t < 0) t = 0;
 				callback(undefined, t);
+			} else if (characteristic.UUID == (new Characteristic.CurrentHeatingCoolingState()).UUID) {
+				callback(undefined, Characteristic.TargetHeatingCoolingState.HEAT);
+			} else if (characteristic.UUID == (new Characteristic.TargetHeatingCoolingState()).UUID) {
+				callback(undefined, Characteristic.TargetHeatingCoolingState.HEAT);
+			} else if (characteristic.UUID == (new Characteristic.TemperatureDisplayUnits()).UUID) {
+				callback(undefined, Characteristic.TemperatureDisplayUnits.CELSIUS);
 			} else if (characteristic.UUID == (new Characteristic.TargetTemperature()).UUID) {
 				callback(undefined, parseFloat(properties.targetLevel));
 			} else if (characteristic.UUID == (new Characteristic.Hue()).UUID) {
@@ -398,6 +461,8 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 				callback(undefined, properties.value == "false" ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED);
 			} else if (characteristic.UUID == (new Characteristic.LeakDetected()).UUID) {
 				callback(undefined, properties.value == "true" ? Characteristic.LeakDetected.LEAK_DETECTED : Characteristic.LeakDetected.LEAK_NOT_DETECTED);
+			} else if (characteristic.UUID == (new Characteristic.SmokeDetected()).UUID) {
+				callback(undefined, properties.value == "true" ? Characteristic.SmokeDetected.SMOKE_DETECTED : Characteristic.SmokeDetected.SMOKE_NOT_DETECTED);
 			} else if (characteristic.UUID == (new Characteristic.Brightness()).UUID) {
 				if (service.HSBValue != null) {
 					var hsv = that.updateHomeKitColorFromHomeCenter(properties.color, service);
@@ -431,7 +496,7 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 			}
 		})
 		.catch(function(err, response) {
-			that.log("There was a problem getting value from" + IDs[0] + "-" + err);
+			that.log("There was a problem getting value from: " + IDs[0] + " - Err: " + err + " - Response: " + response);
 		});
 }
 FibaroHC2Platform.prototype.command = function(c,value, service, IDs) {
@@ -477,9 +542,11 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
 								if (subscription.characteristic.UUID == (new Characteristic.TimeInterval()).UUID)
 									intervalValue = true;
 								if (subscription.characteristic.UUID == (new Characteristic.ContactSensorState()).UUID)
-									subscription.characteristic.setValue(value == true ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED, undefined, 'fromFibaro');
+									subscription.characteristic.setValue(value == false ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED, undefined, 'fromFibaro');
 								else if (subscription.characteristic.UUID == (new Characteristic.LeakDetected()).UUID)
 									subscription.characteristic.setValue(value == true ? Characteristic.LeakDetected.LEAK_DETECTED : Characteristic.LeakDetected.LEAK_NOT_DETECTED, undefined, 'fromFibaro');
+								else if (subscription.characteristic.UUID == (new Characteristic.SmokeDetected()).UUID)
+									subscription.characteristic.setValue(value == true ? Characteristic.SmokeDetected.SMOKE_DETECTED : Characteristic.SmokeDetected.SMOKE_NOT_DETECTED, undefined, 'fromFibaro');
 								else if (subscription.characteristic.UUID == (new Characteristic.LockCurrentState()).UUID || subscription.characteristic.UUID == (new Characteristic.LockTargetState()).UUID)
 									subscription.characteristic.setValue(value == true ? Characteristic.LockCurrentState.SECURED : Characteristic.LockCurrentState.UNSECURED, undefined, 'fromFibaro');
 								else if (subscription.characteristic.UUID == (new Characteristic.CurrentPosition()).UUID || subscription.characteristic.UUID == (new Characteristic.TargetPosition()).UUID) {
@@ -522,7 +589,7 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
     		setTimeout( function() { that.startPollingUpdate()}, that.pollerPeriod * 1000);
   		})
   		.catch(function(err, response) {
- 			that.log("Error fetching updates: " + err);
+ 			that.log("Error fetching updates: " + err + response);
   		});
 }
 FibaroHC2Platform.prototype.updateHomeCenterColorFromHomeKit = function(h, s, v, service) {
@@ -577,31 +644,6 @@ FibaroHC2Platform.prototype.syncColorCharacteristics = function(rgb, service, ID
 		default:
 			break;
 	}
-}
-
-function FibaroBridgedAccessory(services) {
-    this.services = services;
-}
-FibaroBridgedAccessory.prototype.initAccessory = function (newAccessory) {
-	newAccessory.getService(Service.AccessoryInformation)
-                    .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
-                    .setCharacteristic(Characteristic.Model, this.model)
-                    .setCharacteristic(Characteristic.SerialNumber, this.serialNumber);
-
-  	for (var s = 0; s < this.services.length; s++) {
-		var service = this.services[s];
-		newAccessory.addService(service.controlService);
-		for (var i=0; i < service.characteristics.length; i++) {
-			var characteristic = service.controlService.getCharacteristic(service.characteristics[i]);
-			characteristic.props.needsBinding = true;
-			if (characteristic.UUID == (new Characteristic.CurrentAmbientLightLevel()).UUID) {
-				characteristic.props.maxValue = 1000;
-				characteristic.props.minStep = 1;
-				characteristic.props.minValue = 1;
-			}
-			this.platform.bindCharacteristicEvents(characteristic, service.controlService);
-		}
-    }
 }
 
 function HSVtoRGB(hue, saturation, value) {

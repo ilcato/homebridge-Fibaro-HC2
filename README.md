@@ -8,6 +8,37 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 1.0.7
++ Fixed Danfoss thermostat. Default 2 hours delay.
+
+Version 1.0.6
++ Fixed Danfoss thermostat. It now correctly appears on Home app.
+
+Version 1.0.5
++ Fixed problem with thermostat.
+
+Version 1.0.4
++ Fixed problem displaying 0 lux luminosity sensor value.
+
+Version 1.0.3
++ Added support for Fibaro Smoke detector
+
+Version 1.0.2
++ Managed danalock correctly
++ Added support for new Fibaro wall plug
+
+Version 1.0.1
++ Managed the case of Virtual Devices without any buttons in it: no accessory creation
+
+Version 1.0.0
++ Managed automatic update of the additions, deletions and changes of Home Center devices into HomeBridge: simply restart HomeBridge every time you make a change in Home Center.  
+This is the first (maybe the last) production ready version of the plugin.  
+If an existing installation of the plugin exists you MUST delete the accessories folder within the .homebridge folder. This will invalidate existing homekit scenes or triggers that MUST be recreated.  
+
+Version 0.7.0
++ Managed negative value for temperature sensors
++ Fixed bug in managing door/window sensor automatic status update
+
 Version 0.6.9
 + Added support for flood/leak sensors (thanks to leoneleone)
 + Managed remapping of 99% to 100% between homekit and Home Center also for blinds (thanks ryanmaxwell)
