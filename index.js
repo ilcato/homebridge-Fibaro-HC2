@@ -346,7 +346,6 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
 					if (Math.abs(value - characteristic.value) >= 0.5) {
 						value = parseFloat( (Math.round(value / 0.5) * 0.5).toFixed(1) );
 						this.command("setTargetLevel", value, service, IDs);
-						// automatically set the interval to 0 hours --> means always
 						this.command("setTime", 2*3600 + Math.trunc((new Date()).getTime()/1000), service, IDs);
 					} else {
 						value = characteristic.value;
@@ -354,8 +353,6 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
 					setTimeout( function(){
 						characteristic.setValue(value, undefined, 'fromSetValue');
 					}, 100 );
-				} else if (characteristic.UUID == (new Characteristic.TimeInterval()).UUID) {
-					this.command("setTime", value + Math.trunc((new Date()).getTime()/1000), service, IDs);
 				} else if (characteristic.UUID == (new Characteristic.LockTargetState()).UUID) {
 					var action = value == Characteristic.LockTargetState.UNSECURED ? "unsecure" : "secure";
 					this.command(action, 0, service, IDs);
@@ -392,13 +389,9 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 	var that = this;
 	this.fibaroClient.getDeviceProperties(IDs[0])
 		.then(function(properties) {
+			that.log("Getting value from: " + IDs[0] + " " + characteristic.displayName + " " + properties.value);
 			if (characteristic.UUID == (new Characteristic.OutletInUse()).UUID) {
 				callback(undefined, parseFloat(properties.power) > 1.0 ? true : false);
-			} else if (characteristic.UUID == (new Characteristic.TimeInterval()).UUID) {
-				var t = (new Date()).getTime();
-				t = parseInt(properties.timestamp) - t;
-				if (t < 0) t = 0;
-				callback(undefined, t);
 			} else if (characteristic.UUID == (new Characteristic.CurrentHeatingCoolingState()).UUID) {
 				callback(undefined, Characteristic.TargetHeatingCoolingState.HEAT);
 			} else if (characteristic.UUID == (new Characteristic.TargetHeatingCoolingState()).UUID) {
@@ -494,13 +487,20 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
 							var subscription = that.updateSubscriptions[i];
 							if (subscription.id == s.id && subscription.property == "value") {
 								var powerValue = false;
-								var intervalValue = false;
 								if (subscription.characteristic.UUID == (new Characteristic.OutletInUse()).UUID)
 									powerValue = true;
-								if (subscription.characteristic.UUID == (new Characteristic.TimeInterval()).UUID)
-									intervalValue = true;
 								if (subscription.characteristic.UUID == (new Characteristic.ContactSensorState()).UUID)
 									subscription.characteristic.setValue(value == false ? Characteristic.ContactSensorState.CONTACT_DETECTED : Characteristic.ContactSensorState.CONTACT_NOT_DETECTED, undefined, 'fromFibaro');
+								else if (subscription.characteristic.UUID == (new Characteristic.CurrentHeatingCoolingState()).UUID)
+									subscription.characteristic.setValue(Characteristic.TargetHeatingCoolingState.HEAT);
+								else if (subscription.characteristic.UUID == (new Characteristic.TargetHeatingCoolingState()).UUID)
+									subscription.characteristic.setValue(Characteristic.TargetHeatingCoolingState.HEAT);
+								else if (subscription.characteristic.UUID == (new Characteristic.TemperatureDisplayUnits()).UUID)
+									subscription.characteristic.setValue(Characteristic.TemperatureDisplayUnits.CELSIUS);
+								else if (subscription.characteristic.UUID == (new Characteristic.CurrentTemperature()).UUID)
+									subscription.characteristic.setValue(parseFloat(s.value));
+								else if (subscription.characteristic.UUID == (new Characteristic.TargetTemperature()).UUID)
+									subscription.characteristic.setValue(parseFloat(properties.targetLevel));
 								else if (subscription.characteristic.UUID == (new Characteristic.LeakDetected()).UUID)
 									subscription.characteristic.setValue(value == true ? Characteristic.LeakDetected.LEAK_DETECTED : Characteristic.LeakDetected.LEAK_NOT_DETECTED, undefined, 'fromFibaro');
 								else if (subscription.characteristic.UUID == (new Characteristic.SmokeDetected()).UUID)
