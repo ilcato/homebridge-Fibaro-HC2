@@ -28,47 +28,6 @@ module.exports = function(homebridge) {
 	Characteristic = homebridge.hap.Characteristic;
 	UUIDGen = homebridge.hap.uuid;
   
-  	// Custom Services and Characteristics
-
-	/**
-	 * Custom Characteristic "Time Interval"
-	 */
-
-	Characteristic.TimeInterval = function() {
-	  Characteristic.call(this, 'Time Interval', '2A6529B5-5825-4AF3-AD52-20288FBDA115');
-	  this.setProps({
-		format: Characteristic.Formats.FLOAT,
-		unit: Characteristic.Units.SECONDS,
-		maxValue: 21600, // 12 hours
-		minValue: 0,
-		minStep: 900, // 15 min
-		perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
-	  });
-	  this.value = this.getDefaultValue();
-	};
-	inherits(Characteristic.TimeInterval, Characteristic);
-	Characteristic.TimeInterval.UUID = '2A6529B5-5825-4AF3-AD52-20288FBDA115';
-
-	/**
-	 * Custom Service "Danfoss Radiator Thermostat"
-	 */
-
-	Service.DanfossRadiatorThermostat = function(displayName, subtype) {
-	  Service.call(this, displayName, '0EB29E08-C307-498E-8E1A-4EDC5FF70607', subtype);
-
-	  // Required Characteristics
-	  this.addCharacteristic(Characteristic.CurrentTemperature);
-	  this.addCharacteristic(Characteristic.TargetTemperature);
-	  this.addCharacteristic(Characteristic.TimeInterval); // Custom Characteristic
-
-	  // Optional Characteristics
-
-	};
-	inherits(Service.DanfossRadiatorThermostat, Service);
-	Service.DanfossRadiatorThermostat.UUID = '0EB29E08-C307-498E-8E1A-4EDC5FF70607';
-
-  	// End of custom Services and Characteristics
-
 	homebridge.registerPlatform("homebridge-fibaro-hc2", "FibaroHC2", FibaroHC2Platform, true);
 }
 
@@ -201,9 +160,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 				service = {controlService: new Service.Outlet(s.name), characteristics: [Characteristic.On, Characteristic.OutletInUse]};
 			else if (s.type == "com.fibaro.doorLock" || s.type == "com.fibaro.gerda")
 				service = {controlService: new Service.LockMechanism(s.name), characteristics: [Characteristic.LockCurrentState, Characteristic.LockTargetState]};
-			else if (s.type == "com.fibaro.setPoint") {
-				service = {controlService: new Service.Thermostat(s.name), characteristics: [Characteristic.CurrentTemperature, Characteristic.TargetTemperature]};
-			} else if (s.type == "com.fibaro.thermostatDanfoss"){
+			else if (s.type == "com.fibaro.thermostatDanfoss" || s.type == "com.fibaro.thermostatHorstmann"){
 				service = {controlService: new Service.Thermostat(s.name), characteristics: [
 									Characteristic.CurrentHeatingCoolingState,
 									Characteristic.TargetHeatingCoolingState,
@@ -211,8 +168,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 									Characteristic.TargetTemperature,
 									Characteristic.TemperatureDisplayUnits
 						 ]};
-			} else if (s.type == "com.fibaro.thermostatHorstmann")
-				service = {controlService: new Service.DanfossRadiatorThermostat(s.name), characteristics: [Characteristic.CurrentTemperature, Characteristic.TargetTemperature, Characteristic.TimeInterval]};
+			}
 			else if (s.type == "virtual_device") {
 				var pushButtonServices = [];
 				var pushButtonService = null;
@@ -449,6 +405,8 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 				callback(undefined, Characteristic.TargetHeatingCoolingState.HEAT);
 			} else if (characteristic.UUID == (new Characteristic.TemperatureDisplayUnits()).UUID) {
 				callback(undefined, Characteristic.TemperatureDisplayUnits.CELSIUS);
+			} else if (characteristic.UUID == (new Characteristic.CurrentTemperature()).UUID) {
+				callback(undefined, parseFloat(properties.value));
 			} else if (characteristic.UUID == (new Characteristic.TargetTemperature()).UUID) {
 				callback(undefined, parseFloat(properties.targetLevel));
 			} else if (characteristic.UUID == (new Characteristic.Hue()).UUID) {
