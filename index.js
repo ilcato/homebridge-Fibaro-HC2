@@ -9,7 +9,8 @@
 //            "username": "PUT USERNAME OF YOUR HC2 HERE",
 //            "password": "PUT PASSWORD OF YOUR HC2 HERE",
 //            "grouping": "PUT none OR room",
-//            "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 5 SECONDS IS THE DEFAULT"
+//            "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 5 SECONDS IS THE DEFAULT",
+//            "securitysystem": "PUT enabled OR disabled IN ORDER TO MANAGE THE AVAILABILITY OF THE SECURITY SYSTEM"
 //     }
 // ],
 //
@@ -50,6 +51,11 @@ function FibaroHC2Platform(log, config, api){
   		 this.pollerPeriod = parseInt(this.pollerPeriod);
   	else if (this.pollerPeriod == undefined)
   		 this.pollerPeriod = 5;
+  	this.securitySystem = config["securitysystem"];
+  	if (this.securitySystem == undefined || (this.securitySystem != "enabled" && this.securitySystem != "disabled")) {
+	  	this.securitySystem = "disabled";
+  	}
+  	this.securitySystemScenes = {};
 
 	var self = this;
 	this.requestServer = http.createServer();
@@ -75,19 +81,45 @@ function FibaroHC2Platform(log, config, api){
 }
 FibaroHC2Platform.prototype.addAccessories = function() {
     var that = this;
-    this.fibaroClient.getRooms()
-    	.then(function (rooms) {
-        	rooms.map(function(s, i, a) {
-        		that.rooms[s.id] = s.name;
-        	});
-        	return that.fibaroClient.getDevices();
+    this.fibaroClient.getScenes()
+    	.then(function (scenes) {
+    		if (that.securitySystem == "enabled") {
+				scenes.map(function(s) {
+					switch (s.name) {
+					case "SetStayArmed":
+						that.securitySystemScenes.SetStayArmed = s.id;	
+						break;
+					case "SetAwayArmed":
+						that.securitySystemScenes.SetAwayArmed = s.id;	
+						break;
+					case "SetNightArmed":
+						that.securitySystemScenes.SetNightArmed = s.id;	
+						break;
+					case "SetDisarmed":
+						that.securitySystemScenes.SetDisarmed = s.id;	
+						break;
+					case "SetAlarmTriggered":
+						that.securitySystemScenes.SetAlarmTriggered = s.id;	
+						break;
+					default:
+						break;
+					}
+				});
+    		}
+			return that.fibaroClient.getRooms()
     	})
-    	.then(function (devices) {
+		.then(function (rooms) {
+			rooms.map(function(s, i, a) {
+				that.rooms[s.id] = s.name;
+			});
+			return that.fibaroClient.getDevices();
+		})
+		.then(function (devices) {
 			that.HomeCenterDevices2HomeKitAccessories(devices);    		
-    	})
-    	.catch(function (err, response) {
+		})
+		.catch(function (err, response) {
 			that.log("Error getting data from Home Center: " + err + " " + response);
-    	});
+		});
 }
 FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devices) {
     var foundAccessories = [];
@@ -211,6 +243,15 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 			that.addAccessory(services, null, currentRoomID, null)
 		}
 	}
+	// Create Security System accessory
+	if (this.securitySystem == "enabled") {
+	    services = [];
+		service = {controlService: new Service.SecuritySystem("FibaroSecuritySystem"), characteristics: [Characteristic.SecuritySystemCurrentState, Characteristic.SecuritySystemTargetState]};
+		service.controlService.subtype = "0--";
+		services.push(service);
+		service = null;
+		this.addAccessory(services, "FibaroSecuritySystem", null, 0)
+	}
 	// Remove not reviewd accessories: cached accessories no more present in Home Center
 	for (var a in this.accessories) {
 		if (!this.accessories[a].reviewed) {
@@ -224,7 +265,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 }
 FibaroHC2Platform.prototype.addAccessory = function(services, name, currentRoomID, deviceID) {
 	var accessoryName = (name) ? name : this.rooms[currentRoomID] + "-Devices";
-	var uniqueSeed = accessoryName + currentRoomID;
+	var uniqueSeed = accessoryName + (currentRoomID ? currentRoomID : "");
 	var a = this.existingAccessory(uniqueSeed);
 	var isNewAccessory = false;
 	if (a == null) {
@@ -240,6 +281,10 @@ FibaroHC2Platform.prototype.addAccessory = function(services, name, currentRoomI
                     .setCharacteristic(Characteristic.Model, "HomeCenterBridgedAccessory")
                     .setCharacteristic(Characteristic.SerialNumber, "<unknown>");
 
+	// Store SecuritySystem Accessory
+	if (this.securitySystem == "enabled") {
+		this.securitySystemService = a.getService(Service.SecuritySystem);
+	}
 	// Remove services existing in HomeKit accessory no more present in Home Center
   	for (var t = 0; t < a.services.length; t++) {
   		var found = false;
@@ -341,6 +386,27 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
 					setTimeout( function(){
 						characteristic.setValue(0, undefined, 'fromSetValue');
 					}, 100 );
+				} else if (characteristic.UUID == (new Characteristic.SecuritySystemTargetState()).UUID) {
+					var sceneID;
+					switch (value) {
+						case Characteristic.SecuritySystemTargetState.AWAY_ARM:
+							sceneID = this.securitySystemScenes.SetAwayArmed;
+							break
+						case Characteristic.SecuritySystemTargetState.DISARM:
+							sceneID = this.securitySystemScenes.SetDisarmed;
+							value = Characteristic.SecuritySystemCurrentState.DISARMED;
+							break
+						case Characteristic.SecuritySystemTargetState.NIGHT_ARM:
+							sceneID = this.securitySystemScenes.SetNightArmed;
+							break;
+						case Characteristic.SecuritySystemTargetState.STAY_ARM:
+							sceneID = this.securitySystemScenes.SetStayArmed;
+							break;
+						default:
+							break;
+					}
+					service.setCharacteristic(Characteristic.SecuritySystemCurrentState, value);
+					this.scene(sceneID);
 				} else if (characteristic.UUID == (new Characteristic.On()).UUID) {
 					if (characteristic.value == true && value == 0 || characteristic.value == false && value == 1)
 						this.command(value == 0 ? "turnOff": "turnOn", null, service, IDs);
@@ -388,6 +454,58 @@ FibaroHC2Platform.prototype.bindCharacteristicEvents = function(characteristic, 
     }.bind(this));
 }
 FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean, characteristic, service, IDs) {
+	if (IDs[0] == "0") {
+		this.fibaroClient.getGlobalVariable("SecuritySystem")
+			.then(function(json) {
+				var state;
+				// return global variable state for all the current and target state, it should normally be the same
+    			if (characteristic.UUID == (new Characteristic.SecuritySystemCurrentState()).UUID) {
+					switch (json.value) {
+						case "AwayArmed":
+							state = Characteristic.SecuritySystemCurrentState.AWAY_ARM;
+							break
+						case "Disarmed": 
+							state = Characteristic.SecuritySystemCurrentState.DISARM;
+							break
+						case "NightArmed":
+							state = Characteristic.SecuritySystemCurrentState.NIGHT_ARM;
+							break;
+						case "StayArmed":
+							state = Characteristic.SecuritySystemCurrentState.STAY_ARM;
+							break
+						case "AlarmTriggered":
+							state = Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED;
+							break
+						default:
+							state = Characteristic.SecuritySystemCurrentState.DISARMED;
+							break;
+					}
+				} else if (characteristic.UUID == (new Characteristic.SecuritySystemTargetState()).UUID) {
+					switch (json.value) {
+						case "AwayArmed":
+							state = Characteristic.SecuritySystemTargetState.AWAY_ARM;
+							break
+						case "Disarmed": 
+							state = Characteristic.SecuritySystemTargetState.DISARM;
+							break
+						case "NightArmed":
+							state = Characteristic.SecuritySystemTargetState.NIGHT_ARM;
+							break;
+						case "StayArmed":
+							state = Characteristic.SecuritySystemTargetState.STAY_ARM;
+							break
+						default:
+							state = Characteristic.SecuritySystemTargetState.DISARM;
+							break;
+					}
+				}
+				callback(undefined, state);
+			})
+			.catch(function(err, response) {
+				that.log("There was a problem getting value from Global Variable: SecuritySystem" + " - Err: " + err + " - Response: " + response);
+			});
+		return;
+	}
 	var that = this;
 	this.fibaroClient.getDeviceProperties(IDs[0])
 		.then(function(properties) {
@@ -462,6 +580,16 @@ FibaroHC2Platform.prototype.command = function(c,value, service, IDs) {
 			that.log("There was a problem sending command " + c + " to " + IDs[0]);
 		});
 }
+FibaroHC2Platform.prototype.scene = function(sceneID) {
+	var that = this;
+	this.fibaroClient.executeScene(sceneID)
+		.then(function (response) {
+			that.log("Executed scene: " + sceneID);
+		})
+		.catch(function (err, response) {
+			that.log("There was a problem executing scene: " + sceneID);
+		});
+}
 FibaroHC2Platform.prototype.subscribeUpdate = function(service, characteristic, onOff, propertyChanged) {
 	if (characteristic.UUID == (new Characteristic.PositionState()).UUID)
 		return;
@@ -482,6 +610,13 @@ FibaroHC2Platform.prototype.startPollingUpdate = function() {
 			if (updates.changes != undefined) {
 				updates.changes.map(function(s) {
 					if (s.value != undefined) {
+						// Set Security System to triggered if a Fibaro Alert is present
+						if (that.securitySystem == "enabled") {
+							if (s.fibaroAlarm == "true") {
+								that.scene(that.securitySystemScenes.SetAlarmTriggered);
+								that.securitySystemService.setCharacteristic(Characteristic.SecuritySystemCurrentState, Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED);
+							}
+						}
 						var value=parseInt(s.value);
 						if (isNaN(value))
 							value=(s.value === "true");
