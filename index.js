@@ -465,7 +465,7 @@ FibaroHC2Platform.prototype.getAccessoryValue = function(callback, returnBoolean
 							state = Characteristic.SecuritySystemCurrentState.AWAY_ARM;
 							break
 						case "Disarmed": 
-							state = Characteristic.SecuritySystemCurrentState.DISARM;
+							state = Characteristic.SecuritySystemCurrentState.DISARMED;
 							break
 						case "NightArmed":
 							state = Characteristic.SecuritySystemCurrentState.NIGHT_ARM;

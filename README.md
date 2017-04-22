@@ -8,6 +8,9 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 1.1.1
++ Security system accessory fixed reading current status
+
 Version 1.1.0
 + Security system accessory added - See wiki
 
