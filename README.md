@@ -8,6 +8,18 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 1.1.1
++ Security system accessory fixed reading current status
+
+Version 1.1.0
++ Security system accessory added - See wiki
+
+Version 1.0.9
++ Thermostat logic fix.
+
+Version 1.0.8
++ Thermostat logic cleanup and refactoring.
+
 Version 1.0.7
 + Fixed Danfoss thermostat. Default 2 hours delay.
 
