@@ -154,7 +154,7 @@ FibaroHC2Platform.prototype.HomeCenterDevices2HomeKitAccessories = function(devi
 				service = {controlService: new Service.Lightbulb(s.name), characteristics: [Characteristic.On, Characteristic.Brightness]};
 			else if (s.type == "com.fibaro.FGRGBW441M" || s.type == "com.fibaro.colorController") {
 				service = {controlService: new Service.Lightbulb(s.name), characteristics: [Characteristic.On, Characteristic.Brightness, Characteristic.Hue, Characteristic.Saturation]};
-				service.controlService.HSBValue = {hue: 0, saturation: 0, brightness: 0};
+				service.controlService.HSBValue = {hue: 0, saturation: 0, brightness: 100};
 				service.controlService.RGBValue = {red: 0, green: 0, blue: 0};
 				service.controlService.countColorCharacteristics = 0;
 				service.controlService.timeoutIdColorCharacteristics = 0;
@@ -725,6 +725,8 @@ FibaroHC2Platform.prototype.syncColorCharacteristics = function(rgb, service, ID
 				that.command("setR", rgb.r, service, IDs);
 				that.command("setG", rgb.g, service, IDs);
 				that.command("setB", rgb.b, service, IDs);
+				if(rgb.r == rgb.g && rgb.g == rgb.b)
+					that.command("setW", rgb.r, service, IDs);
 				service.countColorCharacteristics = 0;
 				service.timeoutIdColorCharacteristics = 0;
 			}, 1000);
@@ -733,6 +735,8 @@ FibaroHC2Platform.prototype.syncColorCharacteristics = function(rgb, service, ID
 			this.command("setR", rgb.r, service, IDs);
 			this.command("setG", rgb.g, service, IDs);
 			this.command("setB", rgb.b, service, IDs);
+			if(rgb.r == rgb.g && rgb.g == rgb.b)
+				this.command("setW", rgb.r, service, IDs);
 			service.countColorCharacteristics = 0;
 			service.timeoutIdColorCharacteristics = 0;
 			break;
