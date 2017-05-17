@@ -3,13 +3,14 @@
   "version": "1.1.2",
   "description": "Homebridge plugin for Fibaro Home Center 2 ",
   "note": "peerDependencies is hardcoded to peerDepdendencies in homebridge!!!",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
+  	"prepublish": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "echo \"Error: configure and run homebridge to start\" && exit 1"
   },
   "engines": {
-    "node": ">4.0.0",
+    "node": ">7.0.0",
     "homebridge": ">=0.2.0"
   },
   "repository": {
@@ -26,6 +27,9 @@
   ],
   "dependencies": {
     "request": "^2.65.0"
+  },
+  "devDependencies": {
+    "typescript": "^2.2.2"
   },
   "author": "ilcato",
   "license": "GPL2",
