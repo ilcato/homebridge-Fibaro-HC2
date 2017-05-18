@@ -9,7 +9,7 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     
 # Release notes
 Version 2.0.0
-+ Rewrite in TypeScript
++ Rewritten in TypeScript
 + Removed room grouping support
 + Better maintainability and extensibility 
 

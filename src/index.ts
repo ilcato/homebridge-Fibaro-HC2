@@ -1,3 +1,17 @@
+//    Copyright 2017 ilcato
+// 
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+// 
+//        http://www.apache.org/licenses/LICENSE-2.0
+// 
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+
 // Fibaro Home Center 2 Platform plugin for HomeBridge
 //
 // Remember to add platform to config.json. Example:
@@ -28,10 +42,12 @@ import {SetFunctions} from './setFunctions'
 import {GetFunctions} from './getFunctions'
 import {Poller} from './pollerupdate'
 
-let Accessory: any,
-	Service: any,
-	Characteristic: any,
-	UUIDGen: any;
+const defaultPollerPeriod = 5;
+
+let Accessory,
+	Service,
+	Characteristic,
+	UUIDGen;
 
 export = function (homebridge) {
 	Accessory = homebridge.platformAccessory
@@ -45,7 +61,7 @@ class Config {
 	host: string;
   	username: string;
   	password: string;
-  	pollerperiod?: any;
+  	pollerperiod?: string;
   	securitysystem?: string;
 }
 
@@ -54,7 +70,7 @@ class FibaroHC2 {
 	config: Config;
   	api: any;
 	accessories: Map<string, any>;
-	updateSubscriptions: any[];
+	updateSubscriptions: Array<any>;
   	poller: Poller;
   	securitySystemScenes: any;
   	securitySystemService: any;
@@ -73,19 +89,17 @@ class FibaroHC2 {
 	  	this.securitySystemService = null;
 		this.config = config;
 		
-  		if (this.config.pollerperiod == undefined)
-  			this.config.pollerperiod = 5;
-  		else
-  			this.config.pollerperiod = parseInt(this.config.pollerperiod);
+		let pollerPeriod = this.config.pollerperiod ? parseInt(this.config.pollerperiod) : defaultPollerPeriod;
+  		if (isNaN(pollerPeriod) || pollerPeriod < 1 || pollerPeriod > 100)
+  			pollerPeriod = defaultPollerPeriod;
   		if (this.config.securitysystem == undefined || (this.config.securitysystem != "enabled" && this.config.securitysystem != "disabled"))
 	  		this.config.securitysystem = "disabled";
 
 		this.fibaroClient = new FibaroClient(this.config.host, this.config.username, this.config.password);
-  		this.poller = new Poller(this, this.config.pollerperiod, Characteristic);
+  		this.poller = new Poller(this, pollerPeriod, Characteristic);
 
     	this.api.on('didFinishLaunching', this.didFinishLaunching.bind(this));
     	
-    	this.setFunctions = new SetFunctions(Characteristic, this);
     	this.getFunctions = new GetFunctions(Characteristic, this);
   	}
   	didFinishLaunching () { 
@@ -93,6 +107,7 @@ class FibaroHC2 {
 		this.fibaroClient.getScenes()
 			.then((scenes) => {
 				this.mapSceneIDs(scenes);
+		    	this.setFunctions = new SetFunctions(Characteristic, this);			// There's a dependency in setFunction to Scene Mapping
 				return this.fibaroClient.getDevices();
 			})
 			.then((devices) => {
@@ -132,11 +147,11 @@ class FibaroHC2 {
 				this.addAccessory(ShadowAccessory.createShadowAccessory(s, Accessory, Service, Characteristic, this));
 			}
 		});
+		
 		// Create Security System accessory
 		if (this.config.securitysystem == "enabled") {
 			let device = {name: "FibaroSecuritySystem", roomID: 0, id: 0};
 			let sa = new ShadowSecuritySystem(device, Accessory, Service, Characteristic, this);
-
 			this.addAccessory(sa);
 		}
 		
@@ -147,10 +162,10 @@ class FibaroHC2 {
 				this.removeAccessory(a);
 			}
 		}
+		// Start the poller update mechanism
+		this.poller.poll();
+	}
 
-		if (this.config.pollerperiod >= 1 && this.config.pollerperiod <= 100)
-			this.startPollingUpdate();
-  	}
   	addAccessory (shadowAccessory) {
   		if (shadowAccessory == undefined)
   			return;
@@ -210,6 +225,7 @@ class FibaroHC2 {
 	
 	setCharacteristicValue(value, callback, context, characteristic, service, IDs) {
 		if( context !== 'fromFibaro' && context !== 'fromSetValue') {
+			this.log("Setting value to device: ", `${IDs[0]}  parameter: ${characteristic.displayName}`);
 			let setFunction = this.setFunctions.setFunctionsMapping.get(characteristic.UUID);
 			if (setFunction)
 				setFunction.call(this.setFunctions, value, callback, context, characteristic, service, IDs);
@@ -218,14 +234,15 @@ class FibaroHC2 {
 	}
 	
 	getCharacteristicValue(callback, characteristic, service, IDs) {
+		this.log("Getting value from device: ", `${IDs[0]}  parameter: ${characteristic.displayName}`);
 		// Manage security system status
 		if (IDs[0] == "0") { 
 			this.fibaroClient.getGlobalVariable("SecuritySystem")
 				.then((securitySystemStatus) => {
-					this.getFunctions.setSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus);
+					this.getFunctions.getSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus);
 				})
 				.catch((err) =>{
-					this.log("There was a problem getting value from Global Variable: SecuritySystem", " - Err: " + err);
+					this.log("There was a problem getting value from Global Variable: SecuritySystem", ` - Err: ${err}` );
 					callback(err, null);
 				});
 			return;
@@ -233,13 +250,13 @@ class FibaroHC2 {
 		// Manage all other status
 		this.fibaroClient.getDeviceProperties(IDs[0])
 			.then((properties) => {
-				this.log("Getting value from: ", IDs[0] + " " + characteristic.displayName);
+				this.log("Getting value from device: ", `${IDs[0]}  parameter: ${characteristic.displayName}`);
 				let getFunction = this.getFunctions.getFunctionsMapping.get(characteristic.UUID);
 				if (getFunction)
 					getFunction.call(this.getFunctions, callback, characteristic, service, IDs, properties);
 			})
 			.catch((err) => {
-				this.log("There was a problem getting value from: ", IDs[0] + " - Err: " + err);
+				this.log("There was a problem getting value from: ", `${IDs[0]} - Err: {err}` );
 				callback(err, null);
 			});
 	}
@@ -249,32 +266,10 @@ class FibaroHC2 {
 		this.updateSubscriptions.push({ 'id': IDs[0], 'service': service, 'characteristic': characteristic, "property": propertyChanged });
 	}
 	
-	startPollingUpdate() {
-		this.poller.poll();
-	}
-
 	mapSceneIDs(scenes) {
 		if (this.config.securitysystem == "enabled") {
 			scenes.map((s) => {
-				switch (s.name) {
-				case "SetStayArmed":
-					this.securitySystemScenes.SetStayArmed = s.id;	
-					break;
-				case "SetAwayArmed":
-					this.securitySystemScenes.SetAwayArmed = s.id;	
-					break;
-				case "SetNightArmed":
-					this.securitySystemScenes.SetNightArmed = s.id;	
-					break;
-				case "SetDisarmed":
-					this.securitySystemScenes.SetDisarmed = s.id;	
-					break;
-				case "SetAlarmTriggered":
-					this.securitySystemScenes.SetAlarmTriggered = s.id;	
-					break;
-				default:
-					break;
-				}
+				this.securitySystemScenes[s.name] = s.id;
 			});
 		}
 	}

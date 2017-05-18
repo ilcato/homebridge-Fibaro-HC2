@@ -1,22 +1,50 @@
+//    Copyright 2017 ilcato
+// 
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+// 
+//        http://www.apache.org/licenses/LICENSE-2.0
+// 
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+
+// Fibaro Home Center 2 Platform plugin for HomeBridge
+
+'use strict'
 
 export class SetFunctions {
 	hapCharacteristic: any;
 	setFunctionsMapping: Map<string, any>;
-	platform: any	;
+	getTargetSecuritySystemSceneMapping: Map<number, any>;
+
+	platform: any;
 	
 	constructor(hapCharacteristic, platform) {
 		this.hapCharacteristic = hapCharacteristic;
-		this.setFunctionsMapping = new Map();
 		this.platform = platform;
 		
-		this.setFunctionsMapping.set((new hapCharacteristic.On()).UUID, this.setOn);
-		this.setFunctionsMapping.set((new hapCharacteristic.Brightness()).UUID, this.setBrightness);
-		this.setFunctionsMapping.set((new hapCharacteristic.TargetPosition()).UUID, this.setValue); // Normal command
-		this.setFunctionsMapping.set((new hapCharacteristic.LockTargetState()).UUID, this.setLockTargetState);
-		this.setFunctionsMapping.set((new hapCharacteristic.TargetTemperature()).UUID, this.setTargetTemperature);
-		this.setFunctionsMapping.set((new hapCharacteristic.Hue()).UUID, this.setHue);
-		this.setFunctionsMapping.set((new hapCharacteristic.Saturation()).UUID, this.setSaturation);
-		this.setFunctionsMapping.set((new hapCharacteristic.SecuritySystemTargetState()).UUID, this.setSecuritySystemTargetState);
+		this.setFunctionsMapping = new Map([
+			[(new hapCharacteristic.On()).UUID, 							this.setOn],
+			[(new hapCharacteristic.Brightness()).UUID, 					this.setBrightness],
+			[(new hapCharacteristic.TargetPosition()).UUID, 				this.setValue],	
+			[(new hapCharacteristic.LockTargetState()).UUID, 				this.setLockTargetState],
+			[(new hapCharacteristic.TargetTemperature()).UUID, 				this.setTargetTemperature],
+			[(new hapCharacteristic.Hue()).UUID, 							this.setHue],
+			[(new hapCharacteristic.Saturation()).UUID, 					this.setSaturation],
+			[(new hapCharacteristic.SecuritySystemTargetState()).UUID, 		this.setSecuritySystemTargetState],
+		]);
+
+		this.getTargetSecuritySystemSceneMapping = new Map([
+			[this.hapCharacteristic.SecuritySystemTargetState.AWAY_ARM, 	this.platform.securitySystemScenes.SetAwayArmed],
+			[this.hapCharacteristic.SecuritySystemTargetState.DISARM, 		this.platform.securitySystemScenes.SetDisarmed],
+			[this.hapCharacteristic.SecuritySystemTargetState.NIGHT_ARM, 	this.platform.securitySystemScenes.SetNightArmed],
+			[this.hapCharacteristic.SecuritySystemTargetState.STAY_ARM, 	this.platform.securitySystemScenes.SetStayArmed]
+		]);
+
 	}
 
   	
@@ -42,7 +70,6 @@ export class SetFunctions {
 			this.command("setValue", value, service, IDs);
 		}
 	}
-	// Normal command
 	setValue(value, callback, context, characteristic, service, IDs) {
 		this.command("setValue", value, service, IDs);
 	}
@@ -71,24 +98,11 @@ export class SetFunctions {
 		this.syncColorCharacteristics(rgb, service, IDs);
 	}
 	setSecuritySystemTargetState(value, callback, context, characteristic, service, IDs) {
-		let sceneID;
-		switch (value) {
-			case this.hapCharacteristic.SecuritySystemTargetState.AWAY_ARM:
-				sceneID = this.platform.securitySystemScenes.SetAwayArmed;
-				break
-			case this.hapCharacteristic.SecuritySystemTargetState.DISARM:
-				sceneID = this.platform.securitySystemScenes.SetDisarmed;
-				value = this.hapCharacteristic.SecuritySystemCurrentState.DISARMED;
-				break
-			case this.hapCharacteristic.SecuritySystemTargetState.NIGHT_ARM:
-				sceneID = this.platform.securitySystemScenes.SetNightArmed;
-				break;
-			case this.hapCharacteristic.SecuritySystemTargetState.STAY_ARM:
-				sceneID = this.platform.securitySystemScenes.SetStayArmed;
-				break;
-			default:
-				break;
-		}
+		let sceneID = this.getTargetSecuritySystemSceneMapping.get(value);
+		if (value == this.hapCharacteristic.SecuritySystemTargetState.DISARM)
+			value = this.hapCharacteristic.SecuritySystemCurrentState.DISARMED;
+		if (sceneID == undefined)
+			return;
 		service.setCharacteristic(this.hapCharacteristic.SecuritySystemCurrentState, value);
 		this.scene(sceneID);
 	}

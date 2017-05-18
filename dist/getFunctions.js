@@ -1,31 +1,59 @@
-"use strict";
+//    Copyright 2017 ilcato
+// 
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+// 
+//        http://www.apache.org/licenses/LICENSE-2.0
+// 
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+// Fibaro Home Center 2 Platform plugin for HomeBridge
+'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
 class GetFunctions {
     constructor(hapCharacteristic, platform) {
         this.hapCharacteristic = hapCharacteristic;
-        this.getFunctionsMapping = new Map();
         this.platform = platform;
-        this.getFunctionsMapping.set((new hapCharacteristic.On()).UUID, this.getBool);
-        this.getFunctionsMapping.set((new hapCharacteristic.Brightness()).UUID, this.getBrightness);
-        this.getFunctionsMapping.set((new hapCharacteristic.PositionState()).UUID, this.getPositionState);
-        this.getFunctionsMapping.set((new hapCharacteristic.CurrentPosition()).UUID, this.getCurrentPosition);
-        this.getFunctionsMapping.set((new hapCharacteristic.TargetPosition()).UUID, this.getCurrentPosition); // Manage the same as currentPosition
-        this.getFunctionsMapping.set((new hapCharacteristic.MotionDetected()).UUID, this.getBool);
-        this.getFunctionsMapping.set((new hapCharacteristic.CurrentTemperature()).UUID, this.getFloat);
-        this.getFunctionsMapping.set((new hapCharacteristic.TargetTemperature()).UUID, this.getTargetTemperature);
-        this.getFunctionsMapping.set((new hapCharacteristic.CurrentRelativeHumidity()).UUID, this.getFloat);
-        this.getFunctionsMapping.set((new hapCharacteristic.ContactSensorState()).UUID, this.getContactSensorState);
-        this.getFunctionsMapping.set((new hapCharacteristic.LeakDetected()).UUID, this.getLeakDetected);
-        this.getFunctionsMapping.set((new hapCharacteristic.SmokeDetected()).UUID, this.getSmokeDetected);
-        this.getFunctionsMapping.set((new hapCharacteristic.CurrentAmbientLightLevel()).UUID, this.getFloat);
-        this.getFunctionsMapping.set((new hapCharacteristic.OutletInUse()).UUID, this.getOutletInUse);
-        this.getFunctionsMapping.set((new hapCharacteristic.LockCurrentState()).UUID, this.getLockCurrentState);
-        this.getFunctionsMapping.set((new hapCharacteristic.LockTargetState()).UUID, this.getLockCurrentState); // Manage the same as currentState
-        this.getFunctionsMapping.set((new hapCharacteristic.CurrentHeatingCoolingState()).UUID, this.getCurrentHeatingCoolingState);
-        this.getFunctionsMapping.set((new hapCharacteristic.TargetHeatingCoolingState()).UUID, this.getCurrentHeatingCoolingState); // Manage the same as currentState
-        this.getFunctionsMapping.set((new hapCharacteristic.TemperatureDisplayUnits()).UUID, this.getTemperatureDisplayUnits);
-        this.getFunctionsMapping.set((new hapCharacteristic.Hue()).UUID, this.getHue);
-        this.getFunctionsMapping.set((new hapCharacteristic.Saturation()).UUID, this.getSaturation);
+        this.getFunctionsMapping = new Map([
+            [(new hapCharacteristic.On()).UUID, this.getBool],
+            [(new hapCharacteristic.Brightness()).UUID, this.getBrightness],
+            [(new hapCharacteristic.PositionState()).UUID, this.getPositionState],
+            [(new hapCharacteristic.CurrentPosition()).UUID, this.getCurrentPosition],
+            [(new hapCharacteristic.TargetPosition()).UUID, this.getCurrentPosition],
+            [(new hapCharacteristic.MotionDetected()).UUID, this.getBool],
+            [(new hapCharacteristic.CurrentTemperature()).UUID, this.getFloat],
+            [(new hapCharacteristic.TargetTemperature()).UUID, this.getTargetTemperature],
+            [(new hapCharacteristic.CurrentRelativeHumidity()).UUID, this.getFloat],
+            [(new hapCharacteristic.ContactSensorState()).UUID, this.getContactSensorState],
+            [(new hapCharacteristic.LeakDetected()).UUID, this.getLeakDetected],
+            [(new hapCharacteristic.SmokeDetected()).UUID, this.getSmokeDetected],
+            [(new hapCharacteristic.CurrentAmbientLightLevel()).UUID, this.getFloat],
+            [(new hapCharacteristic.OutletInUse()).UUID, this.getOutletInUse],
+            [(new hapCharacteristic.LockCurrentState()).UUID, this.getLockCurrentState],
+            [(new hapCharacteristic.LockTargetState()).UUID, this.getLockCurrentState],
+            [(new hapCharacteristic.CurrentHeatingCoolingState()).UUID, this.getCurrentHeatingCoolingState],
+            [(new hapCharacteristic.TargetHeatingCoolingState()).UUID, this.getCurrentHeatingCoolingState],
+            [(new hapCharacteristic.TemperatureDisplayUnits()).UUID, this.getTemperatureDisplayUnits],
+            [(new hapCharacteristic.Hue()).UUID, this.getHue],
+            [(new hapCharacteristic.Saturation()).UUID, this.getSaturation]
+        ]);
+        this.getCurrentSecuritySystemStateMapping = new Map([
+            ["AwayArmed", this.hapCharacteristic.SecuritySystemCurrentState.AWAY_ARM],
+            ["Disarmed", this.hapCharacteristic.SecuritySystemCurrentState.DISARMED],
+            ["NightArmed", this.hapCharacteristic.SecuritySystemCurrentState.NIGHT_ARM],
+            ["StayArmed", this.hapCharacteristic.SecuritySystemCurrentState.STAY_ARM],
+            ["AlarmTriggered", this.hapCharacteristic.SecuritySystemCurrentState.ALARM_TRIGGERED]
+        ]);
+        this.getTargetSecuritySystemStateMapping = new Map([
+            ["AwayArmed", this.hapCharacteristic.SecuritySystemTargetState.AWAY_ARM],
+            ["Disarmed", this.hapCharacteristic.SecuritySystemTargetState.DISARM],
+            ["NightArmed", this.hapCharacteristic.SecuritySystemTargetState.NIGHT_ARM],
+            ["StayArmed", this.hapCharacteristic.SecuritySystemTargetState.STAY_ARM]
+        ]);
     }
     returnValue(r, callback, characteristic) {
         if (callback)
@@ -117,49 +145,16 @@ class GetFunctions {
         if (callback)
             callback(undefined, Math.round(hsv.s));
     }
-    setSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus) {
+    getSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus) {
         let state;
         if (characteristic.UUID == (new this.hapCharacteristic.SecuritySystemCurrentState()).UUID) {
-            switch (securitySystemStatus.value) {
-                case "AwayArmed":
-                    state = this.hapCharacteristic.SecuritySystemCurrentState.AWAY_ARM;
-                    break;
-                case "Disarmed":
-                    state = this.hapCharacteristic.SecuritySystemCurrentState.DISARMED;
-                    break;
-                case "NightArmed":
-                    state = this.hapCharacteristic.SecuritySystemCurrentState.NIGHT_ARM;
-                    break;
-                case "StayArmed":
-                    state = this.hapCharacteristic.SecuritySystemCurrentState.STAY_ARM;
-                    break;
-                case "AlarmTriggered":
-                    state = this.hapCharacteristic.SecuritySystemCurrentState.ALARM_TRIGGERED;
-                    break;
-                default:
-                    state = this.hapCharacteristic.SecuritySystemCurrentState.DISARMED;
-                    break;
-            }
+            state = this.getCurrentSecuritySystemStateMapping.get(securitySystemStatus.value);
         }
         else if (characteristic.UUID == (new this.hapCharacteristic.SecuritySystemTargetState()).UUID) {
-            switch (securitySystemStatus.value) {
-                case "AwayArmed":
-                    state = this.hapCharacteristic.SecuritySystemTargetState.AWAY_ARM;
-                    break;
-                case "Disarmed":
-                    state = this.hapCharacteristic.SecuritySystemTargetState.DISARM;
-                    break;
-                case "NightArmed":
-                    state = this.hapCharacteristic.SecuritySystemTargetState.NIGHT_ARM;
-                    break;
-                case "StayArmed":
-                    state = this.hapCharacteristic.SecuritySystemTargetState.STAY_ARM;
-                    break;
-                default:
-                    state = this.hapCharacteristic.SecuritySystemTargetState.DISARM;
-                    break;
-            }
+            state = this.getTargetSecuritySystemStateMapping.get(securitySystemStatus.value);
         }
+        if (state == undefined)
+            state = this.hapCharacteristic.SecuritySystemTargetState.DISARMED;
         callback(undefined, state);
     }
     updateHomeKitColorFromHomeCenter(color, service) {
