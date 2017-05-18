@@ -105,7 +105,7 @@ class FibaroHC2 {
         // Create Security System accessory
         if (this.config.securitysystem == "enabled") {
             let device = { name: "FibaroSecuritySystem", roomID: 0, id: 0 };
-            let sa = new shadows_1.ShadowSecuritySystem(device, Accessory, Service, Characteristic, this);
+            let sa = shadows_1.ShadowAccessory.createShadowSecuritySystemAccessory(device, Accessory, Service, Characteristic, this);
             this.addAccessory(sa);
         }
         // Remove not reviewd accessories: cached accessories no more present in Home Center

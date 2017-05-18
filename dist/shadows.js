@@ -24,7 +24,7 @@ class ShadowService {
 }
 exports.ShadowService = ShadowService;
 class ShadowAccessory {
-    constructor(device, services, hapAccessory, hapService, hapCharacteristic, platform) {
+    constructor(device, services, hapAccessory, hapService, hapCharacteristic, platform, isSecurritySystem) {
         this.name = device.name;
         this.roomID = device.roomID;
         this.services = services;
@@ -33,18 +33,11 @@ class ShadowAccessory {
         this.hapService = hapService;
         this.hapCharacteristic = hapCharacteristic;
         this.platform = platform;
-        this.isSecuritySystem = false;
+        this.isSecuritySystem = isSecurritySystem ? isSecurritySystem : false;
         for (let i = 0; i < services.length; i++) {
             if (services[i].controlService.subtype == undefined)
                 services[i].controlService.subtype = device.id + "--"; // "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
         }
-    }
-    identify(callback) {
-        callback();
-    }
-    static createShadowAccessory(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let r = HC2HKMapping.get(device.type);
-        return r ? new r(device, hapAccessory, hapService, hapCharacteristic, platform) : undefined;
     }
     initAccessory() {
         this.accessory.getService(this.hapService.AccessoryInformation)
@@ -100,17 +93,22 @@ class ShadowAccessory {
     setAccessory(accessory) {
         this.accessory = accessory;
     }
-}
-exports.ShadowAccessory = ShadowAccessory;
-class ShadowLightbulb extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let service = new ShadowService(new hapService.Lightbulb(device.name), [hapCharacteristic.On, hapCharacteristic.Brightness]);
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
+    static createShadowAccessory(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        let rm = HC2HKMapping.get(device.type);
+        if (!rm)
+            return undefined;
+        let ss = rm(device, hapAccessory, hapService, hapCharacteristic, platform);
+        return new ShadowAccessory(device, ss, hapAccessory, hapService, hapCharacteristic, platform);
     }
-}
-exports.ShadowLightbulb = ShadowLightbulb;
-class ShadowSwitch extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
+    static createShadowSecuritySystemAccessory(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        let service = new ShadowService(new hapService.SecuritySystem("FibaroSecuritySystem"), [hapCharacteristic.SecuritySystemCurrentState, hapCharacteristic.SecuritySystemTargetState]);
+        service.controlService.subtype = "0--";
+        return new ShadowAccessory(device, [service], hapAccessory, hapService, hapCharacteristic, platform, true);
+    }
+    static createShadowLightbulb(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        return [new ShadowService(new hapService.Lightbulb(device.name), [hapCharacteristic.On, hapCharacteristic.Brightness])];
+    }
+    static createShadowSwitch(device, hapAccessory, hapService, hapCharacteristic, platform) {
         let controlService;
         switch (device.properties.deviceControlType) {
             case "2": // Lighting
@@ -122,90 +120,42 @@ class ShadowSwitch extends ShadowAccessory {
                 controlService = new hapService.Switch(device.name);
                 break;
         }
-        let service = new ShadowService(controlService, [hapCharacteristic.On]);
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
+        return [new ShadowService(controlService, [hapCharacteristic.On])];
     }
-}
-exports.ShadowSwitch = ShadowSwitch;
-class ShadowWindowCovering extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let service = new ShadowService(new hapService.WindowCovering(device.name), [hapCharacteristic.CurrentPosition, hapCharacteristic.TargetPosition, hapCharacteristic.PositionState]);
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
+    static createShadowWindowCovering(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        return [new ShadowService(new hapService.WindowCovering(device.name), [hapCharacteristic.CurrentPosition, hapCharacteristic.TargetPosition, hapCharacteristic.PositionState])];
     }
-}
-exports.ShadowWindowCovering = ShadowWindowCovering;
-class ShadowMotionSensor extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let service = new ShadowService(new hapService.MotionSensor(device.name), [hapCharacteristic.MotionDetected]);
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
+    static createShadowMotionSensor(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        return [new ShadowService(new hapService.MotionSensor(device.name), [hapCharacteristic.MotionDetected])];
     }
-}
-exports.ShadowMotionSensor = ShadowMotionSensor;
-class ShadowTemperatureSensor extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let service = new ShadowService(new hapService.TemperatureSensor(device.name), [hapCharacteristic.CurrentTemperature]);
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
+    static createShadowTemperatureSensor(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        return [new ShadowService(new hapService.TemperatureSensor(device.name), [hapCharacteristic.CurrentTemperature])];
     }
-}
-exports.ShadowTemperatureSensor = ShadowTemperatureSensor;
-class ShadowHumiditySensor extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let service = new ShadowService(new hapService.HumiditySensor(device.name), [hapCharacteristic.CurrentRelativeHumidity]);
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
+    static createShadowHumiditySensor(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        return [new ShadowService(new hapService.HumiditySensor(device.name), [hapCharacteristic.CurrentRelativeHumidity])];
     }
-}
-exports.ShadowHumiditySensor = ShadowHumiditySensor;
-class ShadowDoorWindowSensor extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let service = new ShadowService(new hapService.ContactSensor(device.name), [hapCharacteristic.ContactSensorState]);
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
+    static createShadowDoorWindowSensor(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        return [new ShadowService(new hapService.ContactSensor(device.name), [hapCharacteristic.ContactSensorState])];
     }
-}
-exports.ShadowDoorWindowSensor = ShadowDoorWindowSensor;
-class ShadowFloodSensor extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let service = new ShadowService(new hapService.LeakSensor(device.name), [hapCharacteristic.LeakDetected]);
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
+    static createShadowFloodSensor(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        return [new ShadowService(new hapService.LeakSensor(device.name), [hapCharacteristic.LeakDetected])];
     }
-}
-exports.ShadowFloodSensor = ShadowFloodSensor;
-class ShadowSmokeSensor extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let service = new ShadowService(new hapService.SmokeSensor(device.name), [hapCharacteristic.SmokeDetected]);
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
+    static createShadowSmokeSensor(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        return [new ShadowService(new hapService.SmokeSensor(device.name), [hapCharacteristic.SmokeDetected])];
     }
-}
-exports.ShadowSmokeSensor = ShadowSmokeSensor;
-class ShadowLightSensor extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let service = new ShadowService(new hapService.LightSensor(device.name), [hapCharacteristic.CurrentAmbientLightLevel]);
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
+    static createShadowLightSensor(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        return [new ShadowService(new hapService.LightSensor(device.name), [hapCharacteristic.CurrentAmbientLightLevel])];
     }
-}
-exports.ShadowLightSensor = ShadowLightSensor;
-class ShadowOutlet extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let service = new ShadowService(new hapService.Outlet(device.name), [hapCharacteristic.On, hapCharacteristic.OutletInUse]);
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
+    static createShadowOutlet(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        return [new ShadowService(new hapService.Outlet(device.name), [hapCharacteristic.On, hapCharacteristic.OutletInUse])];
     }
-}
-exports.ShadowOutlet = ShadowOutlet;
-class ShadowLockMechanism extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let service = new ShadowService(new hapService.LockMechanism(device.name), [hapCharacteristic.LockCurrentState, hapCharacteristic.LockTargetState]);
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
+    static createShadowLockMechanism(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        return [new ShadowService(new hapService.LockMechanism(device.name), [hapCharacteristic.LockCurrentState, hapCharacteristic.LockTargetState])];
     }
-}
-exports.ShadowLockMechanism = ShadowLockMechanism;
-class ShadowSetPoint extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let service = new ShadowService(new hapService.Thermostat(device.name), [hapCharacteristic.CurrentTemperature, hapCharacteristic.TargetTemperature, hapCharacteristic.CurrentHeatingCoolingState, hapCharacteristic.TargetHeatingCoolingState, hapCharacteristic.TemperatureDisplayUnits]);
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
+    static createShadowSetPoint(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        return [new ShadowService(new hapService.Thermostat(device.name), [hapCharacteristic.CurrentTemperature, hapCharacteristic.TargetTemperature, hapCharacteristic.CurrentHeatingCoolingState, hapCharacteristic.TargetHeatingCoolingState, hapCharacteristic.TemperatureDisplayUnits])];
     }
-}
-exports.ShadowSetPoint = ShadowSetPoint;
-class ShadowVirtualDevice extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
+    static createShadowVirtualDevice(device, hapAccessory, hapService, hapCharacteristic, platform) {
         let pushButtonServices = new Array();
         let pushButtonService;
         for (let r = 0; r < device.properties.rows.length; r++) {
@@ -217,57 +167,45 @@ class ShadowVirtualDevice extends ShadowAccessory {
                 }
             }
         }
-        super(device, pushButtonServices, hapAccessory, hapService, hapCharacteristic, platform);
+        return pushButtonServices;
     }
-}
-exports.ShadowVirtualDevice = ShadowVirtualDevice;
-class ShadowColorBulb extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
+    static createShadowColorBulb(device, hapAccessory, hapService, hapCharacteristic, platform) {
         let service = { controlService: new hapService.Lightbulb(device.name), characteristics: [hapCharacteristic.On, hapCharacteristic.Brightness, hapCharacteristic.Hue, hapCharacteristic.Saturation] };
         service.controlService.HSBValue = { hue: 0, saturation: 0, brightness: 100 };
         service.controlService.RGBValue = { red: 0, green: 0, blue: 0 };
         service.controlService.countColorCharacteristics = 0;
         service.controlService.timeoutIdColorCharacteristics = 0;
         service.controlService.subtype = device.id + "--RGB"; // for RGB color add a subtype parameter; it will go into 3rd position: "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
+        return [service];
     }
 }
-exports.ShadowColorBulb = ShadowColorBulb;
-class ShadowSecuritySystem extends ShadowAccessory {
-    constructor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let service = new ShadowService(new hapService.SecuritySystem("FibaroSecuritySystem"), [hapCharacteristic.SecuritySystemCurrentState, hapCharacteristic.SecuritySystemTargetState]);
-        service.controlService.subtype = "0--";
-        super(device, [service], hapAccessory, hapService, hapCharacteristic, platform);
-        this.isSecuritySystem = true;
-    }
-}
-exports.ShadowSecuritySystem = ShadowSecuritySystem;
-var HC2HKMapping = new Map([
-    ["com.fibaro.multilevelSwitch", ShadowLightbulb],
-    ["com.fibaro.FGD212", ShadowLightbulb],
-    ["com.fibaro.binarySwitch", ShadowSwitch],
-    ["com.fibaro.developer.bxs.virtualBinarySwitch", ShadowSwitch],
-    ["com.fibaro.FGR221", ShadowWindowCovering],
-    ["com.fibaro.FGRM222", ShadowWindowCovering],
-    ["com.fibaro.rollerShutter", ShadowWindowCovering],
-    ["com.fibaro.FGMS001", ShadowMotionSensor],
-    ["com.fibaro.motionSensor", ShadowMotionSensor],
-    ["com.fibaro.temperatureSensor", ShadowTemperatureSensor],
-    ["com.fibaro.humiditySensor", ShadowHumiditySensor],
-    ["com.fibaro.doorSensor", ShadowDoorWindowSensor],
-    ["com.fibaro.windowSensor", ShadowDoorWindowSensor],
-    ["com.fibaro.FGFS101", ShadowFloodSensor],
-    ["com.fibaro.floodSensor", ShadowFloodSensor],
-    ["com.fibaro.FGSS001", ShadowSmokeSensor],
-    ["com.fibaro.lightSensor", ShadowLightSensor],
-    ["com.fibaro.FGWP101", ShadowOutlet],
-    ["com.fibaro.FGWP102", ShadowOutlet],
-    ["com.fibaro.doorLock", ShadowOutlet],
-    ["com.fibaro.gerda", ShadowLockMechanism],
-    ["com.fibaro.setPoint", ShadowSetPoint],
-    ["com.fibaro.thermostatDanfoss", ShadowSetPoint],
-    ["com.fibaro.com.fibaro.thermostatHorstmann", ShadowSetPoint],
-    ["virtual_device", ShadowVirtualDevice],
-    ["com.fibaro.FGRGBW441M", ShadowColorBulb],
-    ["com.fibaro.colorController", ShadowColorBulb]
+exports.ShadowAccessory = ShadowAccessory;
+let HC2HKMapping = new Map([
+    ["com.fibaro.multilevelSwitch", ShadowAccessory.createShadowLightbulb],
+    ["com.fibaro.FGD212", ShadowAccessory.createShadowLightbulb],
+    ["com.fibaro.binarySwitch", ShadowAccessory.createShadowSwitch],
+    ["com.fibaro.developer.bxs.virtualBinarySwitch", ShadowAccessory.createShadowSwitch],
+    ["com.fibaro.FGR221", ShadowAccessory.createShadowWindowCovering],
+    ["com.fibaro.FGRM222", ShadowAccessory.createShadowWindowCovering],
+    ["com.fibaro.rollerShutter", ShadowAccessory.createShadowWindowCovering],
+    ["com.fibaro.FGMS001", ShadowAccessory.createShadowMotionSensor],
+    ["com.fibaro.motionSensor", ShadowAccessory.createShadowMotionSensor],
+    ["com.fibaro.temperatureSensor", ShadowAccessory.createShadowTemperatureSensor],
+    ["com.fibaro.humiditySensor", ShadowAccessory.createShadowHumiditySensor],
+    ["com.fibaro.doorSensor", ShadowAccessory.createShadowDoorWindowSensor],
+    ["com.fibaro.windowSensor", ShadowAccessory.createShadowDoorWindowSensor],
+    ["com.fibaro.FGFS101", ShadowAccessory.createShadowFloodSensor],
+    ["com.fibaro.floodSensor", ShadowAccessory.createShadowFloodSensor],
+    ["com.fibaro.FGSS001", ShadowAccessory.createShadowSmokeSensor],
+    ["com.fibaro.lightSensor", ShadowAccessory.createShadowLightSensor],
+    ["com.fibaro.FGWP101", ShadowAccessory.createShadowOutlet],
+    ["com.fibaro.FGWP102", ShadowAccessory.createShadowOutlet],
+    ["com.fibaro.doorLock", ShadowAccessory.createShadowOutlet],
+    ["com.fibaro.gerda", ShadowAccessory.createShadowLockMechanism],
+    ["com.fibaro.setPoint", ShadowAccessory.createShadowSetPoint],
+    ["com.fibaro.thermostatDanfoss", ShadowAccessory.createShadowSetPoint],
+    ["com.fibaro.com.fibaro.thermostatHorstmann", ShadowAccessory.createShadowSetPoint],
+    ["virtual_device", ShadowAccessory.createShadowVirtualDevice],
+    ["com.fibaro.FGRGBW441M", ShadowAccessory.createShadowColorBulb],
+    ["com.fibaro.colorController", ShadowAccessory.createShadowColorBulb]
 ]);

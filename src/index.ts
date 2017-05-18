@@ -35,9 +35,7 @@
 import {FibaroClient} from './fibaro-api'
 import {	pluginName,
 			platformName, 
-			ShadowService, 
-			ShadowAccessory,
-			ShadowSecuritySystem} from './shadows'
+			ShadowAccessory} from './shadows'
 import {SetFunctions} from './setFunctions'
 import {GetFunctions} from './getFunctions'
 import {Poller} from './pollerupdate'
@@ -151,7 +149,7 @@ class FibaroHC2 {
 		// Create Security System accessory
 		if (this.config.securitysystem == "enabled") {
 			let device = {name: "FibaroSecuritySystem", roomID: 0, id: 0};
-			let sa = new ShadowSecuritySystem(device, Accessory, Service, Characteristic, this);
+			let sa = ShadowAccessory.createShadowSecuritySystemAccessory(device, Accessory, Service, Characteristic, this);
 			this.addAccessory(sa);
 		}
 		
