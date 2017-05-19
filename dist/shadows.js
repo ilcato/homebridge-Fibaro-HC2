@@ -209,3 +209,4 @@ let HC2HKMapping = new Map([
     ["com.fibaro.FGRGBW441M", ShadowAccessory.createShadowColorBulb],
     ["com.fibaro.colorController", ShadowAccessory.createShadowColorBulb]
 ]);
+//# sourceMappingURL=shadows.js.map

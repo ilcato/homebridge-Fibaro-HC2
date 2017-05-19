@@ -163,3 +163,4 @@ class FibaroClient {
     }
 }
 exports.FibaroClient = FibaroClient;
+//# sourceMappingURL=fibaro-api.js.map

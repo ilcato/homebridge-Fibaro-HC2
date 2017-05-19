@@ -75,33 +75,32 @@ class GetFunctions {
         this.returnValue(r, callback, characteristic);
     }
     getBrightness(callback, characteristic, service, IDs, properties) {
+        let r;
         if (service.HSBValue != null) {
             let hsv = this.updateHomeKitColorFromHomeCenter(properties.color, service);
-            if (callback)
-                callback(undefined, Math.round(hsv.v));
+            r = Math.round(hsv.v);
         }
         else {
-            if (properties.value == 99)
-                properties.value = 100;
-            let r = parseFloat(properties.value);
-            this.returnValue(r, callback, characteristic);
+            r = parseFloat(properties.value);
+            if (r == 99)
+                r = 100;
         }
+        this.returnValue(r, callback, characteristic);
     }
     getPositionState(callback, characteristic, service, IDs, properties) {
-        if (callback)
-            callback(undefined, this.hapCharacteristic.PositionState.STOPPED);
+        let r = this.hapCharacteristic.PositionState.STOPPED;
+        this.returnValue(r, callback, characteristic);
     }
     getCurrentPosition(callback, characteristic, service, IDs, properties) {
         let r = parseInt(properties.value);
         if (r >= characteristic.props.minValue && r <= characteristic.props.maxValue) {
             if (r == 99)
                 r = 100;
-            this.returnValue(r, callback, characteristic);
         }
         else {
-            if (callback)
-                callback("Error value window position", null);
+            r = characteristic.props.minValue;
         }
+        this.returnValue(r, callback, characteristic);
     }
     getTargetTemperature(callback, characteristic, service, IDs, properties) {
         let r = parseFloat(properties.targetLevel);
@@ -128,34 +127,34 @@ class GetFunctions {
         this.returnValue(r, callback, characteristic);
     }
     getCurrentHeatingCoolingState(callback, characteristic, service, IDs, properties) {
-        if (callback)
-            callback(undefined, this.hapCharacteristic.TargetHeatingCoolingState.HEAT);
+        let r = this.hapCharacteristic.TargetHeatingCoolingState.HEAT;
+        this.returnValue(r, callback, characteristic);
     }
     getTemperatureDisplayUnits(callback, characteristic, service, IDs, properties) {
-        if (callback)
-            callback(undefined, this.hapCharacteristic.TemperatureDisplayUnits.CELSIUS);
+        let r = this.hapCharacteristic.TemperatureDisplayUnits.CELSIUS;
+        this.returnValue(r, callback, characteristic);
     }
     getHue(callback, characteristic, service, IDs, properties) {
         let hsv = this.updateHomeKitColorFromHomeCenter(properties.color, service);
-        if (callback)
-            callback(undefined, Math.round(hsv.h));
+        let r = Math.round(hsv.h);
+        this.returnValue(r, callback, characteristic);
     }
     getSaturation(callback, characteristic, service, IDs, properties) {
         let hsv = this.updateHomeKitColorFromHomeCenter(properties.color, service);
-        if (callback)
-            callback(undefined, Math.round(hsv.s));
+        let r = Math.round(hsv.s);
+        this.returnValue(r, callback, characteristic);
     }
     getSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus) {
-        let state;
+        let r;
         if (characteristic.UUID == (new this.hapCharacteristic.SecuritySystemCurrentState()).UUID) {
-            state = this.getCurrentSecuritySystemStateMapping.get(securitySystemStatus.value);
+            r = this.getCurrentSecuritySystemStateMapping.get(securitySystemStatus.value);
         }
         else if (characteristic.UUID == (new this.hapCharacteristic.SecuritySystemTargetState()).UUID) {
-            state = this.getTargetSecuritySystemStateMapping.get(securitySystemStatus.value);
+            r = this.getTargetSecuritySystemStateMapping.get(securitySystemStatus.value);
         }
-        if (state == undefined)
-            state = this.hapCharacteristic.SecuritySystemTargetState.DISARMED;
-        callback(undefined, state);
+        if (r == undefined)
+            r = this.hapCharacteristic.SecuritySystemTargetState.DISARMED;
+        this.returnValue(r, callback, characteristic);
     }
     updateHomeKitColorFromHomeCenter(color, service) {
         let colors = color.split(",");
@@ -201,3 +200,4 @@ class GetFunctions {
     }
 }
 exports.GetFunctions = GetFunctions;
+//# sourceMappingURL=getFunctions.js.map

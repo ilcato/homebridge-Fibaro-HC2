@@ -51,24 +51,25 @@ export class Poller {
 						} 
 					});
 				}
-				this.pollingUpdateRunning = false;
-				setTimeout( () => { this.poll()}, this.pollerPeriod * 1000);
+				// Manage Security System state
+				if (this.platform.config.securitysystem == "enabled") {
+					this.platform.fibaroClient.getGlobalVariable("SecuritySystem")
+						.then((securitySystemStatus) => {
+							let state = this.platform.getFunctions.getCurrentSecuritySystemStateMapping.get(securitySystemStatus.value);
+							let c = this.platform.securitySystemService.getCharacteristic(this.hapCharacteristic.SecuritySystemCurrentState);
+							if (state == this.hapCharacteristic.SecuritySystemCurrentState.ALARM_TRIGGERED && c.value != state)
+								c.setValue(state, undefined, 'fromFibaro');
+						})
+						.catch((err) =>{
+							this.platform.log("There was a problem getting value from Global Variable: SecuritySystem", ` - Err: ${err}` );
+						});
+				}
 			})
 			.catch((err) => {
 				this.platform.log("Error fetching updates: ", + err);
-			});
-
-		// Manage Security System state
-		if (this.platform.config.securitysystem == "enabled") {
-			this.platform.fibaroClient.getGlobalVariable("SecuritySystem")
-				.then((securitySystemStatus) => {
-					let state = this.platform.getFunctions.getCurrentSecuritySystemStateMapping.get(securitySystemStatus.value);
-					this.platform.securitySystemService.setCharacteristic(this.hapCharacteristic.SecuritySystemCurrentState, state);
-				})
-				.catch((err) =>{
-					this.platform.log("There was a problem getting value from Global Variable: SecuritySystem", ` - Err: ${err}` );
-				});
-		}
+		});
+		this.pollingUpdateRunning = false;
+		setTimeout( () => { this.poll()}, this.pollerPeriod * 1000);
 	}
 	
 	manageValue(change) {

@@ -228,3 +228,4 @@ module.exports = function (homebridge) {
     UUIDGen = homebridge.hap.uuid;
     homebridge.registerPlatform(shadows_1.pluginName, shadows_1.platformName, FibaroHC2, true);
 };
+//# sourceMappingURL=index.js.map
