@@ -46,15 +46,19 @@ class Poller {
             .catch((err) => {
             this.platform.log("Error fetching updates: ", +err);
         });
+        // Manage Security System state
+        if (this.platform.config.securitysystem == "enabled") {
+            this.platform.fibaroClient.getGlobalVariable("SecuritySystem")
+                .then((securitySystemStatus) => {
+                let state = this.platform.getFunctions.getCurrentSecuritySystemStateMapping.get(securitySystemStatus.value);
+                this.platform.securitySystemService.setCharacteristic(this.hapCharacteristic.SecuritySystemCurrentState, state);
+            })
+                .catch((err) => {
+                this.platform.log("There was a problem getting value from Global Variable: SecuritySystem", ` - Err: ${err}`);
+            });
+        }
     }
     manageValue(change) {
-        // Set Security System to triggered if a Fibaro Alert is present
-        if (this.platform.config.securitysystem == "enabled") {
-            if (change.fibaroAlarm == "true") {
-                this.platform.setFunctions.scene(this.platform.securitySystemScenes.SetAlarmTriggered);
-                this.platform.securitySystemService.setCharacteristic(this.hapCharacteristic.SecuritySystemCurrentState, this.hapCharacteristic.SecuritySystemCurrentState.ALARM_TRIGGERED);
-            }
-        }
         for (let i = 0; i < this.platform.updateSubscriptions.length; i++) {
             let subscription = this.platform.updateSubscriptions[i];
             if (subscription.id == change.id && subscription.property == "value") {
