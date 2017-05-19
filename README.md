@@ -15,7 +15,7 @@ Version 2.0.0
 + Better maintainability and extensibility 
 
 Version 1.1.2
-+ Fix RGBW
++ Fixed RGBW
 
 Version 1.1.1
 + Security system accessory fixed reading current status
