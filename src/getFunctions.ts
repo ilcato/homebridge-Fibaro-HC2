@@ -97,8 +97,7 @@ export class GetFunctions {
 		this.returnValue(r, callback, characteristic);
 	}
 	getPositionState(callback, characteristic, service, IDs, properties) {
-		let r = this.hapCharacteristic.PositionState.STOPPED;
-		this.returnValue(r, callback, characteristic);
+		this.returnValue(this.hapCharacteristic.PositionState.STOPPED, callback, characteristic);
 	}
 	getCurrentPosition(callback, characteristic, service, IDs, properties) {
 		let r = parseInt(properties.value);
@@ -111,46 +110,34 @@ export class GetFunctions {
 		this.returnValue(r, callback, characteristic);
 	}
 	getTargetTemperature(callback, characteristic, service, IDs, properties) {
-		let r = parseFloat(properties.targetLevel);
-		this.returnValue(r, callback, characteristic);
+		this.returnValue(parseFloat(properties.targetLevel), callback, characteristic);
 	}
 	getContactSensorState(callback, characteristic, service, IDs, properties) {
-		let r = properties.value == "false" ? this.hapCharacteristic.ContactSensorState.CONTACT_DETECTED : this.hapCharacteristic.ContactSensorState.CONTACT_NOT_DETECTED;
-		this.returnValue(r, callback, characteristic);
+		this.returnValue(properties.value == "false" ? this.hapCharacteristic.ContactSensorState.CONTACT_DETECTED : this.hapCharacteristic.ContactSensorState.CONTACT_NOT_DETECTED, callback, characteristic);
 	}
 	getLeakDetected(callback, characteristic, service, IDs, properties) {
-		let r = properties.value == "true" ? this.hapCharacteristic.LeakDetected.LEAK_DETECTED : this.hapCharacteristic.LeakDetected.LEAK_NOT_DETECTED;
-		this.returnValue(r, callback, characteristic);
+		this.returnValue(properties.value == "true" ? this.hapCharacteristic.LeakDetected.LEAK_DETECTED : this.hapCharacteristic.LeakDetected.LEAK_NOT_DETECTED, callback, characteristic);
 	}
 	getSmokeDetected(callback, characteristic, service, IDs, properties) {
-		let r = properties.value == "true" ? this.hapCharacteristic.SmokeDetected.SMOKE_DETECTED : this.hapCharacteristic.SmokeDetected.SMOKE_NOT_DETECTED;
-		this.returnValue(r, callback, characteristic);
+		this.returnValue(properties.value == "true" ? this.hapCharacteristic.SmokeDetected.SMOKE_DETECTED : this.hapCharacteristic.SmokeDetected.SMOKE_NOT_DETECTED, callback, characteristic);
 	}
 	getOutletInUse(callback, characteristic, service, IDs, properties) {
-		let r = parseFloat(properties.power) > 1.0 ? true : false;
-		this.returnValue(r, callback, characteristic);
+		this.returnValue(parseFloat(properties.power) > 1.0 ? true : false, callback, characteristic);
 	}
 	getLockCurrentState(callback, characteristic, service, IDs, properties) {
-		let r = properties.value == "true" ? this.hapCharacteristic.LockCurrentState.SECURED : this.hapCharacteristic.LockCurrentState.UNSECURED;
-		this.returnValue(r, callback, characteristic);
+		this.returnValue(properties.value == "true" ? this.hapCharacteristic.LockCurrentState.SECURED : this.hapCharacteristic.LockCurrentState.UNSECURED, callback, characteristic);
 	}
 	getCurrentHeatingCoolingState(callback, characteristic, service, IDs, properties) {
-		let r = this.hapCharacteristic.TargetHeatingCoolingState.HEAT;
-		this.returnValue(r, callback, characteristic);
+		this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);
 	}
 	getTemperatureDisplayUnits(callback, characteristic, service, IDs, properties) {
-		let r = this.hapCharacteristic.TemperatureDisplayUnits.CELSIUS;
-		this.returnValue(r, callback, characteristic);
+		this.returnValue(this.hapCharacteristic.TemperatureDisplayUnits.CELSIUS, callback, characteristic);
 	}
 	getHue(callback, characteristic, service, IDs, properties) {
-		let hsv = this.updateHomeKitColorFromHomeCenter(properties.color, service);
-		let r = Math.round(hsv.h);
-		this.returnValue(r, callback, characteristic);
+		this.returnValue(Math.round(this.updateHomeKitColorFromHomeCenter(properties.color, service).h), callback, characteristic);
 	}
 	getSaturation(callback, characteristic, service, IDs, properties) {
-		let hsv = this.updateHomeKitColorFromHomeCenter(properties.color, service);
-		let r = Math.round(hsv.s);
-		this.returnValue(r, callback, characteristic);
+		this.returnValue(Math.round(this.updateHomeKitColorFromHomeCenter(properties.color, service).s), callback, characteristic);
 	}
 	getSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus) {
 		let r;

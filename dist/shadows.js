@@ -94,10 +94,98 @@ class ShadowAccessory {
         this.accessory = accessory;
     }
     static createShadowAccessory(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let rm = HC2HKMapping.get(device.type);
-        if (!rm)
+        let ss;
+        switch (device.type) {
+            case "com.fibaro.multilevelSwitch":
+            case "com.fibaro.FGD212":
+                ss = [new ShadowService(new hapService.Lightbulb(device.name), [hapCharacteristic.On, hapCharacteristic.Brightness])];
+                break;
+            case "com.fibaro.binarySwitch":
+            case "com.fibaro.developer.bxs.virtualBinarySwitch":
+                let controlService;
+                switch (device.properties.deviceControlType) {
+                    case "2": // Lighting
+                    case "5": // Bedside Lamp
+                    case "7":
+                        controlService = new hapService.Lightbulb(device.name);
+                        break;
+                    default:
+                        controlService = new hapService.Switch(device.name);
+                        break;
+                }
+                ss = [new ShadowService(controlService, [hapCharacteristic.On])];
+                break;
+            case "com.fibaro.FGR221":
+            case "com.fibaro.FGRM222":
+            case "com.fibaro.rollerShutter":
+                ss = [new ShadowService(new hapService.WindowCovering(device.name), [hapCharacteristic.CurrentPosition, hapCharacteristic.TargetPosition, hapCharacteristic.PositionState])];
+                break;
+            case "com.fibaro.FGMS001":
+            case "com.fibaro.motionSensor":
+                ss = [new ShadowService(new hapService.MotionSensor(device.name), [hapCharacteristic.MotionDetected])];
+                break;
+            case "com.fibaro.temperatureSensor":
+                ss = [new ShadowService(new hapService.TemperatureSensor(device.name), [hapCharacteristic.CurrentTemperature])];
+                break;
+            case "com.fibaro.humiditySensor":
+                ss = [new ShadowService(new hapService.HumiditySensor(device.name), [hapCharacteristic.CurrentRelativeHumidity])];
+                break;
+            case "com.fibaro.doorSensor":
+            case "com.fibaro.windowSensor":
+                ss = [new ShadowService(new hapService.ContactSensor(device.name), [hapCharacteristic.ContactSensorState])];
+                break;
+            case "com.fibaro.FGFS101":
+            case "com.fibaro.floodSensor":
+                ss = [new ShadowService(new hapService.LeakSensor(device.name), [hapCharacteristic.LeakDetected])];
+                break;
+            case "com.fibaro.FGSS001":
+                ss = [new ShadowService(new hapService.SmokeSensor(device.name), [hapCharacteristic.SmokeDetected])];
+                break;
+            case "com.fibaro.lightSensor":
+                ss = [new ShadowService(new hapService.LightSensor(device.name), [hapCharacteristic.CurrentAmbientLightLevel])];
+                break;
+            case "com.fibaro.FGWP101":
+            case "com.fibaro.FGWP102":
+                ss = [new ShadowService(new hapService.Outlet(device.name), [hapCharacteristic.On, hapCharacteristic.OutletInUse])];
+                break;
+            case "com.fibaro.doorLock":
+            case "com.fibaro.gerda":
+                ss = [new ShadowService(new hapService.LockMechanism(device.name), [hapCharacteristic.LockCurrentState, hapCharacteristic.LockTargetState])];
+                break;
+            case "com.fibaro.setPoint":
+            case "com.fibaro.thermostatDanfoss":
+            case "com.fibaro.com.fibaro.thermostatHorstmann":
+                ss = [new ShadowService(new hapService.Thermostat(device.name), [hapCharacteristic.CurrentTemperature, hapCharacteristic.TargetTemperature, hapCharacteristic.CurrentHeatingCoolingState, hapCharacteristic.TargetHeatingCoolingState, hapCharacteristic.TemperatureDisplayUnits])];
+                break;
+            case "virtual_device":
+                let pushButtonServices = new Array();
+                let pushButtonService;
+                for (let r = 0; r < device.properties.rows.length; r++) {
+                    if (device.properties.rows[r].type == "button") {
+                        for (let e = 0; e < device.properties.rows[r].elements.length; e++) {
+                            pushButtonService = new ShadowService(new hapService.Switch(device.properties.rows[r].elements[e].caption), [hapCharacteristic.On]);
+                            pushButtonService.controlService.subtype = device.id + "-" + device.properties.rows[r].elements[e].id; // For Virtual devices it is device_id + "-" + button_id
+                            pushButtonServices.push(pushButtonService);
+                        }
+                    }
+                }
+                ss = pushButtonServices;
+                break;
+            case "com.fibaro.FGRGBW441M":
+            case "com.fibaro.colorController":
+                let service = { controlService: new hapService.Lightbulb(device.name), characteristics: [hapCharacteristic.On, hapCharacteristic.Brightness, hapCharacteristic.Hue, hapCharacteristic.Saturation] };
+                service.controlService.HSBValue = { hue: 0, saturation: 0, brightness: 100 };
+                service.controlService.RGBValue = { red: 0, green: 0, blue: 0 };
+                service.controlService.countColorCharacteristics = 0;
+                service.controlService.timeoutIdColorCharacteristics = 0;
+                service.controlService.subtype = device.id + "--RGB"; // for RGB color add a subtype parameter; it will go into 3rd position: "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
+                ss = [service];
+                break;
+            default:
+                break;
+        }
+        if (!ss)
             return undefined;
-        let ss = rm(device, hapAccessory, hapService, hapCharacteristic, platform);
         return new ShadowAccessory(device, ss, hapAccessory, hapService, hapCharacteristic, platform);
     }
     static createShadowSecuritySystemAccessory(device, hapAccessory, hapService, hapCharacteristic, platform) {
@@ -105,108 +193,6 @@ class ShadowAccessory {
         service.controlService.subtype = "0--";
         return new ShadowAccessory(device, [service], hapAccessory, hapService, hapCharacteristic, platform, true);
     }
-    static createShadowLightbulb(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        return [new ShadowService(new hapService.Lightbulb(device.name), [hapCharacteristic.On, hapCharacteristic.Brightness])];
-    }
-    static createShadowSwitch(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let controlService;
-        switch (device.properties.deviceControlType) {
-            case "2": // Lighting
-            case "5": // Bedside Lamp
-            case "7":
-                controlService = new hapService.Lightbulb(device.name);
-                break;
-            default:
-                controlService = new hapService.Switch(device.name);
-                break;
-        }
-        return [new ShadowService(controlService, [hapCharacteristic.On])];
-    }
-    static createShadowWindowCovering(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        return [new ShadowService(new hapService.WindowCovering(device.name), [hapCharacteristic.CurrentPosition, hapCharacteristic.TargetPosition, hapCharacteristic.PositionState])];
-    }
-    static createShadowMotionSensor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        return [new ShadowService(new hapService.MotionSensor(device.name), [hapCharacteristic.MotionDetected])];
-    }
-    static createShadowTemperatureSensor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        return [new ShadowService(new hapService.TemperatureSensor(device.name), [hapCharacteristic.CurrentTemperature])];
-    }
-    static createShadowHumiditySensor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        return [new ShadowService(new hapService.HumiditySensor(device.name), [hapCharacteristic.CurrentRelativeHumidity])];
-    }
-    static createShadowDoorWindowSensor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        return [new ShadowService(new hapService.ContactSensor(device.name), [hapCharacteristic.ContactSensorState])];
-    }
-    static createShadowFloodSensor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        return [new ShadowService(new hapService.LeakSensor(device.name), [hapCharacteristic.LeakDetected])];
-    }
-    static createShadowSmokeSensor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        return [new ShadowService(new hapService.SmokeSensor(device.name), [hapCharacteristic.SmokeDetected])];
-    }
-    static createShadowLightSensor(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        return [new ShadowService(new hapService.LightSensor(device.name), [hapCharacteristic.CurrentAmbientLightLevel])];
-    }
-    static createShadowOutlet(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        return [new ShadowService(new hapService.Outlet(device.name), [hapCharacteristic.On, hapCharacteristic.OutletInUse])];
-    }
-    static createShadowLockMechanism(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        return [new ShadowService(new hapService.LockMechanism(device.name), [hapCharacteristic.LockCurrentState, hapCharacteristic.LockTargetState])];
-    }
-    static createShadowSetPoint(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        return [new ShadowService(new hapService.Thermostat(device.name), [hapCharacteristic.CurrentTemperature, hapCharacteristic.TargetTemperature, hapCharacteristic.CurrentHeatingCoolingState, hapCharacteristic.TargetHeatingCoolingState, hapCharacteristic.TemperatureDisplayUnits])];
-    }
-    static createShadowVirtualDevice(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let pushButtonServices = new Array();
-        let pushButtonService;
-        for (let r = 0; r < device.properties.rows.length; r++) {
-            if (device.properties.rows[r].type == "button") {
-                for (let e = 0; e < device.properties.rows[r].elements.length; e++) {
-                    pushButtonService = new ShadowService(new hapService.Switch(device.properties.rows[r].elements[e].caption), [hapCharacteristic.On]);
-                    pushButtonService.controlService.subtype = device.id + "-" + device.properties.rows[r].elements[e].id; // For Virtual devices it is device_id + "-" + button_id
-                    pushButtonServices.push(pushButtonService);
-                }
-            }
-        }
-        return pushButtonServices;
-    }
-    static createShadowColorBulb(device, hapAccessory, hapService, hapCharacteristic, platform) {
-        let service = { controlService: new hapService.Lightbulb(device.name), characteristics: [hapCharacteristic.On, hapCharacteristic.Brightness, hapCharacteristic.Hue, hapCharacteristic.Saturation] };
-        service.controlService.HSBValue = { hue: 0, saturation: 0, brightness: 100 };
-        service.controlService.RGBValue = { red: 0, green: 0, blue: 0 };
-        service.controlService.countColorCharacteristics = 0;
-        service.controlService.timeoutIdColorCharacteristics = 0;
-        service.controlService.subtype = device.id + "--RGB"; // for RGB color add a subtype parameter; it will go into 3rd position: "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
-        return [service];
-    }
 }
 exports.ShadowAccessory = ShadowAccessory;
-let HC2HKMapping = new Map([
-    ["com.fibaro.multilevelSwitch", ShadowAccessory.createShadowLightbulb],
-    ["com.fibaro.FGD212", ShadowAccessory.createShadowLightbulb],
-    ["com.fibaro.binarySwitch", ShadowAccessory.createShadowSwitch],
-    ["com.fibaro.developer.bxs.virtualBinarySwitch", ShadowAccessory.createShadowSwitch],
-    ["com.fibaro.FGR221", ShadowAccessory.createShadowWindowCovering],
-    ["com.fibaro.FGRM222", ShadowAccessory.createShadowWindowCovering],
-    ["com.fibaro.rollerShutter", ShadowAccessory.createShadowWindowCovering],
-    ["com.fibaro.FGMS001", ShadowAccessory.createShadowMotionSensor],
-    ["com.fibaro.motionSensor", ShadowAccessory.createShadowMotionSensor],
-    ["com.fibaro.temperatureSensor", ShadowAccessory.createShadowTemperatureSensor],
-    ["com.fibaro.humiditySensor", ShadowAccessory.createShadowHumiditySensor],
-    ["com.fibaro.doorSensor", ShadowAccessory.createShadowDoorWindowSensor],
-    ["com.fibaro.windowSensor", ShadowAccessory.createShadowDoorWindowSensor],
-    ["com.fibaro.FGFS101", ShadowAccessory.createShadowFloodSensor],
-    ["com.fibaro.floodSensor", ShadowAccessory.createShadowFloodSensor],
-    ["com.fibaro.FGSS001", ShadowAccessory.createShadowSmokeSensor],
-    ["com.fibaro.lightSensor", ShadowAccessory.createShadowLightSensor],
-    ["com.fibaro.FGWP101", ShadowAccessory.createShadowOutlet],
-    ["com.fibaro.FGWP102", ShadowAccessory.createShadowOutlet],
-    ["com.fibaro.doorLock", ShadowAccessory.createShadowOutlet],
-    ["com.fibaro.gerda", ShadowAccessory.createShadowLockMechanism],
-    ["com.fibaro.setPoint", ShadowAccessory.createShadowSetPoint],
-    ["com.fibaro.thermostatDanfoss", ShadowAccessory.createShadowSetPoint],
-    ["com.fibaro.com.fibaro.thermostatHorstmann", ShadowAccessory.createShadowSetPoint],
-    ["virtual_device", ShadowAccessory.createShadowVirtualDevice],
-    ["com.fibaro.FGRGBW441M", ShadowAccessory.createShadowColorBulb],
-    ["com.fibaro.colorController", ShadowAccessory.createShadowColorBulb]
-]);
 //# sourceMappingURL=shadows.js.map
