@@ -44,6 +44,8 @@ class Poller {
             if (this.platform.config.securitysystem == "enabled") {
                 this.platform.fibaroClient.getGlobalVariable("SecuritySystem")
                     .then((securitySystemStatus) => {
+                    if (this.platform.securitySystemService == undefined)
+                        return;
                     let state = this.platform.getFunctions.getCurrentSecuritySystemStateMapping.get(securitySystemStatus.value);
                     let c = this.platform.securitySystemService.getCharacteristic(this.hapCharacteristic.SecuritySystemCurrentState);
                     if (state == this.hapCharacteristic.SecuritySystemCurrentState.ALARM_TRIGGERED && c.value != state)

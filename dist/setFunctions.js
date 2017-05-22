@@ -14,6 +14,7 @@
 // Fibaro Home Center 2 Platform plugin for HomeBridge
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
+const timeOffset = 2 * 3600;
 class SetFunctions {
     constructor(hapCharacteristic, platform) {
         this.hapCharacteristic = hapCharacteristic;
@@ -23,6 +24,7 @@ class SetFunctions {
             [(new hapCharacteristic.Brightness()).UUID, this.setBrightness],
             [(new hapCharacteristic.TargetPosition()).UUID, this.setValue],
             [(new hapCharacteristic.LockTargetState()).UUID, this.setLockTargetState],
+            [(new hapCharacteristic.TargetHeatingCoolingState()).UUID, this.setTargetHeatingCoolingState],
             [(new hapCharacteristic.TargetTemperature()).UUID, this.setTargetTemperature],
             [(new hapCharacteristic.Hue()).UUID, this.setHue],
             [(new hapCharacteristic.Saturation()).UUID, this.setSaturation],
@@ -66,16 +68,31 @@ class SetFunctions {
         var action = value == this.hapCharacteristic.LockTargetState.UNSECURED ? "unsecure" : "secure";
         this.command(action, 0, service, IDs);
     }
+    setTargetHeatingCoolingState(value, callback, context, characteristic, service, IDs) {
+        let temp = 0;
+        if (value == this.hapCharacteristic.TargetHeatingCoolingState.OFF) {
+            temp = 10;
+        }
+        else {
+            temp = 21;
+            value = this.hapCharacteristic.TargetHeatingCoolingState.HEAT; // force the target state to HEAT because we are not managing other staes beside OFF and HEAT
+        }
+        this.command("setTargetLevel", temp, service, IDs);
+        this.command("setTime", 0 + Math.trunc((new Date()).getTime() / 1000), service, IDs);
+        setTimeout(() => {
+            characteristic.setValue(value, undefined, 'fromSetValue');
+        }, 100);
+    }
     setTargetTemperature(value, callback, context, characteristic, service, IDs) {
         if (Math.abs(value - characteristic.value) >= 0.5) {
             value = parseFloat((Math.round(value / 0.5) * 0.5).toFixed(1));
             this.command("setTargetLevel", value, service, IDs);
-            this.command("setTime", 2 * 3600 + Math.trunc((new Date()).getTime() / 1000), service, IDs);
+            this.command("setTime", timeOffset + Math.trunc((new Date()).getTime() / 1000), service, IDs);
         }
         else {
             value = characteristic.value;
         }
-        setTimeout(function () {
+        setTimeout(() => {
             characteristic.setValue(value, undefined, 'fromSetValue');
         }, 100);
     }

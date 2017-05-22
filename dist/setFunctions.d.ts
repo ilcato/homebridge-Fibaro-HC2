@@ -8,6 +8,7 @@ export declare class SetFunctions {
     setBrightness(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
     setValue(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
     setLockTargetState(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
+    setTargetHeatingCoolingState(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
     setTargetTemperature(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
     setHue(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
     setSaturation(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;

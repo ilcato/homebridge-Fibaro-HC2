@@ -18,6 +18,7 @@ export declare class GetFunctions {
     getOutletInUse(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
     getLockCurrentState(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
     getCurrentHeatingCoolingState(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
+    getTargetHeatingCoolingState(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
     getTemperatureDisplayUnits(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
     getHue(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
     getSaturation(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;

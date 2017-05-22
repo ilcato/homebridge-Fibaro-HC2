@@ -36,7 +36,7 @@ class GetFunctions {
             [(new hapCharacteristic.LockCurrentState()).UUID, this.getLockCurrentState],
             [(new hapCharacteristic.LockTargetState()).UUID, this.getLockCurrentState],
             [(new hapCharacteristic.CurrentHeatingCoolingState()).UUID, this.getCurrentHeatingCoolingState],
-            [(new hapCharacteristic.TargetHeatingCoolingState()).UUID, this.getCurrentHeatingCoolingState],
+            [(new hapCharacteristic.TargetHeatingCoolingState()).UUID, this.getTargetHeatingCoolingState],
             [(new hapCharacteristic.TemperatureDisplayUnits()).UUID, this.getTemperatureDisplayUnits],
             [(new hapCharacteristic.Hue()).UUID, this.getHue],
             [(new hapCharacteristic.Saturation()).UUID, this.getSaturation]
@@ -120,7 +120,18 @@ class GetFunctions {
         this.returnValue(properties.value == "true" ? this.hapCharacteristic.LockCurrentState.SECURED : this.hapCharacteristic.LockCurrentState.UNSECURED, callback, characteristic);
     }
     getCurrentHeatingCoolingState(callback, characteristic, service, IDs, properties) {
-        this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);
+        let t = parseFloat(properties.value);
+        if (t <= 10)
+            this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.OFF, callback, characteristic);
+        else
+            this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
+    }
+    getTargetHeatingCoolingState(callback, characteristic, service, IDs, properties) {
+        let t = parseFloat(properties.targetLevel);
+        if (t <= 10)
+            this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.OFF, callback, characteristic);
+        else
+            this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);
     }
     getTemperatureDisplayUnits(callback, characteristic, service, IDs, properties) {
         this.returnValue(this.hapCharacteristic.TemperatureDisplayUnits.CELSIUS, callback, characteristic);
