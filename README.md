@@ -8,8 +8,14 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 2.0.0
++ Rewritten in TypeScript
++ Fixed Security System management (see updated Wiki)
++ Removed room grouping support
++ Better maintainability and extensibility 
+
 Version 1.1.2
-+ Fix RGBW
++ Fixed RGBW
 
 Version 1.1.1
 + Security system accessory fixed reading current status
