@@ -4,6 +4,7 @@
   "description": "Homebridge plugin for Fibaro Home Center 2 ",
   "note": "peerDependencies is hardcoded to peerDepdendencies in homebridge!!!",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "prepublish": "tsc",
     "start": "echo \"Error: configure and run homebridge to start\" && exit 1"
@@ -26,10 +27,9 @@
   ],
   "dependencies": {
     "request": "^2.65.0",
-	"hap-nodejs": "0.4.25"    
+    "typescript": "^2.2.2"
   },
   "devDependencies": {
-    "typescript": "^2.2.2"
   },
   "author": "ilcato",
   "license": "Apache-2.0",
