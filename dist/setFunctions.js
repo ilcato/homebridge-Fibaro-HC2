@@ -81,6 +81,9 @@ class SetFunctions {
         this.command("setTime", 0 + Math.trunc((new Date()).getTime() / 1000), service, IDs);
         setTimeout(() => {
             characteristic.setValue(value, undefined, 'fromSetValue');
+            // set also current state
+            let currentHeatingCoolingStateCharacteristic = service.getCharacteristic(this.hapCharacteristic.CurrentHeatingCoolingState);
+            currentHeatingCoolingStateCharacteristic.setValue(value, undefined, 'fromSetValue');
         }, 100);
     }
     setTargetTemperature(value, callback, context, characteristic, service, IDs) {
