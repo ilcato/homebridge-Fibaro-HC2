@@ -8,6 +8,10 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 2.0.1
++ Added management for Heating Cooling state for thermostats
++ Fixed poller update
+
 Version 2.0.0
 + Rewritten in TypeScript
 + Fixed Security System management (see updated Wiki)
