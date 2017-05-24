@@ -17,7 +17,7 @@
 'use strict'
 
 const timeOffset = 2*3600;
-export const lowestTemp = 10;
+export const lowestTemp = 12;
 export const stdTemp = 21;
 
 

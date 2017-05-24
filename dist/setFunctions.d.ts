@@ -1,4 +1,4 @@
-export declare const lowestTemp = 10;
+export declare const lowestTemp = 12;
 export declare const stdTemp = 21;
 export declare class SetFunctions {
     hapCharacteristic: any;

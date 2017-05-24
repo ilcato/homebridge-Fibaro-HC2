@@ -15,7 +15,7 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
 const timeOffset = 2 * 3600;
-exports.lowestTemp = 10;
+exports.lowestTemp = 12;
 exports.stdTemp = 21;
 class SetFunctions {
     constructor(hapCharacteristic, platform) {
