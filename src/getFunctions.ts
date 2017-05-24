@@ -16,7 +16,7 @@
 
 'use strict'
 
-import {lowestTemp, stdTemp} from './setFunctions'
+import {lowestTemp} from './setFunctions'
 
 export class GetFunctions {
 	hapCharacteristic: any;

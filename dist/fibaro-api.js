@@ -18,9 +18,7 @@ const request = require("request");
 class FibaroClient {
     constructor(host, username, password) {
         this.host = host;
-        this.username = username;
-        this.password = password;
-        this.auth = "Basic " + new Buffer(this.username + ":" + this.password).toString("base64");
+        this.auth = "Basic " + new Buffer(username + ":" + password).toString("base64");
         this.headers = {
             "Authorization": this.auth
         };

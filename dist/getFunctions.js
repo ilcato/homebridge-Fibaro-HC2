@@ -14,6 +14,7 @@
 // Fibaro Home Center 2 Platform plugin for HomeBridge
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
+const setFunctions_1 = require("./setFunctions");
 class GetFunctions {
     constructor(hapCharacteristic, platform) {
         this.hapCharacteristic = hapCharacteristic;
@@ -121,14 +122,14 @@ class GetFunctions {
     }
     getCurrentHeatingCoolingState(callback, characteristic, service, IDs, properties) {
         let t = parseFloat(properties.value);
-        if (t <= 10)
+        if (t <= setFunctions_1.lowestTemp)
             this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.OFF, callback, characteristic);
         else
             this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
     }
     getTargetHeatingCoolingState(callback, characteristic, service, IDs, properties) {
         let t = parseFloat(properties.targetLevel);
-        if (t <= 10)
+        if (t <= setFunctions_1.lowestTemp)
             this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.OFF, callback, characteristic);
         else
             this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);

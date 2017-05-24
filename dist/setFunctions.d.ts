@@ -1,3 +1,5 @@
+export declare const lowestTemp = 10;
+export declare const stdTemp = 21;
 export declare class SetFunctions {
     hapCharacteristic: any;
     setFunctionsMapping: Map<string, any>;
@@ -6,7 +8,7 @@ export declare class SetFunctions {
     constructor(hapCharacteristic: any, platform: any);
     setOn(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
     setBrightness(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
-    setValue(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
+    setTargetPosition(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
     setLockTargetState(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
     setTargetHeatingCoolingState(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
     setTargetTemperature(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;

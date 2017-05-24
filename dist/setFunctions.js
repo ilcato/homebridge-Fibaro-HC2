@@ -15,6 +15,8 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
 const timeOffset = 2 * 3600;
+exports.lowestTemp = 10;
+exports.stdTemp = 21;
 class SetFunctions {
     constructor(hapCharacteristic, platform) {
         this.hapCharacteristic = hapCharacteristic;
@@ -22,7 +24,7 @@ class SetFunctions {
         this.setFunctionsMapping = new Map([
             [(new hapCharacteristic.On()).UUID, this.setOn],
             [(new hapCharacteristic.Brightness()).UUID, this.setBrightness],
-            [(new hapCharacteristic.TargetPosition()).UUID, this.setValue],
+            [(new hapCharacteristic.TargetPosition()).UUID, this.setTargetPosition],
             [(new hapCharacteristic.LockTargetState()).UUID, this.setLockTargetState],
             [(new hapCharacteristic.TargetHeatingCoolingState()).UUID, this.setTargetHeatingCoolingState],
             [(new hapCharacteristic.TargetTemperature()).UUID, this.setTargetTemperature],
@@ -61,7 +63,7 @@ class SetFunctions {
             this.command("setValue", value, service, IDs);
         }
     }
-    setValue(value, callback, context, characteristic, service, IDs) {
+    setTargetPosition(value, callback, context, characteristic, service, IDs) {
         this.command("setValue", value, service, IDs);
     }
     setLockTargetState(value, callback, context, characteristic, service, IDs) {
@@ -71,10 +73,10 @@ class SetFunctions {
     setTargetHeatingCoolingState(value, callback, context, characteristic, service, IDs) {
         let temp = 0;
         if (value == this.hapCharacteristic.TargetHeatingCoolingState.OFF) {
-            temp = 10;
+            temp = exports.lowestTemp;
         }
         else {
-            temp = 21;
+            temp = exports.stdTemp;
             value = this.hapCharacteristic.TargetHeatingCoolingState.HEAT; // force the target state to HEAT because we are not managing other staes beside OFF and HEAT
         }
         this.command("setTargetLevel", temp, service, IDs);
