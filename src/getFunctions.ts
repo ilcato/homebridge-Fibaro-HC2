@@ -16,6 +16,8 @@
 
 'use strict'
 
+import {lowestTemp, stdTemp} from './setFunctions'
+
 export class GetFunctions {
 	hapCharacteristic: any;
 	getFunctionsMapping: Map<string, any>;
@@ -129,14 +131,14 @@ export class GetFunctions {
 	}
 	getCurrentHeatingCoolingState(callback, characteristic, service, IDs, properties) {
 		let t = parseFloat(properties.value);
-		if (t <= 10)
+		if (t <= lowestTemp)
 			this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.OFF, callback, characteristic);
 		else
 			this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
 	}
 	getTargetHeatingCoolingState(callback, characteristic, service, IDs, properties) {
 		let t = parseFloat(properties.targetLevel);
-		if (t <= 10)
+		if (t <= lowestTemp)
 			this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.OFF, callback, characteristic);
 		else
 			this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);
