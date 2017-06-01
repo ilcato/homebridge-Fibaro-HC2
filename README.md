@@ -8,7 +8,7 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
-Version 2.0.1
+Version 2.0.2
 + Added support for Switch accessories mapped on Home Center global variable. See Wiki.
 
 Version 2.0.1
