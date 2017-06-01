@@ -9,6 +9,9 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     
 # Release notes
 Version 2.0.1
++ Added support for Switch accessories mapped on Home Center global variable. See Wiki.
+
+Version 2.0.1
 + Added management for Heating Cooling state for thermostats
 + Fixed poller update
 
