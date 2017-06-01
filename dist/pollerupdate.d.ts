@@ -3,9 +3,11 @@ export declare class Poller {
     pollingUpdateRunning: boolean;
     lastPoll: number;
     pollerPeriod: number;
+    hapService: any;
     hapCharacteristic: any;
-    constructor(platform: any, pollerPeriod: any, hapCharacteristic: any);
+    constructor(platform: any, pollerPeriod: any, hapService: any, hapCharacteristic: any);
     poll(): void;
     manageValue(change: any): void;
     manageColor(change: any): void;
+    searchCharacteristic(globalVariablesID: any): any;
 }

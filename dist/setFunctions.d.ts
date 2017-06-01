@@ -28,4 +28,5 @@ export declare class SetFunctions {
     syncColorCharacteristics(rgb: any, service: any, IDs: any): void;
     command(c: any, value: any, service: any, IDs: any): void;
     scene(sceneID: any): void;
+    setGlobalVariable(variableID: any, value: any): void;
 }

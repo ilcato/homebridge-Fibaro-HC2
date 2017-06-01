@@ -36,8 +36,8 @@ export class FibaroClient {
 		}
 	}
 	getScenes() {
-		var p = new Promise((resolve, reject) => {
-			var url = "http://"+this.host+"/api/scenes";
+		let p = new Promise((resolve, reject) => {
+			let url = "http://"+this.host+"/api/scenes";
 			request.get({
 				url: url,
 				headers : this.headers,
@@ -52,8 +52,8 @@ export class FibaroClient {
 		return p;
 	}
 	getRooms() {
-		var p = new Promise((resolve, reject) => {
-			var url = "http://"+this.host+"/api/rooms";
+		let p = new Promise((resolve, reject) => {
+			let url = "http://"+this.host+"/api/rooms";
 			request.get({
 				url: url,
 				headers : this.headers,
@@ -68,8 +68,8 @@ export class FibaroClient {
 		return p;
 	}
 	getDevices() {
-		var p = new Promise((resolve, reject) => {
-			var url = "http://"+this.host+"/api/devices";
+		let p = new Promise((resolve, reject) => {
+			let url = "http://"+this.host+"/api/devices";
 			request.get({
 				url: url,
 				headers : this.headers,
@@ -84,8 +84,8 @@ export class FibaroClient {
 		return p;
 	}
 	getDeviceProperties(ID) {
-		var p = new Promise((resolve, reject) => {
-			var url = "http://"+this.host+"/api/devices/"+ID;
+		let p = new Promise((resolve, reject) => {
+			let url = "http://"+this.host+"/api/devices/"+ID;
 			request.get({
 				url: url,
 				headers : this.headers,
@@ -100,12 +100,12 @@ export class FibaroClient {
 		return p;
 	}
 	executeDeviceAction(ID, action, param) {
-		var p = new Promise((resolve, reject) => {
-			var url = "http://"+this.host+"/api/devices/"+ID+"/action/"+action;
-			var body = param != undefined ? JSON.stringify({
+		let p = new Promise((resolve, reject) => {
+			let url = "http://"+this.host+"/api/devices/"+ID+"/action/"+action;
+			let body = param != undefined ? JSON.stringify({
 				  "args": [	param ]
 			}) : null;
-			var method = "post";
+			let method = "post";
 			request({
 				url: url,
 				body: body,
@@ -121,10 +121,10 @@ export class FibaroClient {
 		return p;
 	}
 	executeScene(ID) {
-		var p = new Promise((resolve, reject) =>  {
-			var url = "http://"+this.host+"/api/scenes/"+ID+"/action/start";
-			var body = null;
-			var method = "post";
+		let p = new Promise((resolve, reject) =>  {
+			let url = "http://"+this.host+"/api/scenes/"+ID+"/action/start";
+			let body = null;
+			let method = "post";
 			request({
 				url: url,
 				body: body,
@@ -140,8 +140,8 @@ export class FibaroClient {
 		return p;
 	}
 	refreshStates(lastPoll) {
-		var p = new Promise((resolve, reject) => {
-			var url = "http://"+this.host +"/api/refreshStates?last=" + lastPoll;
+		let p = new Promise((resolve, reject) => {
+			let url = "http://"+this.host +"/api/refreshStates?last=" + lastPoll;
 			request.get({
 				url: url,
 				headers : this.headers,
@@ -156,8 +156,8 @@ export class FibaroClient {
 		return p;
 	}
 	getGlobalVariable(globalVariableID) {
-		var p = new Promise((resolve, reject) => {
-			var url = "http://"+this.host+"/api/globalVariables/"+globalVariableID;
+		let p = new Promise((resolve, reject) => {
+			let url = "http://"+this.host+"/api/globalVariables/"+globalVariableID;
 			request.get({
 				url: url,
 				headers : this.headers,
@@ -171,4 +171,28 @@ export class FibaroClient {
 		});
 		return p;
 	}
+	setGlobalVariable(globalVariableID, value) {
+		let p = new Promise((resolve, reject) => {
+			let url = "http://"+this.host+"/api/globalVariables/"+globalVariableID;
+			let body = value != undefined ? JSON.stringify({
+				  "value": value
+			}) : null;
+
+			let method = "PUT";
+
+			request({
+				url: url,
+				headers : this.headers,
+				body: body,
+				method: method
+			}, function(err, response) {
+				if (!err && response.statusCode == 200) 
+					resolve(response);
+				else
+					reject(err);
+			});
+		});
+		return p;
+	}
+	
 }

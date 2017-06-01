@@ -22,13 +22,15 @@ export class Poller {
 	pollingUpdateRunning: boolean;
 	lastPoll: number;
 	pollerPeriod: number;
+	hapService: any;
 	hapCharacteristic: any;
 
-	constructor(platform, pollerPeriod, hapCharacteristic) {
+	constructor(platform, pollerPeriod, hapService, hapCharacteristic) {
 		this.platform = platform;
 		this.pollingUpdateRunning = false;
 		this.lastPoll = 0;
 		this.pollerPeriod = pollerPeriod;
+		this.hapService = hapService;
 		this.hapCharacteristic = hapCharacteristic;
 	}
 	
@@ -66,6 +68,17 @@ export class Poller {
 							this.platform.log("There was a problem getting value from Global Variable: SecuritySystem", ` - Err: ${err}` );
 						});
 				}
+				// Manage global variable switches
+				let globalVariables = this.platform.config.switchglobalvariables.split(',');
+				for(let i = 0; i < globalVariables.length; i++) {
+					this.platform.fibaroClient.getGlobalVariable(globalVariables[i])
+						.then((switchStatus) => {
+							this.platform.getFunctions.getBool(null, this.searchCharacteristic(globalVariables[i]), null, null, switchStatus);
+						})
+						.catch((err) =>{
+							this.platform.log("There was a problem getting value from Global Variable: ", `${globalVariables[i]} - Err: ${err}` );
+						});
+				}
 			})
 			.catch((err) => {
 				this.platform.log("Error fetching updates: ", + err);
@@ -100,5 +113,11 @@ export class Poller {
 					subscription.characteristic.setValue(Math.round(hsv.v), undefined, 'fromFibaro');
 			}
 		}
+	}
+	searchCharacteristic(globalVariablesID) {
+		let a = this.platform.accessories.get(globalVariablesID + "0");
+		let s = a.getService(this.hapService.Switch);
+		let c = s.getCharacteristic(this.hapCharacteristic.On);
+		return c;
 	}
 }

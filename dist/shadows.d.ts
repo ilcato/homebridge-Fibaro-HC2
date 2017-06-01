@@ -23,4 +23,5 @@ export declare class ShadowAccessory {
     setAccessory(accessory: any): void;
     static createShadowAccessory(device: any, hapAccessory: any, hapService: any, hapCharacteristic: any, platform: any): ShadowAccessory | undefined;
     static createShadowSecuritySystemAccessory(device: any, hapAccessory: any, hapService: any, hapCharacteristic: any, platform: any): ShadowAccessory;
+    static createShadowGlobalVariableSwitchAccessory(device: any, hapAccessory: any, hapService: any, hapCharacteristic: any, platform: any): ShadowAccessory;
 }

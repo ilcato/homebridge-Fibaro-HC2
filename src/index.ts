@@ -23,7 +23,8 @@
 //            "username": "PUT USERNAME OF YOUR HC2 HERE",
 //            "password": "PUT PASSWORD OF YOUR HC2 HERE",
 //            "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 5 SECONDS IS THE DEFAULT",
-//            "securitysystem": "PUT enabled OR disabled IN ORDER TO MANAGE THE AVAILABILITY OF THE SECURITY SYSTEM"
+//            "securitysystem": "PUT enabled OR disabled IN ORDER TO MANAGE THE AVAILABILITY OF THE SECURITY SYSTEM",
+//            "switchglobalvariables": "PUT A COMMA SEPARATED LIST OF HOME CENTER GLOBAL VARIABLES ACTING LIKE A BISTABLE SWITCH"
 //     }
 // ],
 //
@@ -61,6 +62,7 @@ class Config {
   	password: string;
   	pollerperiod?: string;
   	securitysystem?: string;
+	switchglobalvariables?: string;
 }
 
 class FibaroHC2 {
@@ -68,23 +70,23 @@ class FibaroHC2 {
 	config: Config;
   	api: any;
 	accessories: Map<string, any>;
-	updateSubscriptions: Array<any>;
+	updateSubscriptions: Array<Object>;
   	poller: Poller;
-  	securitySystemScenes: any;
-  	securitySystemService: any;
+  	securitySystemScenes: Object;
+  	securitySystemService: Object;
   	fibaroClient: FibaroClient;
   	setFunctions: SetFunctions;
   	getFunctions: GetFunctions;
 
 	  	
-  	constructor (log: (format: string, message: any) => void, config: Config, api) {
+  	constructor (log: (format: string, message: any) => void, config: Config, api: any) {
     	this.log = log;
     	this.api = api;
 
 		this.accessories = new Map();
 	  	this.updateSubscriptions = new Array();
 	  	this.securitySystemScenes = {};
-	  	this.securitySystemService = null;
+	  	this.securitySystemService = {};
 		this.config = config;
 		
 		let pollerPeriod = this.config.pollerperiod ? parseInt(this.config.pollerperiod) : defaultPollerPeriod;
@@ -92,9 +94,11 @@ class FibaroHC2 {
   			pollerPeriod = defaultPollerPeriod;
   		if (this.config.securitysystem == undefined || (this.config.securitysystem != "enabled" && this.config.securitysystem != "disabled"))
 	  		this.config.securitysystem = "disabled";
+  		if (this.config.switchglobalvariables == undefined)
+	  		this.config.switchglobalvariables = "";
 
 		this.fibaroClient = new FibaroClient(this.config.host, this.config.username, this.config.password);
-  		this.poller = new Poller(this, pollerPeriod, Characteristic);
+  		this.poller = new Poller(this, pollerPeriod, Service, Characteristic);
 
     	this.api.on('didFinishLaunching', this.didFinishLaunching.bind(this));
     	
@@ -152,7 +156,16 @@ class FibaroHC2 {
 			let sa = ShadowAccessory.createShadowSecuritySystemAccessory(device, Accessory, Service, Characteristic, this);
 			this.addAccessory(sa);
 		}
-		
+
+		// Create Global Variable Switches
+		if (this.config.switchglobalvariables && this.config.switchglobalvariables != "") {
+			let globalVariables = this.config.switchglobalvariables.split(',');
+			for(let i = 0; i < globalVariables.length; i++) {
+				let device = {name: globalVariables[i], roomID: 0, id: 0};
+				let sa = ShadowAccessory.createShadowGlobalVariableSwitchAccessory(device, Accessory, Service, Characteristic, this);
+				this.addAccessory(sa);
+			}
+	  	}		
 		// Remove not reviewd accessories: cached accessories no more present in Home Center
 		let accessories = this.accessories.values() // Iterator for accessories, key is the uniqueseed
 		for (let a of accessories) {
@@ -169,7 +182,7 @@ class FibaroHC2 {
   			return;
 		let uniqueSeed = shadowAccessory.name + shadowAccessory.roomID;
 		let isNewAccessory = false;
-		let a: any = this.accessories.get(uniqueSeed);
+		let a:any = this.accessories.get(uniqueSeed);
 		if (a == null) {
 			isNewAccessory = true;
 			let uuid = UUIDGen.generate(uniqueSeed);
@@ -202,6 +215,9 @@ class FibaroHC2 {
 	bindCharacteristicEvents(characteristic, service) {
 		let IDs = service.subtype.split("-"); // IDs[0] is always device ID; for virtual device IDs[1] is the button ID
 		service.isVirtual = IDs[1] != "" ? true : false;
+		service.isSecuritySystem = IDs[0] == "0" ? true : false;
+		service.isGlobalVariableSwitch = IDs[0] == "G" ? true : false;
+		
 		if (!service.isVirtual) {
 			var propertyChanged = "value"; // subscribe to the changes of this property
 			if (service.HSBValue != undefined)
@@ -212,7 +228,7 @@ class FibaroHC2 {
 			this.setCharacteristicValue(value, callback, context, characteristic, service, IDs);
 		});
 		characteristic.on('get', (callback) => {
-			if (service.isVirtual) {
+			if (service.isVirtual && !service.isGlobalVariableSwitch) {
 				// a push button is normally off
 				callback(undefined, false);
 			} else {
@@ -223,7 +239,8 @@ class FibaroHC2 {
 	
 	setCharacteristicValue(value, callback, context, characteristic, service, IDs) {
 		if( context !== 'fromFibaro' && context !== 'fromSetValue') {
-			this.log("Setting value to device: ", `${IDs[0]}  parameter: ${characteristic.displayName}`);
+			let d = IDs[0] != "G" ? IDs[0]: IDs[1];
+			this.log("Setting value to device: ", `${d}  parameter: ${characteristic.displayName}`);
 			let setFunction = this.setFunctions.setFunctionsMapping.get(characteristic.UUID);
 			if (setFunction)
 				setFunction.call(this.setFunctions, value, callback, context, characteristic, service, IDs);
@@ -234,13 +251,25 @@ class FibaroHC2 {
 	getCharacteristicValue(callback, characteristic, service, IDs) {
 		this.log("Getting value from device: ", `${IDs[0]}  parameter: ${characteristic.displayName}`);
 		// Manage security system status
-		if (IDs[0] == "0") { 
+		if (service.isSecuritySystem) { 
 			this.fibaroClient.getGlobalVariable("SecuritySystem")
 				.then((securitySystemStatus) => {
 					this.getFunctions.getSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus);
 				})
 				.catch((err) =>{
 					this.log("There was a problem getting value from Global Variable: SecuritySystem", ` - Err: ${err}` );
+					callback(err, null);
+				});
+			return;
+		}
+		// Manage global variable switches
+		if (service.isGlobalVariableSwitch) { 
+			this.fibaroClient.getGlobalVariable(IDs[1])
+				.then((switchStatus) => {
+					this.getFunctions.getBool(callback, characteristic, service, IDs, switchStatus);
+				})
+				.catch((err) =>{
+					this.log("There was a problem getting value from Global Variable: ", `${IDs[1]} - Err: ${err}` );
 					callback(err, null);
 				});
 			return;

@@ -55,13 +55,15 @@ export class SetFunctions {
 
   	
 	setOn(value, callback, context, characteristic, service, IDs) {
-		if (service.isVirtual) {
+		if (service.isVirtual && !service.isGlobalVariableSwitch) {
 			// It's a virtual device so the command is pressButton and not turnOn or Off
 			this.command("pressButton", IDs[1], service, IDs);
 			// In order to behave like a push button reset the status to off
 			setTimeout( () => {
 				characteristic.setValue(0, undefined, 'fromSetValue');
 			}, 100 );
+		} else if (service.isGlobalVariableSwitch) {
+			this.setGlobalVariable(IDs[1], value == true ? "true": "false");
 		} else {
 			if (characteristic.value == true && value == 0 || characteristic.value == false && value == 1)
 				this.command(value == 0 ? "turnOff": "turnOn", null, service, IDs);
@@ -219,5 +221,14 @@ export class SetFunctions {
 			});
 	}
 
+	setGlobalVariable(variableID, value) {
+		this.platform.fibaroClient.setGlobalVariable(variableID, value)
+			.then( (response) => {
+				this.platform.log("Setting variable: ", `${variableID} to ${value}`);
+			})
+			.catch( (err, response) => {
+				this.platform.log("There was a problem setting variable: ", `${variableID} to ${value}`);
+			});
+	}
 }
 

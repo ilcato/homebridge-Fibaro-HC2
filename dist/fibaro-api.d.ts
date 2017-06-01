@@ -13,4 +13,5 @@ export declare class FibaroClient {
     executeScene(ID: any): Promise<{}>;
     refreshStates(lastPoll: any): Promise<{}>;
     getGlobalVariable(globalVariableID: any): Promise<{}>;
+    setGlobalVariable(globalVariableID: any, value: any): Promise<{}>;
 }

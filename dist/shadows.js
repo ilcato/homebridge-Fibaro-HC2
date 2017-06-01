@@ -193,6 +193,11 @@ class ShadowAccessory {
         service.controlService.subtype = "0--";
         return new ShadowAccessory(device, [service], hapAccessory, hapService, hapCharacteristic, platform, true);
     }
+    static createShadowGlobalVariableSwitchAccessory(device, hapAccessory, hapService, hapCharacteristic, platform) {
+        let service = new ShadowService(new hapService.Switch(device.name), [hapCharacteristic.On]);
+        service.controlService.subtype = `G-${device.name}-`;
+        return new ShadowAccessory(device, [service], hapAccessory, hapService, hapCharacteristic, platform, true);
+    }
 }
 exports.ShadowAccessory = ShadowAccessory;
 //# sourceMappingURL=shadows.js.map
