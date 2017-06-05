@@ -144,6 +144,7 @@ export class ShadowAccessory {
 				ss = [new ShadowService(new hapService.WindowCovering(device.name), [hapCharacteristic.CurrentPosition, hapCharacteristic.TargetPosition, hapCharacteristic.PositionState])];
 				break;
 			case "com.fibaro.FGMS001":
+			case "com.fibaro.FGMS001v2":
 			case "com.fibaro.motionSensor":
 				ss = [new ShadowService(new hapService.MotionSensor(device.name), [hapCharacteristic.MotionDetected])];
 				break; 
