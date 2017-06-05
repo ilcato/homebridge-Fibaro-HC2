@@ -69,15 +69,17 @@ export class Poller {
 						});
 				}
 				// Manage global variable switches
-				let globalVariables = this.platform.config.switchglobalvariables.split(',');
-				for(let i = 0; i < globalVariables.length; i++) {
-					this.platform.fibaroClient.getGlobalVariable(globalVariables[i])
-						.then((switchStatus) => {
-							this.platform.getFunctions.getBool(null, this.searchCharacteristic(globalVariables[i]), null, null, switchStatus);
-						})
-						.catch((err) =>{
-							this.platform.log("There was a problem getting value from Global Variable: ", `${globalVariables[i]} - Err: ${err}` );
-						});
+				if (this.platform.config.switchglobalvariables != "") {
+					let globalVariables = this.platform.config.switchglobalvariables.split(',');
+					for(let i = 0; i < globalVariables.length; i++) {
+						this.platform.fibaroClient.getGlobalVariable(globalVariables[i])
+							.then((switchStatus) => {
+								this.platform.getFunctions.getBool(null, this.searchCharacteristic(globalVariables[i]), null, null, switchStatus);
+							})
+							.catch((err) =>{
+								this.platform.log("There was a problem getting value from Global Variable: ", `${globalVariables[i]} - Err: ${err}` );
+							});
+					}
 				}
 			})
 			.catch((err) => {
