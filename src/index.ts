@@ -24,7 +24,8 @@
 //            "password": "PUT PASSWORD OF YOUR HC2 HERE",
 //            "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 5 SECONDS IS THE DEFAULT",
 //            "securitysystem": "PUT enabled OR disabled IN ORDER TO MANAGE THE AVAILABILITY OF THE SECURITY SYSTEM",
-//            "switchglobalvariables": "PUT A COMMA SEPARATED LIST OF HOME CENTER GLOBAL VARIABLES ACTING LIKE A BISTABLE SWITCH"
+//            "switchglobalvariables": "PUT A COMMA SEPARATED LIST OF HOME CENTER GLOBAL VARIABLES ACTING LIKE A BISTABLE SWITCH",
+//            "thermostattimeout": "PUT THE NUMBER OF SECONDS FOR THE THERMOSTAT TIMEOUT, DEFAULT: 7200 (2 HOURS). PUT 0 FOR INFINITE"
 //     }
 // ],
 //
@@ -42,6 +43,7 @@ import {GetFunctions} from './getFunctions'
 import {Poller} from './pollerupdate'
 
 const defaultPollerPeriod = 5;
+const timeOffset = 2*3600;
 
 let Accessory,
 	Service,
@@ -63,6 +65,7 @@ class Config {
   	pollerperiod?: string;
   	securitysystem?: string;
 	switchglobalvariables?: string;
+	thermostattimeout?: string;
 }
 
 class FibaroHC2 {
@@ -96,6 +99,8 @@ class FibaroHC2 {
 	  		this.config.securitysystem = "disabled";
   		if (this.config.switchglobalvariables == undefined)
 	  		this.config.switchglobalvariables = "";
+  		if (this.config.thermostattimeout == undefined)
+	  		this.config.thermostattimeout = timeOffset.toString();
 
 		this.fibaroClient = new FibaroClient(this.config.host, this.config.username, this.config.password);
   		this.poller = new Poller(this, pollerPeriod, Service, Characteristic);

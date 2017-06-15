@@ -8,6 +8,9 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 2.0.4
++ New config parameter for setting thermostat timeout.
+
 Version 2.0.3
 + Fixed support for Switch accessories mapped on Home Center global variable. See Wiki.
 

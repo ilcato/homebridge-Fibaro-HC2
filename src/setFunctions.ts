@@ -16,7 +16,6 @@
 
 'use strict'
 
-const timeOffset = 2*3600;
 export const lowestTemp = 12;
 export const stdTemp = 21;
 
@@ -107,7 +106,7 @@ export class SetFunctions {
 		if (Math.abs(value - characteristic.value) >= 0.5) {
 			value = parseFloat( (Math.round(value / 0.5) * 0.5).toFixed(1) );
 			this.command("setTargetLevel", value, service, IDs);
-			this.command("setTime", timeOffset + Math.trunc((new Date()).getTime()/1000), service, IDs);
+			this.command("setTime", parseInt(this.platform.config.thermostattimeout) + Math.trunc((new Date()).getTime()/1000), service, IDs);
 		} else {
 			value = characteristic.value;
 		}
