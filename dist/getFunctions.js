@@ -121,18 +121,22 @@ class GetFunctions {
         this.returnValue(properties.value == "true" ? this.hapCharacteristic.LockCurrentState.SECURED : this.hapCharacteristic.LockCurrentState.UNSECURED, callback, characteristic);
     }
     getCurrentHeatingCoolingState(callback, characteristic, service, IDs, properties) {
-        let t = parseFloat(properties.value);
-        if (t <= setFunctions_1.lowestTemp)
-            this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.OFF, callback, characteristic);
-        else
-            this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
+        if (this.platform.config.enablecoolingstatemanagemnt == "on") {
+            let t = parseFloat(properties.value);
+            if (t <= setFunctions_1.lowestTemp)
+                this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.OFF, callback, characteristic);
+            else
+                this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
+        }
     }
     getTargetHeatingCoolingState(callback, characteristic, service, IDs, properties) {
-        let t = parseFloat(properties.targetLevel);
-        if (t <= setFunctions_1.lowestTemp)
-            this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.OFF, callback, characteristic);
-        else
-            this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);
+        if (this.platform.config.enablecoolingstatemanagemnt == "on") {
+            let t = parseFloat(properties.targetLevel);
+            if (t <= setFunctions_1.lowestTemp)
+                this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.OFF, callback, characteristic);
+            else
+                this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);
+        }
     }
     getTemperatureDisplayUnits(callback, characteristic, service, IDs, properties) {
         this.returnValue(this.hapCharacteristic.TemperatureDisplayUnits.CELSIUS, callback, characteristic);

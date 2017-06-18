@@ -14,7 +14,6 @@
 // Fibaro Home Center 2 Platform plugin for HomeBridge
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeOffset = 2 * 3600;
 exports.lowestTemp = 12;
 exports.stdTemp = 21;
 class SetFunctions {
@@ -74,22 +73,24 @@ class SetFunctions {
         this.command(action, 0, service, IDs);
     }
     setTargetHeatingCoolingState(value, callback, context, characteristic, service, IDs) {
-        let temp = 0;
-        if (value == this.hapCharacteristic.TargetHeatingCoolingState.OFF) {
-            temp = exports.lowestTemp;
+        if (this.platform.config.enablecoolingstatemanagemnt == "on") {
+            let temp = 0;
+            if (value == this.hapCharacteristic.TargetHeatingCoolingState.OFF) {
+                temp = exports.lowestTemp;
+            }
+            else {
+                temp = exports.stdTemp;
+                value = this.hapCharacteristic.TargetHeatingCoolingState.HEAT; // force the target state to HEAT because we are not managing other staes beside OFF and HEAT
+            }
+            this.command("setTargetLevel", temp, service, IDs);
+            this.command("setTime", 0 + Math.trunc((new Date()).getTime() / 1000), service, IDs);
+            setTimeout(() => {
+                characteristic.setValue(value, undefined, 'fromSetValue');
+                // set also current state
+                let currentHeatingCoolingStateCharacteristic = service.getCharacteristic(this.hapCharacteristic.CurrentHeatingCoolingState);
+                currentHeatingCoolingStateCharacteristic.setValue(value, undefined, 'fromSetValue');
+            }, 100);
         }
-        else {
-            temp = exports.stdTemp;
-            value = this.hapCharacteristic.TargetHeatingCoolingState.HEAT; // force the target state to HEAT because we are not managing other staes beside OFF and HEAT
-        }
-        this.command("setTargetLevel", temp, service, IDs);
-        this.command("setTime", 0 + Math.trunc((new Date()).getTime() / 1000), service, IDs);
-        setTimeout(() => {
-            characteristic.setValue(value, undefined, 'fromSetValue');
-            // set also current state
-            let currentHeatingCoolingStateCharacteristic = service.getCharacteristic(this.hapCharacteristic.CurrentHeatingCoolingState);
-            currentHeatingCoolingStateCharacteristic.setValue(value, undefined, 'fromSetValue');
-        }, 100);
     }
     setTargetTemperature(value, callback, context, characteristic, service, IDs) {
         if (Math.abs(value - characteristic.value) >= 0.5) {

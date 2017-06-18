@@ -1,2 +1,2 @@
-declare var _default: (homebridge: any) => void;
+declare const _default: (homebridge: any) => void;
 export = _default;

@@ -25,7 +25,9 @@
 //            "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 5 SECONDS IS THE DEFAULT",
 //            "securitysystem": "PUT enabled OR disabled IN ORDER TO MANAGE THE AVAILABILITY OF THE SECURITY SYSTEM",
 //            "switchglobalvariables": "PUT A COMMA SEPARATED LIST OF HOME CENTER GLOBAL VARIABLES ACTING LIKE A BISTABLE SWITCH",
-//            "thermostattimeout": "PUT THE NUMBER OF SECONDS FOR THE THERMOSTAT TIMEOUT, DEFAULT: 7200 (2 HOURS). PUT 0 FOR INFINITE"
+//            "thermostattimeout": "PUT THE NUMBER OF SECONDS FOR THE THERMOSTAT TIMEOUT, DEFAULT: 7200 (2 HOURS). PUT 0 FOR INFINITE",
+//            "enablecoolingstatemanagemnt": "PUT on TO AUTOMATICALLY MANAGE HEATING STATE FOR THERMOSTAT, off TO DISABLE IT. DEFAULT off"
+
 //     }
 // ],
 //
@@ -44,6 +46,7 @@ import {Poller} from './pollerupdate'
 
 const defaultPollerPeriod = 5;
 const timeOffset = 2*3600;
+const defaultEnableCoolingStateManagemnt = "off";
 
 let Accessory,
 	Service,
@@ -66,6 +69,7 @@ class Config {
   	securitysystem?: string;
 	switchglobalvariables?: string;
 	thermostattimeout?: string;
+	enablecoolingstatemanagemnt?: string;
 }
 
 class FibaroHC2 {
@@ -101,6 +105,8 @@ class FibaroHC2 {
 	  		this.config.switchglobalvariables = "";
   		if (this.config.thermostattimeout == undefined)
 	  		this.config.thermostattimeout = timeOffset.toString();
+  		if (this.config.enablecoolingstatemanagemnt == undefined)
+	  		this.config.enablecoolingstatemanagemnt = defaultEnableCoolingStateManagemnt;
 
 		this.fibaroClient = new FibaroClient(this.config.host, this.config.username, this.config.password);
   		this.poller = new Poller(this, pollerPeriod, Service, Characteristic);

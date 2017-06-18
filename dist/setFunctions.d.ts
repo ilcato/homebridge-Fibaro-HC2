@@ -1,4 +1,3 @@
-export declare const timeOffset: number;
 export declare const lowestTemp = 12;
 export declare const stdTemp = 21;
 export declare class SetFunctions {
