@@ -8,6 +8,9 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
     npm install -g homebridge-fibaro-hc2
     
 # Release notes
+Version 2.0.6
++ Fix automatic cooling state management.
+
 Version 2.0.5
 + New config parameter for enabling automatic cooling state management.
 

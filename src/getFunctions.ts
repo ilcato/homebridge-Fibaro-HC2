@@ -136,6 +136,8 @@ export class GetFunctions {
 				this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.OFF, callback, characteristic);
 			else
 				this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
+		} else {
+				this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
 		}
 	}
 	getTargetHeatingCoolingState(callback, characteristic, service, IDs, properties) {
@@ -145,6 +147,8 @@ export class GetFunctions {
 				this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.OFF, callback, characteristic);
 			else
 				this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);
+		} else {
+				this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
 		}
 	}	
 	getTemperatureDisplayUnits(callback, characteristic, service, IDs, properties) {
