@@ -137,6 +137,8 @@ class FibaroClient {
             }, function (err, response, json) {
                 if (!err && response.statusCode == 200)
                     resolve(json);
+                else if (!err && response.statusCode != 200)
+                    reject(response.statusCode);
                 else
                     reject(err);
             });

@@ -103,8 +103,7 @@ export class ShadowAccessory {
 		}
 	}
 	
-	resgisterUpdateccessory(isNewAccessory, api) {
-		this.accessory.reachable = true;
+	resgisterUpdateAccessory(isNewAccessory, api) {
 		if (isNewAccessory)
 			api.registerPlatformAccessories(pluginName, platformName, [this.accessory]);
 		else
@@ -117,15 +116,25 @@ export class ShadowAccessory {
   	}
 
   	static createShadowAccessory(device, hapAccessory, hapService, hapCharacteristic, platform) {
-  		let ss;
+		let ss;
+		let controlService, controlCharacteristics;
   		switch(device.type) {
   			case "com.fibaro.multilevelSwitch":
   			case "com.fibaro.FGD212":
-				ss = [new ShadowService(new hapService.Lightbulb(device.name), [hapCharacteristic.On, hapCharacteristic.Brightness])];
+			  switch (device.properties.deviceControlType) {
+				case "23": // Lighting
+					controlService = new hapService.Lightbulb(device.name);
+					controlCharacteristics = [hapCharacteristic.On, hapCharacteristic.Brightness];
+					break;
+				default:
+					controlService = new hapService.Switch(device.name)
+					controlCharacteristics = [hapCharacteristic.On];
+					break;
+				}
+				ss = [new ShadowService(controlService, controlCharacteristics)];
 				break;
 			case "com.fibaro.binarySwitch":
 			case "com.fibaro.developer.bxs.virtualBinarySwitch":
-				let controlService;
 				switch (device.properties.deviceControlType) {
 					case "2": // Lighting
 					case "5": // Bedside Lamp
@@ -193,7 +202,8 @@ export class ShadowAccessory {
 						}
 					} 
 				}
-				ss = pushButtonServices;
+				if (pushButtonServices.length > 0)
+					ss = pushButtonServices;
 				break;
 			case "com.fibaro.FGRGBW441M":
 			case "com.fibaro.colorController":

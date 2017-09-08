@@ -7,6 +7,20 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
 
     npm install -g homebridge-fibaro-hc2
     
+# Configuration
+Remember to configure the plugin in config.json in your home directory inside the .homebridge directory. Configuration parameters:
++ "host": "PUT IP ADDRESS OF YOUR HC2 HERE"
++ "username": "PUT USERNAME OF YOUR HC2 HERE"
++ "password": "PUT PASSWORD OF YOUR HC2 HERE"
++ "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 2 SECONDS IS THE DEFAULT"
++ "securitysystem": "PUT enabled OR disabled IN ORDER TO MANAGE THE AVAILABILITY OF THE SECURITY SYSTEM"
++ "switchglobalvariables": "PUT A COMMA SEPARATED LIST OF HOME CENTER GLOBAL VARIABLES ACTING LIKE A BISTABLE SWITCH"
++ "thermostattimeout": "PUT THE NUMBER OF SECONDS FOR THE THERMOSTAT TIMEOUT, DEFAULT: 7200 (2 HOURS). PUT 0 FOR INFINITE"
++ "enablecoolingstatemanagemnt": "PUT on TO AUTOMATICALLY MANAGE HEATING STATE FOR THERMOSTAT, off TO DISABLE IT. DEFAULT off"
+
+Look for a sample config in [config.json example](https://github.com/ilcato/homebridge-Fibaro-HC2/blob/master/config.json)
+
+
 # Release notes
 Version 2.0.6
 + Fix automatic cooling state management.
@@ -135,16 +149,4 @@ Version 0.5.0
 + Virtual devices are managed in the old way: an Accessory for each virtual device that contains a push button for each virtual button
 + Initial support for Fibaro RGB (only on off commands works for now)
 + Initial support for Danfoss Thermostat (only temperature commands works for now)
-
-# Configuration
-Remember to configure the plugin in config.json in your home directory inside the .homebridge directory. Configuration parameters:
-+ "host": "PUT IP ADDRESS OF YOUR HC2 HERE",
-+ "username": "PUT USERNAME OF YOUR HC2 HERE",
-+ "password": "PUT PASSWORD OF YOUR HC2 HERE",
-+ "grouping": "PUT none OR room"
-+ "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 2 SECONDS IS THE DEFAULT"
-
-Look for a sample config in [config.json example](https://github.com/ilcato/homebridge-Fibaro-HC2/blob/master/config.json)
-
-
 

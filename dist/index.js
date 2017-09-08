@@ -163,7 +163,7 @@ class FibaroHC2 {
         // Add services present in Home Center and not existing in Homekit accessory
         shadowAccessory.addNewServices(this);
         // Register or update platform accessory
-        shadowAccessory.resgisterUpdateccessory(isNewAccessory, this.api);
+        shadowAccessory.resgisterUpdateAccessory(isNewAccessory, this.api);
         this.log("Added/changed accessory: ", shadowAccessory.name);
     }
     removeAccessory(accessory) {
@@ -234,7 +234,6 @@ class FibaroHC2 {
         // Manage all other status
         this.fibaroClient.getDeviceProperties(IDs[0])
             .then((properties) => {
-            this.log("Getting value from device: ", `${IDs[0]}  parameter: ${characteristic.displayName}`);
             let getFunction = this.getFunctions.getFunctionsMapping.get(characteristic.UUID);
             if (getFunction)
                 getFunction.call(this.getFunctions, callback, characteristic, service, IDs, properties);

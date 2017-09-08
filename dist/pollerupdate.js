@@ -30,7 +30,8 @@ class Poller {
         this.pollingUpdateRunning = true;
         this.platform.fibaroClient.refreshStates(this.lastPoll)
             .then((updates) => {
-            this.lastPoll = updates.last;
+            if (updates.last != undefined)
+                this.lastPoll = updates.last;
             if (updates.changes != undefined) {
                 updates.changes.map((s) => {
                     if (s.value != undefined) {
@@ -50,7 +51,7 @@ class Poller {
                     let state = this.platform.getFunctions.getCurrentSecuritySystemStateMapping.get(securitySystemStatus.value);
                     let c = this.platform.securitySystemService.getCharacteristic(this.hapCharacteristic.SecuritySystemCurrentState);
                     if (state == this.hapCharacteristic.SecuritySystemCurrentState.ALARM_TRIGGERED && c.value != state)
-                        c.setValue(state, undefined, 'fromFibaro');
+                        c.updateValue(state);
                 })
                     .catch((err) => {
                     this.platform.log("There was a problem getting value from Global Variable: SecuritySystem", ` - Err: ${err}`);
@@ -71,7 +72,10 @@ class Poller {
             }
         })
             .catch((err) => {
-            this.platform.log("Error fetching updates: ", +err);
+            this.platform.log("Error fetching updates: ", err);
+            if (err == 400) {
+                this.lastPoll = 0;
+            }
         });
         this.pollingUpdateRunning = false;
         setTimeout(() => { this.poll(); }, this.pollerPeriod * 1000);
@@ -80,6 +84,7 @@ class Poller {
         for (let i = 0; i < this.platform.updateSubscriptions.length; i++) {
             let subscription = this.platform.updateSubscriptions[i];
             if (subscription.id == change.id && subscription.property == "value") {
+                this.platform.log("Updating value for device: ", `${subscription.id}  parameter: ${subscription.characteristic.displayName}, value: ${change.value}`);
                 let getFunction = this.platform.getFunctions.getFunctionsMapping.get(subscription.characteristic.UUID);
                 if (getFunction)
                     getFunction.call(this.platform.getFunctions, null, subscription.characteristic, subscription.service, null, change);
@@ -92,13 +97,13 @@ class Poller {
             if (subscription.id == change.id && subscription.property == "color") {
                 let hsv = this.platform.getFunctions.updateHomeKitColorFromHomeCenter(change.color, subscription.service);
                 if (subscription.characteristic.UUID == (new this.hapCharacteristic.On()).UUID)
-                    subscription.characteristic.setValue(hsv.v == 0 ? false : true, undefined, 'fromFibaro');
+                    subscription.characteristic.updateValue(hsv.v == 0 ? false : true);
                 else if (subscription.characteristic.UUID == (new this.hapCharacteristic.Hue()).UUID)
-                    subscription.characteristic.setValue(Math.round(hsv.h), undefined, 'fromFibaro');
+                    subscription.characteristic.updateValue(Math.round(hsv.h));
                 else if (subscription.characteristic.UUID == (new this.hapCharacteristic.Saturation()).UUID)
-                    subscription.characteristic.setValue(Math.round(hsv.s), undefined, 'fromFibaro');
+                    subscription.characteristic.updateValue(Math.round(hsv.s));
                 else if (subscription.characteristic.UUID == (new this.hapCharacteristic.Brightness()).UUID)
-                    subscription.characteristic.setValue(Math.round(hsv.v), undefined, 'fromFibaro');
+                    subscription.characteristic.updateValue(Math.round(hsv.v));
             }
         }
     }

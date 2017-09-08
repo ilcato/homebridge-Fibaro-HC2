@@ -60,7 +60,7 @@ class GetFunctions {
         if (callback)
             callback(undefined, r);
         else
-            characteristic.setValue(r, undefined, 'fromFibaro');
+            characteristic.updateValue(r);
     }
     // Boolean getter
     getBool(callback, characteristic, service, IDs, properties) {
