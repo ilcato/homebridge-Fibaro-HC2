@@ -22,6 +22,9 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.0.7
++ Various fixes
+
 Version 2.0.6
 + Fix automatic cooling state management.
 
