@@ -52,7 +52,8 @@ export class GetFunctions {
 			[(new hapCharacteristic.Hue()).UUID, 						this.getHue],
 			[(new hapCharacteristic.Saturation()).UUID, 				this.getSaturation],
 			[(new hapCharacteristic.CurrentDoorState()).UUID, 			this.getCurrentDoorState],			
-			[(new hapCharacteristic.TargetDoorState()).UUID, 			this.getCurrentDoorState]			
+			[(new hapCharacteristic.TargetDoorState()).UUID, 			this.getCurrentDoorState],
+			[(new hapCharacteristic.ObstructionDetected()).UUID, 		this.getObstructionDetected]
 		]);
 		this.getCurrentSecuritySystemStateMapping = new Map([
 			["AwayArmed", 	this.hapCharacteristic.SecuritySystemCurrentState.AWAY_ARM],
@@ -164,6 +165,9 @@ export class GetFunctions {
 	}
 	getCurrentDoorState(callback, characteristic, service, IDs, properties) {
 		this.returnValue(properties.state == "Closed" ?  this.hapCharacteristic.TargetHeatingCoolingState.CLOSED : this.hapCharacteristic.TargetHeatingCoolingState.OPEN, callback, characteristic);
+	}
+	getObstructionDetected(callback, characteristic, service, IDs, properties) {
+		this.returnValue(0, callback, characteristic);
 	}
 
 	getSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus) {
