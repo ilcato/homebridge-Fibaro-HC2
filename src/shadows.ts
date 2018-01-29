@@ -147,6 +147,9 @@ export class ShadowAccessory {
 				}
 				ss = [new ShadowService(controlService, [hapCharacteristic.On])];
 				break;
+			case "com.fibaro.barrier":
+				ss = [new ShadowService(new hapService.GarageDoorOpener(device.name), [hapCharacteristic.CurrentDoorState, hapCharacteristic.TargetDoorState, hapCharacteristic.ObstructionDetected])];
+				break;
 			case "com.fibaro.FGR221":
 			case "com.fibaro.FGRM222":
 			case "com.fibaro.rollerShutter":
