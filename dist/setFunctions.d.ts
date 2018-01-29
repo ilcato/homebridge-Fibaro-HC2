@@ -10,6 +10,7 @@ export declare class SetFunctions {
     setBrightness(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
     setTargetPosition(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
     setLockTargetState(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
+    setTargetDoorState(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
     setTargetHeatingCoolingState(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
     setTargetTemperature(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;
     setHue(value: any, callback: any, context: any, characteristic: any, service: any, IDs: any): void;

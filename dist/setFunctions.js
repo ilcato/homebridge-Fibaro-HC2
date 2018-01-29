@@ -27,6 +27,7 @@ class SetFunctions {
             [(new hapCharacteristic.LockTargetState()).UUID, this.setLockTargetState],
             [(new hapCharacteristic.TargetHeatingCoolingState()).UUID, this.setTargetHeatingCoolingState],
             [(new hapCharacteristic.TargetTemperature()).UUID, this.setTargetTemperature],
+            [(new hapCharacteristic.TargetDoorState()).UUID, this.setTargetDoorState],
             [(new hapCharacteristic.Hue()).UUID, this.setHue],
             [(new hapCharacteristic.Saturation()).UUID, this.setSaturation],
             [(new hapCharacteristic.SecuritySystemTargetState()).UUID, this.setSecuritySystemTargetState],
@@ -70,6 +71,10 @@ class SetFunctions {
     }
     setLockTargetState(value, callback, context, characteristic, service, IDs) {
         var action = value == this.hapCharacteristic.LockTargetState.UNSECURED ? "unsecure" : "secure";
+        this.command(action, 0, service, IDs);
+    }
+    setTargetDoorState(value, callback, context, characteristic, service, IDs) {
+        var action = (value) ? "open" : "close";
         this.command(action, 0, service, IDs);
     }
     setTargetHeatingCoolingState(value, callback, context, characteristic, service, IDs) {
