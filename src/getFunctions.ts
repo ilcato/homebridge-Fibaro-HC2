@@ -51,7 +51,8 @@ export class GetFunctions {
 			[(new hapCharacteristic.TemperatureDisplayUnits()).UUID, 	this.getTemperatureDisplayUnits],
 			[(new hapCharacteristic.Hue()).UUID, 						this.getHue],
 			[(new hapCharacteristic.Saturation()).UUID, 				this.getSaturation],
-			[(new hapCharacteristic.CurrentDoorState()).UUID, 			this.getCurrentDoorState]			
+			[(new hapCharacteristic.CurrentDoorState()).UUID, 			this.getCurrentDoorState],			
+			[(new hapCharacteristic.TargetDoorState()).UUID, 			this.getCurrentDoorState]			
 		]);
 		this.getCurrentSecuritySystemStateMapping = new Map([
 			["AwayArmed", 	this.hapCharacteristic.SecuritySystemCurrentState.AWAY_ARM],
