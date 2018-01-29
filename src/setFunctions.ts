@@ -88,7 +88,7 @@ export class SetFunctions {
 		this.command(action, 0, service, IDs);
 	}
 	setTargetDoorState(value, callback, context, characteristic, service, IDs) {
-		var action = (value) ? "open" : "close";
+		var action = value == 1 ? "close" : "open";
 		this.command(action, 0, service, IDs);
 	}
 	setTargetHeatingCoolingState(value, callback, context, characteristic, service, IDs) {

@@ -164,7 +164,7 @@ export class GetFunctions {
 		this.returnValue(Math.round(this.updateHomeKitColorFromHomeCenter(properties.color, service).s), callback, characteristic);
 	}
 	getCurrentDoorState(callback, characteristic, service, IDs, properties) {
-		this.returnValue(properties.state == "Closed" ?  this.hapCharacteristic.TargetHeatingCoolingState.CLOSED : this.hapCharacteristic.TargetHeatingCoolingState.OPEN, callback, characteristic);
+		this.returnValue(properties.state == "Closed" ?  this.hapCharacteristic.CurrentDoorState.CLOSED : this.hapCharacteristic.CurrentDoorState.OPEN, callback, characteristic);
 	}
 	getObstructionDetected(callback, characteristic, service, IDs, properties) {
 		this.returnValue(0, callback, characteristic);
