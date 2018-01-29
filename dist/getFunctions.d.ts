@@ -23,6 +23,7 @@ export declare class GetFunctions {
     getHue(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
     getSaturation(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
     getCurrentDoorState(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
+    getObstructionDetected(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
     getSecuritySystemTargetState(callback: any, characteristic: any, service: any, IDs: any, securitySystemStatus: any): void;
     updateHomeKitColorFromHomeCenter(color: any, service: any): {
         h: number;
