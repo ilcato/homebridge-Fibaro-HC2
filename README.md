@@ -24,6 +24,7 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 # Release notes
 Version 2.0.8
 + Added support for Garage Door Controllers. Tested only on Aeon Garage Door Controller.
++ Fix in RGBW mapping
 
 Version 2.0.7
 + Various fixes
