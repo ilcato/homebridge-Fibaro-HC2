@@ -187,24 +187,27 @@ export class GetFunctions {
 		let r = parseInt(colors[0]);
 		let g = parseInt(colors[1]);
 		let b = parseInt(colors[2]);
+		let w = parseInt(colors[3]);
 		service.RGBValue.red = r;
 		service.RGBValue.green = g;
 		service.RGBValue.blue = b;
-		let hsv = this.RGBtoHSV(r, g, b);
+		service.RGBValue.white = w;
+		let hsv = this.RGBtoHSV(r, g, b, w);
 		service.HSBValue.hue = hsv.h;
 		service.HSBValue.saturation = hsv.s;
 		service.HSBValue.brightness = hsv.v;
 		return hsv;  	
 	}
-	RGBtoHSV(r, g, b) {
+	RGBtoHSV(r, g, b, w) {
 		if (arguments.length === 1) {
 			g = r.g, b = r.b, r = r.r;
 		}
-		var max = Math.max(r, g, b), min = Math.min(r, g, b),
+		var max = Math.max(r, g, b),
+			min = Math.min(r, g, b),
 			d = max - min,
 			h,
 			s = (max === 0 ? 0 : d / max),
-			v = max / 255;
+			v = Math.max(max, w) / 255;
 
 		switch (max) {
 			case min: h = 0; break;

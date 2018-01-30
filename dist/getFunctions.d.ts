@@ -30,7 +30,7 @@ export declare class GetFunctions {
         s: number;
         v: number;
     };
-    RGBtoHSV(r: any, g: any, b: any): {
+    RGBtoHSV(r: any, g: any, b: any, w: any): {
         h: number;
         s: number;
         v: number;

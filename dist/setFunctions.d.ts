@@ -20,11 +20,13 @@ export declare class SetFunctions {
         r: number;
         g: number;
         b: number;
+        w: number;
     };
     HSVtoRGB(hue: any, saturation: any, value: any): {
         r: number;
         g: number;
         b: number;
+        w: number;
     };
     syncColorCharacteristics(rgb: any, service: any, IDs: any): void;
     command(c: any, value: any, service: any, IDs: any): void;

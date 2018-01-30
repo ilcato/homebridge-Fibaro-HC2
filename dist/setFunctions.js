@@ -144,13 +144,14 @@ class SetFunctions {
         service.RGBValue.red = rgb.r;
         service.RGBValue.green = rgb.g;
         service.RGBValue.blue = rgb.b;
+        service.RGBValue.white = rgb.w;
         return rgb;
     }
     HSVtoRGB(hue, saturation, value) {
         let h = hue / 360.0;
         let s = saturation / 100.0;
         let v = value / 100.0;
-        let r, g, b, i, f, p, q, t;
+        let r, g, b, w, i, f, p, q, t;
         i = Math.floor(h * 6);
         f = h * 6 - i;
         p = v * (1 - s);
@@ -176,10 +177,12 @@ class SetFunctions {
                 r = v, g = p, b = q;
                 break;
         }
+        w = Math.min(r, g, b);
         return {
             r: Math.round(r * 255),
             g: Math.round(g * 255),
-            b: Math.round(b * 255)
+            b: Math.round(b * 255),
+            w: Math.round(w * 255)
         };
     }
     syncColorCharacteristics(rgb, service, IDs) {
@@ -192,8 +195,7 @@ class SetFunctions {
                     this.command("setR", rgb.r, service, IDs);
                     this.command("setG", rgb.g, service, IDs);
                     this.command("setB", rgb.b, service, IDs);
-                    if (rgb.r == rgb.g && rgb.g == rgb.b)
-                        this.command("setW", rgb.r, service, IDs);
+                    this.command("setW", rgb.w, service, IDs);
                     service.countColorCharacteristics = 0;
                     service.timeoutIdColorCharacteristics = 0;
                 }, 1000);
@@ -202,8 +204,7 @@ class SetFunctions {
                 this.command("setR", rgb.r, service, IDs);
                 this.command("setG", rgb.g, service, IDs);
                 this.command("setB", rgb.b, service, IDs);
-                if (rgb.r == rgb.g && rgb.g == rgb.b)
-                    this.command("setW", rgb.r, service, IDs);
+                this.command("setW", rgb.w, service, IDs);
                 service.countColorCharacteristics = 0;
                 service.timeoutIdColorCharacteristics = 0;
                 break;
