@@ -74,8 +74,14 @@ class SetFunctions {
         this.command(action, 0, service, IDs);
     }
     setTargetDoorState(value, callback, context, characteristic, service, IDs) {
-        var action = (value) ? "open" : "close";
+        var action = value == 1 ? "close" : "open";
         this.command(action, 0, service, IDs);
+        setTimeout(() => {
+            characteristic.setValue(value, undefined, 'fromSetValue');
+            // set also current state
+            let currentDoorStateCharacteristic = service.getCharacteristic(this.hapCharacteristic.CurrentDoorState);
+            currentDoorStateCharacteristic.setValue(value, undefined, 'fromSetValue');
+        }, 100);
     }
     setTargetHeatingCoolingState(value, callback, context, characteristic, service, IDs) {
         if (this.platform.config.enablecoolingstatemanagemnt == "on") {
