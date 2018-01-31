@@ -152,6 +152,7 @@ class ShadowAccessory {
                 ss = [new ShadowService(new hapService.LeakSensor(device.name), [hapCharacteristic.LeakDetected])];
                 break;
             case "com.fibaro.FGSS001":
+            case "com.fibaro.smokeSensor":
                 ss = [new ShadowService(new hapService.SmokeSensor(device.name), [hapCharacteristic.SmokeDetected])];
                 break;
             case "com.fibaro.lightSensor":
