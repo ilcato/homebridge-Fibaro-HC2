@@ -196,16 +196,11 @@ class FibaroHC2 {
 		let isNewAccessory = false;
 		let a:any = this.accessories.get(uniqueSeed);
 		if (a == null) {
-			// In order to allow multiple instances of the platform and maintein backword compatibility
-			uniqueSeed = shadowAccessory.name + shadowAccessory.roomID + this.config.name;
-			a = this.accessories.get(uniqueSeed);
-			if (a == null) {
-				isNewAccessory = true;
-				let uuid = UUIDGen.generate(uniqueSeed);
-				a = new Accessory(shadowAccessory.name, uuid); // Create the HAP accessory
-				a.context.uniqueSeed = uniqueSeed;
-				this.accessories.set(uniqueSeed, a);
-			}
+			isNewAccessory = true;
+			let uuid = UUIDGen.generate(uniqueSeed);
+			a = new Accessory(shadowAccessory.name, uuid); // Create the HAP accessory
+			a.context.uniqueSeed = uniqueSeed;
+			this.accessories.set(uniqueSeed, a);
 		}
 		this.log("Unique seed: ", uniqueSeed);
 		// Store SecuritySystem Accessory
