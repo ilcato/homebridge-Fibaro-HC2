@@ -207,6 +207,7 @@ class FibaroHC2 {
 				this.accessories.set(uniqueSeed, a);
 			}
 		}
+		this.log("Unique seed: ", uniqueSeed);
 		// Store SecuritySystem Accessory
 		if (this.config.securitysystem == "enabled" && shadowAccessory.isSecuritySystem) {
 			this.securitySystemService = a.getService(Service.SecuritySystem);
