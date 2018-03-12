@@ -167,6 +167,7 @@ class ShadowAccessory {
                 ss = [new ShadowService(new hapService.LockMechanism(device.name), [hapCharacteristic.LockCurrentState, hapCharacteristic.LockTargetState])];
                 break;
             case "com.fibaro.setPoint":
+            case "com.fibaro.FGT001":
             case "com.fibaro.thermostatDanfoss":
             case "com.fibaro.com.fibaro.thermostatHorstmann":
                 ss = [new ShadowService(new hapService.Thermostat(device.name), [hapCharacteristic.CurrentTemperature, hapCharacteristic.TargetTemperature, hapCharacteristic.CurrentHeatingCoolingState, hapCharacteristic.TargetHeatingCoolingState, hapCharacteristic.TemperatureDisplayUnits])];
