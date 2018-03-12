@@ -42,6 +42,9 @@ export class GetFunctions {
 			[(new hapCharacteristic.ContactSensorState()).UUID, 		this.getContactSensorState],
 			[(new hapCharacteristic.LeakDetected()).UUID, 				this.getLeakDetected],
 			[(new hapCharacteristic.SmokeDetected()).UUID, 				this.getSmokeDetected],
+			[(new hapCharacteristic.CarbonMonoxideDetected()).UUID, 	this.getCarbonMonoxideDetected],
+			[(new hapCharacteristic.CarbonMonoxideLevel()).UUID, 		this.getFloat],
+			[(new hapCharacteristic.CarbonMonoxidePeakLevel()).UUID, 	this.getFloat],
 			[(new hapCharacteristic.CurrentAmbientLightLevel()).UUID, 	this.getFloat],
 			[(new hapCharacteristic.OutletInUse()).UUID, 				this.getOutletInUse],
 			[(new hapCharacteristic.LockCurrentState()).UUID, 			this.getLockCurrentState],
@@ -125,6 +128,9 @@ export class GetFunctions {
 	}
 	getSmokeDetected(callback, characteristic, service, IDs, properties) {
 		this.returnValue(properties.value == "true" ? this.hapCharacteristic.SmokeDetected.SMOKE_DETECTED : this.hapCharacteristic.SmokeDetected.SMOKE_NOT_DETECTED, callback, characteristic);
+	}
+	getCarbonMonoxideDetected(callback, characteristic, service, IDs, properties) {
+		this.returnValue(properties.value == "true" ? this.hapCharacteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL : this.hapCharacteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL, callback, characteristic);
 	}
 	getOutletInUse(callback, characteristic, service, IDs, properties) {
 		this.returnValue(parseFloat(properties.power) > 1.0 ? true : false, callback, characteristic);

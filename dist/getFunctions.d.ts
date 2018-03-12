@@ -15,6 +15,7 @@ export declare class GetFunctions {
     getContactSensorState(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
     getLeakDetected(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
     getSmokeDetected(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
+    getCarbonMonoxideDetected(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
     getOutletInUse(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
     getLockCurrentState(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
     getCurrentHeatingCoolingState(callback: any, characteristic: any, service: any, IDs: any, properties: any): void;
