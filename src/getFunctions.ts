@@ -56,7 +56,8 @@ export class GetFunctions {
 			[(new hapCharacteristic.Saturation()).UUID, 				this.getSaturation],
 			[(new hapCharacteristic.CurrentDoorState()).UUID, 			this.getCurrentDoorState],			
 			[(new hapCharacteristic.TargetDoorState()).UUID, 			this.getCurrentDoorState],
-			[(new hapCharacteristic.ObstructionDetected()).UUID, 		this.getObstructionDetected]
+			[(new hapCharacteristic.ObstructionDetected()).UUID, 		this.getObstructionDetected],
+			[(new hapCharacteristic.BatteryLevel()).UUID, 				this.getFloat]
 		]);
 		this.getCurrentSecuritySystemStateMapping = new Map([
 			["AwayArmed", 	this.hapCharacteristic.SecuritySystemCurrentState.AWAY_ARM],
