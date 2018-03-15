@@ -26,8 +26,9 @@
 //            "securitysystem": "PUT enabled OR disabled IN ORDER TO MANAGE THE AVAILABILITY OF THE SECURITY SYSTEM",
 //            "switchglobalvariables": "PUT A COMMA SEPARATED LIST OF HOME CENTER GLOBAL VARIABLES ACTING LIKE A BISTABLE SWITCH",
 //            "thermostattimeout": "PUT THE NUMBER OF SECONDS FOR THE THERMOSTAT TIMEOUT, DEFAULT: 7200 (2 HOURS). PUT 0 FOR INFINITE",
-//            "enablecoolingstatemanagemnt": "PUT on TO AUTOMATICALLY MANAGE HEATING STATE FOR THERMOSTAT, off TO DISABLE IT. DEFAULT off"
-
+//            "enablecoolingstatemanagemnt": "PUT on TO AUTOMATICALLY MANAGE HEATING STATE FOR THERMOSTAT, off TO DISABLE IT. DEFAULT off",
+//            "doorlocktimeout": "PUT 0 FOR DISABLING THE CHECK. PUT A POSITIVE INTEGER N NUMBER ENABLE IT AFTER N SECONDS. DEFAULT 0",
+//            "makerkey": "PUT KEY OF YOUR MAKER CHANNEL HERE (USED TO SIGNAL EVENTS TO THE OUTSIDE)"
 //     }
 // ],
 //
@@ -71,6 +72,8 @@ class Config {
 	switchglobalvariables?: string;
 	thermostattimeout?: string;
 	enablecoolingstatemanagemnt?: string;
+	doorlocktimeout?: string;
+	makerkey?: string;
 }
 
 class FibaroHC2 {
@@ -108,6 +111,10 @@ class FibaroHC2 {
 	  		this.config.thermostattimeout = timeOffset.toString();
   		if (this.config.enablecoolingstatemanagemnt == undefined)
 	  		this.config.enablecoolingstatemanagemnt = defaultEnableCoolingStateManagemnt;
+		if (this.config.doorlocktimeout == undefined)
+			  this.config.doorlocktimeout = "0";
+		if (this.config.makerkey == undefined)
+		  this.config.makerkey = "";
 
 		this.fibaroClient = new FibaroClient(this.config.host, this.config.username, this.config.password);
   		this.poller = new Poller(this, pollerPeriod, Service, Characteristic);
@@ -295,7 +302,7 @@ class FibaroHC2 {
 					getFunction.call(this.getFunctions, callback, characteristic, service, IDs, properties);
 			})
 			.catch((err) => {
-				this.log("There was a problem getting value from: ", `${IDs[0]} - Err: {err}` );
+				this.log("There was a problem getting value from: ", `${IDs[0]} - Err: ${err}` );
 				callback(err, null);
 			});
 	}

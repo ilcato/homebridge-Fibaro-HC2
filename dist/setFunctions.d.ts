@@ -32,4 +32,5 @@ export declare class SetFunctions {
     command(c: any, value: any, service: any, IDs: any): void;
     scene(sceneID: any): void;
     setGlobalVariable(variableID: any, value: any): void;
+    checkLockCurrentState(IDs: any, value: any): void;
 }
