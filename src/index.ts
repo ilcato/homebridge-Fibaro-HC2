@@ -136,6 +136,7 @@ class FibaroHC2 {
 			})
 			.catch((err) => {
 				this.log("Error getting data from Home Center: ", err);
+				throw new Error("Startup error: get scenes or devices");
 			});
   	}
   	configureAccessory (accessory) {
