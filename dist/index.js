@@ -34,6 +34,7 @@
 // When you attempt to add a device, it will ask for a "PIN code".
 // The default code for all HomeBridge accessories is 031-45-154.
 'use strict';
+const request = require("request");
 const fibaro_api_1 = require("./fibaro-api");
 const shadows_1 = require("./shadows");
 const setFunctions_1 = require("./setFunctions");
@@ -261,6 +262,24 @@ class FibaroHC2 {
                 this.securitySystemScenes[s.name] = s.id;
             });
         }
+    }
+    notifyIFTTT(e, val1, val2, val3) {
+        if (this.config.makerkey == "")
+            return;
+        var url = "https://maker.ifttt.com/trigger/" + e + "/with/key/" + this.config.makerkey + "?value1=" + val1 + "&value2=" + val2 + "value3=" + val3;
+        var method = "get";
+        var that = this;
+        request({
+            url: url,
+            method: method
+        }, function (err, response) {
+            if (err) {
+                that.log("There was a problem sending event: ", `${e}, to: ${that.config.makerkey} - Err: ${err}`);
+            }
+            else {
+                that.log("Sent event: ", `${e}, to: ${that.config.makerkey}, for ${val1}`);
+            }
+        });
     }
 }
 module.exports = function (homebridge) {

@@ -16,6 +16,8 @@
 
 'use strict'
 
+const VALUE_GET = "hb_fhc2_value_get";
+
 export class Poller {
 
 	platform: any;
@@ -98,6 +100,7 @@ export class Poller {
 			let subscription = this.platform.updateSubscriptions[i];
 			if (subscription.id == change.id && subscription.property == "value") {
 				this.platform.log("Updating value for device: ", `${subscription.id}  parameter: ${subscription.characteristic.displayName}, value: ${change.value}`);
+				this.platform.notifyIFTTT(VALUE_GET, subscription.id, subscription.characteristic.displayName.replace(" ", "_"), change.value);
 				let getFunction = this.platform.getFunctions.getFunctionsMapping.get(subscription.characteristic.UUID);
 				if (getFunction)
 					getFunction.call(this.platform.getFunctions, null, subscription.characteristic, subscription.service, null, change);

@@ -37,6 +37,8 @@
 
 'use strict'
 
+import request = require("request");
+
 import {FibaroClient} from './fibaro-api'
 import {	pluginName,
 			platformName, 
@@ -320,5 +322,22 @@ class FibaroHC2 {
 			});
 		}
 	}
+	notifyIFTTT(e, val1, val2, val3) {
+		if (this.config.makerkey == "") return;
+		var url = "https://maker.ifttt.com/trigger/"+e+"/with/key/"+this.config.makerkey+"?value1="+val1+"&value2="+val2+"value3="+val3;
+		var method = "get";
+		var that = this;
+		request({
+		  url: url,
+		  method: method
+		}, function(err, response) {
+		  if (err) {
+			that.log("There was a problem sending event: ", `${e}, to: ${that.config.makerkey} - Err: ${err}`);
+		  } else {
+			that.log("Sent event: ", `${e}, to: ${that.config.makerkey}, for ${val1}`);
+		  }
+		});
+	}
+	
 }
 

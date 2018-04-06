@@ -33,5 +33,4 @@ export declare class SetFunctions {
     scene(sceneID: any): void;
     setGlobalVariable(variableID: any, value: any): void;
     checkLockCurrentState(IDs: any, value: any): void;
-    notifyIFTTT(e: any, ID: any): void;
 }

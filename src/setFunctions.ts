@@ -16,11 +16,11 @@
 
 'use strict'
 
-import request = require("request");
-
 export const lowestTemp = 12;
 export const stdTemp = 21;
 
+const LOCK_ERROR = "hb_fhc2_lock_error";
+const VALUE_SET = "hb_fhc2_value_set";
 
 export class SetFunctions {
 	hapCharacteristic: any;
@@ -105,7 +105,7 @@ export class SetFunctions {
 			let currentDoorStateCharacteristic = service.getCharacteristic(this.hapCharacteristic.CurrentDoorState);
 			currentDoorStateCharacteristic.setValue(value, undefined, 'fromSetValue');			
 		}, 100 );
-}
+	}
 	setTargetHeatingCoolingState(value, callback, context, characteristic, service, IDs) {
 		if (this.platform.config.enablecoolingstatemanagemnt == "on") {
 			let temp = 0;
@@ -229,6 +229,7 @@ export class SetFunctions {
 		this.platform.fibaroClient.executeDeviceAction(IDs[0], c, value)
 			.then( (response) => {
 				this.platform.log("Command: ", c + ((value != undefined) ? ", value: " + value : "") + ", to: " + IDs[0]);
+				this.platform.notifyIFTTT(VALUE_SET, IDs[0], c, value);
 			})
 			.catch( (err, response) => {
 				this.platform.log("There was a problem sending command ", c + " to " + IDs[0]);
@@ -260,27 +261,11 @@ export class SetFunctions {
 			var currentValue = properties.value == "true" ? this.hapCharacteristic.LockCurrentState.SECURED : this.hapCharacteristic.LockCurrentState.UNSECURED;
 			if (currentValue != value) {
 				this.platform.log("There was a problem setting value to Lock: ", `${IDs[0]}` );
-				this.notifyIFTTT("LockError", IDs[0]);
+				this.platform.notifyIFTTT(LOCK_ERROR, IDs[0], "", "");
 			}
 		})
 		.catch((err) => {
 			this.platform.log("There was a problem getting value from: ", `${IDs[0]} - Err: ${err}` );
-		});
-
-	}
-	notifyIFTTT(e, ID) {
-		var url = "https://maker.ifttt.com/trigger/"+e+"/with/key/"+this.platform.config.makerkey+"?value1="+ID;
-		var method = "get";
-		var that = this;
-		request({
-		  url: url,
-		  method: method
-		}, function(err, response) {
-		  if (err) {
-			that.platform.log("There was a problem sending event: ", `${e}, to: ${that.platform.config.makerkey}, for ${ID} - Err: ${err}`);
-		  } else {
-			that.platform.log("Sent event: ", `${e}, to: ${that.platform.config.makerkey}, for ${ID}`);
-		  }
 		});
 	}
 }
