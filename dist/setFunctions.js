@@ -261,7 +261,7 @@ class SetFunctions {
         });
     }
     notifyIFTTT(e, ID) {
-        var url = "https://maker.ifttt.com/trigger/" + e + "/with/key/" + this.platform.config.makerkey + "value1=" + ID;
+        var url = "https://maker.ifttt.com/trigger/" + e + "/with/key/" + this.platform.config.makerkey + "?value1=" + ID;
         var method = "get";
         var that = this;
         request({
