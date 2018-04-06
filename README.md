@@ -26,7 +26,8 @@ Version 2.0.9
 + Added support for generic Smoke Detector.
 + Added support for Fibaro Thermostat.
 + Added support for Fibaro CO Sensor.
-+ Added support for Lock error detection and notification via IFTTT
++ Added support for IFTTT notification integration. See Wiki.
++ Added support for Lock error detection and notification via IFTTT.
 
 Version 2.0.8
 + Added support for Garage Door Controllers. Tested only on Aeon Garage Door Controller.
