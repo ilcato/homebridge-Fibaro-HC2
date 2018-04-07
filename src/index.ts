@@ -327,6 +327,9 @@ class FibaroHC2 {
 	}
 	notifyIFTTT(e, val1, val2, val3) {
 		if (this.config.IFTTTmakerkey == "") return;
+		if (val2 == undefined) val2 = "";
+		if (val3 == undefined) val3 = "";
+		
 		var url = "https://maker.ifttt.com/trigger/"+e+"/with/key/"+this.config.IFTTTmakerkey+"?value1="+val1+"&value2="+val2+"&value3="+val3;
 		var method = "get";
 		var that = this;
