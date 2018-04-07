@@ -90,7 +90,7 @@ export class SetFunctions {
 		this.command(action, 0, service, IDs);
 		// check if the action is correctly executed by reading the stae after a specified timeout. If the lock is not active after the timeout an IFTTT message is generated
 		if (this.platform.config.doorlocktimeout != "0") {
-			var timeout = parseInt(this.platform.config.doorlocktimeout);
+			var timeout = parseInt(this.platform.config.doorlocktimeout)*1000;
 			setTimeout( () => {
 				this.checkLockCurrentState(IDs, value);
 			}, timeout );
@@ -229,7 +229,8 @@ export class SetFunctions {
 		this.platform.fibaroClient.executeDeviceAction(IDs[0], c, value)
 			.then( (response) => {
 				this.platform.log("Command: ", c + ((value != undefined) ? ", value: " + value : "") + ", to: " + IDs[0]);
-				this.platform.notifyIFTTT(VALUE_SET, IDs[0], c, value);
+				if (this.platform.config.enableIFTTTnotification == "all" || this.platform.config.enableIFTTTnotification == "hk")
+					this.platform.notifyIFTTT(VALUE_SET, IDs[0], c, value);
 			})
 			.catch( (err, response) => {
 				this.platform.log("There was a problem sending command ", c + " to " + IDs[0]);
