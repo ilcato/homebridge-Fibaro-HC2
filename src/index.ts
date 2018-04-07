@@ -216,7 +216,6 @@ class FibaroHC2 {
 			a.context.uniqueSeed = uniqueSeed;
 			this.accessories.set(uniqueSeed, a);
 		}
-		this.log("Unique seed: ", uniqueSeed);
 		// Store SecuritySystem Accessory
 		if (this.config.securitysystem == "enabled" && shadowAccessory.isSecuritySystem) {
 			this.securitySystemService = a.getService(Service.SecuritySystem);
@@ -328,7 +327,7 @@ class FibaroHC2 {
 	}
 	notifyIFTTT(e, val1, val2, val3) {
 		if (this.config.IFTTTmakerkey == "") return;
-		var url = "https://maker.ifttt.com/trigger/"+e+"/with/key/"+this.config.IFTTTmakerkey+"?value1="+val1+"&value2="+val2+"value3="+val3;
+		var url = "https://maker.ifttt.com/trigger/"+e+"/with/key/"+this.config.IFTTTmakerkey+"?value1="+val1+"&value2="+val2+"&value3="+val3;
 		var method = "get";
 		var that = this;
 		request({
