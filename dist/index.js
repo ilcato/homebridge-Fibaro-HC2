@@ -27,7 +27,8 @@
 //            "thermostattimeout": "PUT THE NUMBER OF SECONDS FOR THE THERMOSTAT TIMEOUT, DEFAULT: 7200 (2 HOURS). PUT 0 FOR INFINITE",
 //            "enablecoolingstatemanagemnt": "PUT on TO AUTOMATICALLY MANAGE HEATING STATE FOR THERMOSTAT, off TO DISABLE IT. DEFAULT off",
 //            "doorlocktimeout": "PUT 0 FOR DISABLING THE CHECK. PUT A POSITIVE INTEGER N NUMBER ENABLE IT AFTER N SECONDS. DEFAULT 0",
-//            "makerkey": "PUT KEY OF YOUR MAKER CHANNEL HERE (USED TO SIGNAL EVENTS TO THE OUTSIDE)"
+//			  "IFTTTmakerkey": "PUT KEY OF YOUR MAKER CHANNEL HERE (USED TO SIGNAL EVENTS TO THE OUTSIDE)",
+//			  "enableIFTTTnotification": "PUT all FOR ENABLING NOTIFICATIONS OF ALL KIND OF EVENTS, hc FOR CHANGE EVENTS COMING FROM HOME CENTER, hk FOR CHANGE EVENTS COMING FROM HOMEKIT, none FOR DISABLING NOTIFICATIONS; DEFAULT IS none"
 //     }
 // ],
 //
@@ -68,8 +69,10 @@ class FibaroHC2 {
             this.config.enablecoolingstatemanagemnt = defaultEnableCoolingStateManagemnt;
         if (this.config.doorlocktimeout == undefined)
             this.config.doorlocktimeout = "0";
-        if (this.config.makerkey == undefined)
-            this.config.makerkey = "";
+        if (this.config.IFTTTmakerkey == undefined)
+            this.config.IFTTTmakerkey = "";
+        if (this.config.enableIFTTTnotification == undefined || this.config.enableIFTTTnotification == "")
+            this.config.enableIFTTTnotification = "none";
         this.fibaroClient = new fibaro_api_1.FibaroClient(this.config.host, this.config.username, this.config.password);
         this.poller = new pollerupdate_1.Poller(this, pollerPeriod, Service, Characteristic);
         this.api.on('didFinishLaunching', this.didFinishLaunching.bind(this));
@@ -264,9 +267,9 @@ class FibaroHC2 {
         }
     }
     notifyIFTTT(e, val1, val2, val3) {
-        if (this.config.makerkey == "")
+        if (this.config.IFTTTmakerkey == "")
             return;
-        var url = "https://maker.ifttt.com/trigger/" + e + "/with/key/" + this.config.makerkey + "?value1=" + val1 + "&value2=" + val2 + "value3=" + val3;
+        var url = "https://maker.ifttt.com/trigger/" + e + "/with/key/" + this.config.IFTTTmakerkey + "?value1=" + val1 + "&value2=" + val2 + "value3=" + val3;
         var method = "get";
         var that = this;
         request({
@@ -274,10 +277,10 @@ class FibaroHC2 {
             method: method
         }, function (err, response) {
             if (err) {
-                that.log("There was a problem sending event: ", `${e}, to: ${that.config.makerkey} - Err: ${err}`);
+                that.log("There was a problem sending event: ", `${e}, to: ${that.config.IFTTTmakerkey} - Err: ${err}`);
             }
             else {
-                that.log("Sent event: ", `${e}, to: ${that.config.makerkey}, for ${val1}`);
+                that.log("Sent event: ", `${e}, to: ${that.config.IFTTTmakerkey}, for ${val1}`);
             }
         });
     }
