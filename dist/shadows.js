@@ -1,4 +1,4 @@
-//    Copyright 2017 ilcato
+//    Copyright 2018 ilcato
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ class ShadowAccessory {
             }
         }
     }
-    resgisterUpdateAccessory(isNewAccessory, api) {
+    registerUpdateAccessory(isNewAccessory, api) {
         if (isNewAccessory)
             api.registerPlatformAccessories(exports.pluginName, exports.platformName, [this.accessory]);
         else
@@ -92,7 +92,7 @@ class ShadowAccessory {
     setAccessory(accessory) {
         this.accessory = accessory;
     }
-    static createShadowAccessory(device, hapAccessory, hapService, hapCharacteristic, platform) {
+    static createShadowAccessory(device, siblings, hapAccessory, hapService, hapCharacteristic, platform) {
         let ss;
         let controlService, controlCharacteristics;
         switch (device.type) {
@@ -173,7 +173,15 @@ class ShadowAccessory {
             case "com.fibaro.FGT001":
             case "com.fibaro.thermostatDanfoss":
             case "com.fibaro.com.fibaro.thermostatHorstmann":
-                ss = [new ShadowService(new hapService.Thermostat(device.name), [hapCharacteristic.CurrentTemperature, hapCharacteristic.TargetTemperature, hapCharacteristic.CurrentHeatingCoolingState, hapCharacteristic.TargetHeatingCoolingState, hapCharacteristic.TemperatureDisplayUnits])];
+                controlService = new hapService.Thermostat(device.name);
+                controlCharacteristics = [hapCharacteristic.CurrentTemperature, hapCharacteristic.TargetTemperature, hapCharacteristic.CurrentHeatingCoolingState, hapCharacteristic.TargetHeatingCoolingState, hapCharacteristic.TemperatureDisplayUnits];
+                // Check the presence of an associated operating mode device
+                let m = siblings.get("com.fibaro.operatingMode");
+                if (m) {
+                    controlService.operatingModeId = m.id;
+                    controlService.subtype = device.id + "---" + m.id; // for setPint like devices add a subtype parameter; it will go into 4th position: "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER-OPERATING_MODE_ID
+                }
+                ss = [new ShadowService(controlService, controlCharacteristics)];
                 break;
             case "virtual_device":
                 let pushButtonServices = new Array();

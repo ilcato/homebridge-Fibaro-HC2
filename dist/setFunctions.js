@@ -1,4 +1,4 @@
-//    Copyright 2017 ilcato
+//    Copyright 2018 ilcato
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -93,23 +93,45 @@ class SetFunctions {
         }, 100);
     }
     setTargetHeatingCoolingState(value, callback, context, characteristic, service, IDs) {
-        if (this.platform.config.enablecoolingstatemanagemnt == "on") {
-            let temp = 0;
-            if (value == this.hapCharacteristic.TargetHeatingCoolingState.OFF) {
-                temp = exports.lowestTemp;
+        if (service.operatingModeId) {
+            var v;
+            switch (value) {
+                case this.hapCharacteristic.TargetHeatingCoolingState.OFF:
+                    v = "0";
+                    break;
+                case this.hapCharacteristic.TargetHeatingCoolingState.HEAT:
+                    v = "1";
+                    break;
+                case this.hapCharacteristic.TargetHeatingCoolingState.COOL:
+                    v = "2";
+                    break;
+                case this.hapCharacteristic.TargetHeatingCoolingState.AUTO:
+                    v = "10";
+                    break;
+                default:
+                    return;
             }
-            else {
-                temp = exports.stdTemp;
-                value = this.hapCharacteristic.TargetHeatingCoolingState.HEAT; // force the target state to HEAT because we are not managing other staes beside OFF and HEAT
+            this.command("setMode", v, service, IDs);
+        }
+        else {
+            if (this.platform.config.enablecoolingstatemanagemnt == "on") {
+                let temp = 0;
+                if (value == this.hapCharacteristic.TargetHeatingCoolingState.OFF) {
+                    temp = exports.lowestTemp;
+                }
+                else {
+                    temp = exports.stdTemp;
+                    value = this.hapCharacteristic.TargetHeatingCoolingState.HEAT; // force the target state to HEAT because we are not managing other staes beside OFF and HEAT
+                }
+                this.command("setTargetLevel", temp, service, IDs);
+                this.command("setTime", 0 + Math.trunc((new Date()).getTime() / 1000), service, IDs);
+                setTimeout(() => {
+                    characteristic.setValue(value, undefined, 'fromSetValue');
+                    // set also current state
+                    let currentHeatingCoolingStateCharacteristic = service.getCharacteristic(this.hapCharacteristic.CurrentHeatingCoolingState);
+                    currentHeatingCoolingStateCharacteristic.setValue(value, undefined, 'fromSetValue');
+                }, 100);
             }
-            this.command("setTargetLevel", temp, service, IDs);
-            this.command("setTime", 0 + Math.trunc((new Date()).getTime() / 1000), service, IDs);
-            setTimeout(() => {
-                characteristic.setValue(value, undefined, 'fromSetValue');
-                // set also current state
-                let currentHeatingCoolingStateCharacteristic = service.getCharacteristic(this.hapCharacteristic.CurrentHeatingCoolingState);
-                currentHeatingCoolingStateCharacteristic.setValue(value, undefined, 'fromSetValue');
-            }, 100);
         }
     }
     setTargetTemperature(value, callback, context, characteristic, service, IDs) {

@@ -9,5 +9,6 @@ export declare class Poller {
     poll(): void;
     manageValue(change: any): void;
     manageColor(change: any): void;
+    manageOperatingMode(event: any): void;
     searchCharacteristic(globalVariablesID: any): any;
 }

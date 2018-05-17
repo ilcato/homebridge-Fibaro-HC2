@@ -22,6 +22,10 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.1
++ Added support for Remotec ZXT-120 AC IR Extender.
++ Minor bug fixes.
+
 Version 2.0.9
 + Added support for generic Smoke Detector.
 + Added support for Fibaro Thermostat.

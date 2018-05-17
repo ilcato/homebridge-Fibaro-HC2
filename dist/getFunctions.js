@@ -1,4 +1,4 @@
-//    Copyright 2017 ilcato
+//    Copyright 2018 ilcato
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -131,27 +131,78 @@ class GetFunctions {
         this.returnValue(properties.value == "true" ? this.hapCharacteristic.LockCurrentState.SECURED : this.hapCharacteristic.LockCurrentState.UNSECURED, callback, characteristic);
     }
     getCurrentHeatingCoolingState(callback, characteristic, service, IDs, properties) {
-        if (this.platform.config.enablecoolingstatemanagemnt == "on") {
-            let t = parseFloat(properties.value);
-            if (t <= setFunctions_1.lowestTemp)
-                this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.OFF, callback, characteristic);
-            else
-                this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
+        if (service.operatingModeId) {
+            this.platform.fibaroClient.getDeviceProperties(service.operatingModeId)
+                .then((properties) => {
+                switch (properties.mode) {
+                    case "0":
+                        this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.OFF, callback, characteristic);
+                        break;
+                    case "1":
+                        this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
+                        break;
+                    case "2":
+                        this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.COOL, callback, characteristic);
+                        break;
+                    default:
+                        break;
+                }
+            })
+                .catch((err) => {
+                this.platform.log("There was a problem getting value from: ", `${service.operatingModeId} - Err: ${err}`);
+                callback(err, null);
+            });
         }
         else {
-            this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
+            if (this.platform.config.enablecoolingstatemanagemnt == "on") {
+                let t = parseFloat(properties.value);
+                if (t <= setFunctions_1.lowestTemp)
+                    this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.OFF, callback, characteristic);
+                else
+                    this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
+            }
+            else {
+                this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
+            }
         }
     }
     getTargetHeatingCoolingState(callback, characteristic, service, IDs, properties) {
-        if (this.platform.config.enablecoolingstatemanagemnt == "on") {
-            let t = parseFloat(properties.targetLevel);
-            if (t <= setFunctions_1.lowestTemp)
-                this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.OFF, callback, characteristic);
-            else
-                this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);
+        if (service.operatingModeId) {
+            this.platform.fibaroClient.getDeviceProperties(service.operatingModeId)
+                .then((properties) => {
+                switch (properties.mode) {
+                    case "0":
+                        this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.OFF, callback, characteristic);
+                        break;
+                    case "1":
+                        this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);
+                        break;
+                    case "2":
+                        this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.COOL, callback, characteristic);
+                        break;
+                    case "10":
+                        this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.AUTO, callback, characteristic);
+                        break;
+                    default:
+                        break;
+                }
+            })
+                .catch((err) => {
+                this.platform.log("There was a problem getting value from: ", `${service.operatingModeId} - Err: ${err}`);
+                callback(err, null);
+            });
         }
         else {
-            this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
+            if (this.platform.config.enablecoolingstatemanagemnt == "on") {
+                let t = parseFloat(properties.targetLevel);
+                if (t <= setFunctions_1.lowestTemp)
+                    this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.OFF, callback, characteristic);
+                else
+                    this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);
+            }
+            else {
+                this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
+            }
         }
     }
     getTemperatureDisplayUnits(callback, characteristic, service, IDs, properties) {

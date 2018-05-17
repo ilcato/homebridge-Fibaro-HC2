@@ -1,4 +1,4 @@
-//    Copyright 2017 ilcato
+//    Copyright 2018 ilcato
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -149,13 +149,16 @@ class FibaroHC2 {
 		for (let s = 0; s < accessory.services.length; s++) {
 			let service = accessory.services[s];
 			if (service.subtype != undefined) {
-				var subtypeParams = service.subtype.split("-"); // "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
-				if (subtypeParams.length == 3 && subtypeParams[2] == "RGB") {
+				let subtypeParams = service.subtype.split("-"); // DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER-OPERATING_MODE_ID
+				if (subtypeParams.length >= 3 && subtypeParams[2] == "RGB") {
 					// For RGB devices add specific attributes for managing it
 					service.HSBValue = {hue: 0, saturation: 0, brightness: 0};
 					service.RGBValue = {red: 0, green: 0, blue: 0};
 					service.countColorCharacteristics = 0;
 					service.timeoutIdColorCharacteristics = 0;
+				}
+				if (subtypeParams.length >= 4) {
+					service.operatingModeId = subtypeParams[3];
 				}
 			}
 			for (let i = 0; i < service.characteristics.length; i++) {
@@ -172,7 +175,8 @@ class FibaroHC2 {
 		this.log('Loading accessories', '');
 		devices.map((s, i, a) => {
 			if (s.visible == true && s.name.charAt(0) != "_") {
-				this.addAccessory(ShadowAccessory.createShadowAccessory(s, Accessory, Service, Characteristic, this));
+				let siblings = this.findSiblingDevices(s, a);
+				this.addAccessory(ShadowAccessory.createShadowAccessory(s, siblings, Accessory, Service, Characteristic, this));
 			}
 		});
 		
@@ -228,7 +232,7 @@ class FibaroHC2 {
 		// Add services present in Home Center and not existing in Homekit accessory
 		shadowAccessory.addNewServices(this);
 		// Register or update platform accessory
-		shadowAccessory.resgisterUpdateAccessory(isNewAccessory, this.api);
+		shadowAccessory.registerUpdateAccessory(isNewAccessory, this.api);
 		this.log("Added/changed accessory: ", shadowAccessory.name);
   	}
 
@@ -325,6 +329,20 @@ class FibaroHC2 {
 			});
 		}
 	}
+	findSiblingDevices(device, devices) {
+		let siblings = new Map<string, object>();
+
+		devices.map((s, i, a) => {
+			if (s.visible == true && s.name.charAt(0) != "_") {
+				if (device.parentId == s.parentId && device.id != s.id) {
+					siblings.set(s.type, s);
+				}
+			}
+		});
+
+		return siblings;
+	}
+
 	notifyIFTTT(e, val1, val2, val3) {
 		if (this.config.IFTTTmakerkey == "") return;
 		if (val2 == undefined) val2 = "";

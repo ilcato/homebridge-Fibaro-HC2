@@ -19,9 +19,9 @@ export declare class ShadowAccessory {
     initAccessory(): void;
     removeNoMoreExistingServices(): void;
     addNewServices(platform: any): void;
-    resgisterUpdateAccessory(isNewAccessory: any, api: any): void;
+    registerUpdateAccessory(isNewAccessory: any, api: any): void;
     setAccessory(accessory: any): void;
-    static createShadowAccessory(device: any, hapAccessory: any, hapService: any, hapCharacteristic: any, platform: any): ShadowAccessory | undefined;
+    static createShadowAccessory(device: any, siblings: any, hapAccessory: any, hapService: any, hapCharacteristic: any, platform: any): ShadowAccessory | undefined;
     static createShadowSecuritySystemAccessory(device: any, hapAccessory: any, hapService: any, hapCharacteristic: any, platform: any): ShadowAccessory;
     static createShadowGlobalVariableSwitchAccessory(device: any, hapAccessory: any, hapService: any, hapCharacteristic: any, platform: any): ShadowAccessory;
 }
