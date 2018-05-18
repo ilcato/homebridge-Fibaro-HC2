@@ -1,7 +1,5 @@
 export declare class FibaroClient {
     host: string;
-    username: string;
-    password: string;
     auth: string;
     headers: any;
     constructor(host: any, username: any, password: any);

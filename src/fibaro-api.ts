@@ -23,8 +23,6 @@ declare const Buffer;
 export class FibaroClient {
 
 	host: string;
-	username: string;
-	password: string;
 	auth: string;
 	headers: any;
 	

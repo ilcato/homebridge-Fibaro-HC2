@@ -91,9 +91,6 @@ class Poller {
     manageValue(change) {
         for (let i = 0; i < this.platform.updateSubscriptions.length; i++) {
             let subscription = this.platform.updateSubscriptions[i];
-            if (subscription.characteristic.UUID == (new this.hapCharacteristic.CurrentHeatingCoolingState()).UUID || subscription.characteristic.UUID == (new this.hapCharacteristic.TargetHeatingCoolingState()).UUID) {
-                continue;
-            }
             if (subscription.id == change.id && subscription.property == "value") {
                 this.platform.log("Updating value for device: ", `${subscription.id}  parameter: ${subscription.characteristic.displayName}, value: ${change.value}`);
                 if (this.platform.config.enableIFTTTnotification == "all" || this.platform.config.enableIFTTTnotification == "hc")
@@ -123,10 +120,7 @@ class Poller {
     manageOperatingMode(event) {
         for (let i = 0; i < this.platform.updateSubscriptions.length; i++) {
             let subscription = this.platform.updateSubscriptions[i];
-            if (subscription.characteristic.UUID != (new this.hapCharacteristic.CurrentHeatingCoolingState()).UUID && subscription.characteristic.UUID != (new this.hapCharacteristic.TargetHeatingCoolingState()).UUID) {
-                continue;
-            }
-            if (subscription.service.operatingModeId != undefined && subscription.service.operatingModeId == event.data.id) {
+            if (subscription.service.operatingModeId != undefined && subscription.service.operatingModeId == event.data.id && subscription.property == "mode") {
                 this.platform.log("Updating value for device: ", `${subscription.service.operatingModeId}  parameter: ${subscription.characteristic.displayName}, value: ${event.data.newValue}`);
                 let getFunction = this.platform.getFunctions.getFunctionsMapping.get(subscription.characteristic.UUID);
                 if (getFunction)

@@ -93,7 +93,7 @@ class SetFunctions {
         }, 100);
     }
     setTargetHeatingCoolingState(value, callback, context, characteristic, service, IDs) {
-        if (service.operatingModeId) {
+        if (service.operatingModeId) { // Operating mode is availble on Home Center
             var v;
             switch (value) {
                 case this.hapCharacteristic.TargetHeatingCoolingState.OFF:

@@ -131,17 +131,17 @@ class GetFunctions {
         this.returnValue(properties.value == "true" ? this.hapCharacteristic.LockCurrentState.SECURED : this.hapCharacteristic.LockCurrentState.UNSECURED, callback, characteristic);
     }
     getCurrentHeatingCoolingState(callback, characteristic, service, IDs, properties) {
-        if (service.operatingModeId) {
+        if (service.operatingModeId) { // Operating mode is availble on Home Center
             this.platform.fibaroClient.getDeviceProperties(service.operatingModeId)
                 .then((properties) => {
                 switch (properties.mode) {
-                    case "0":
+                    case "0": // OFF
                         this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.OFF, callback, characteristic);
                         break;
-                    case "1":
+                    case "1": // HEAT
                         this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
                         break;
-                    case "2":
+                    case "2": // COOL
                         this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.COOL, callback, characteristic);
                         break;
                     default:
@@ -154,33 +154,33 @@ class GetFunctions {
             });
         }
         else {
-            if (this.platform.config.enablecoolingstatemanagemnt == "on") {
+            if (this.platform.config.enablecoolingstatemanagemnt == "on") { // Simulated operating mode
                 let t = parseFloat(properties.value);
                 if (t <= setFunctions_1.lowestTemp)
                     this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.OFF, callback, characteristic);
                 else
                     this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
             }
-            else {
+            else { // Fake simulated mode: always heat
                 this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
             }
         }
     }
     getTargetHeatingCoolingState(callback, characteristic, service, IDs, properties) {
-        if (service.operatingModeId) {
+        if (service.operatingModeId) { // Operating mode is availble on Home Center
             this.platform.fibaroClient.getDeviceProperties(service.operatingModeId)
                 .then((properties) => {
                 switch (properties.mode) {
-                    case "0":
+                    case "0": // OFF
                         this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.OFF, callback, characteristic);
                         break;
-                    case "1":
+                    case "1": // HEAT
                         this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);
                         break;
-                    case "2":
+                    case "2": // COOL
                         this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.COOL, callback, characteristic);
                         break;
-                    case "10":
+                    case "10": // AUTO
                         this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.AUTO, callback, characteristic);
                         break;
                     default:

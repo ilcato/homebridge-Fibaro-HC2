@@ -78,6 +78,12 @@ class Config {
 	doorlocktimeout?: string;
 	IFTTTmakerkey?: string;
 	enableIFTTTnotification?: string;
+	constructor () {
+		this.name = "";
+		this.host = "";
+		this.username = "";
+		this.password = "";
+	}
 }
 
 class FibaroHC2 {
@@ -90,7 +96,7 @@ class FibaroHC2 {
   	securitySystemScenes: Object;
   	securitySystemService: Object;
   	fibaroClient: FibaroClient;
-  	setFunctions: SetFunctions;
+  	setFunctions?: SetFunctions;
   	getFunctions: GetFunctions;
 
 	  	
@@ -134,7 +140,7 @@ class FibaroHC2 {
 		this.fibaroClient.getScenes()
 			.then((scenes) => {
 				this.mapSceneIDs(scenes);
-		    	this.setFunctions = new SetFunctions(Characteristic, this);			// There's a dependency in setFunction to Scene Mapping
+		    	this.setFunctions = new SetFunctions(Characteristic, this);	// There's a dependency in setFunction to Scene Mapping
 				return this.fibaroClient.getDevices();
 			})
 			.then((devices) => {
@@ -251,7 +257,12 @@ class FibaroHC2 {
 		if (!service.isVirtual) {
 			var propertyChanged = "value"; // subscribe to the changes of this property
 			if (service.HSBValue != undefined)
-				propertyChanged = "color";	 		
+				propertyChanged = "color";
+			if(service.operatingModeId != undefined) {
+				if (characteristic.UUID == (new Characteristic.CurrentHeatingCoolingState()).UUID || characteristic.UUID == (new Characteristic.TargetHeatingCoolingState()).UUID) {
+					propertyChanged = "mode";
+				}
+			}
 			this.subscribeUpdate(service, characteristic, propertyChanged); 
 		}
 		characteristic.on('set', (value, callback, context) => {
@@ -271,9 +282,11 @@ class FibaroHC2 {
 		if( context !== 'fromFibaro' && context !== 'fromSetValue') {
 			let d = IDs[0] != "G" ? IDs[0]: IDs[1];
 			this.log("Setting value to device: ", `${d}  parameter: ${characteristic.displayName}`);
-			let setFunction = this.setFunctions.setFunctionsMapping.get(characteristic.UUID);
-			if (setFunction)
-				setFunction.call(this.setFunctions, value, callback, context, characteristic, service, IDs);
+			if (this.setFunctions) {
+				let setFunction = this.setFunctions.setFunctionsMapping.get(characteristic.UUID);
+				if (setFunction)
+					setFunction.call(this.setFunctions, value, callback, context, characteristic, service, IDs);
+			}
 		}
 		callback();
 	}
