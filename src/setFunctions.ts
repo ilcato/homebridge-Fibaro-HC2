@@ -125,7 +125,10 @@ export class SetFunctions {
 				default:
 					return;
 			}
-			this.command("setMode", v, service, IDs);
+			if (v != "0") { // set subset mode on the temperature controller ...
+				this.command("setSetpointMode", v, service, IDs);				
+			}
+			this.command("setMode", v, service, [service.operatingModeId]);	// ... and full mode on mode controller	
 		} else {
 			if (this.platform.config.enablecoolingstatemanagemnt == "on") {
 				let temp = 0;

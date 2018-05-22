@@ -22,6 +22,9 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.1.1
++ Fixed mode management in Remotec ZXT-120 AC IR Extender.
+
 Version 2.1.0
 + Added support for Remotec ZXT-120 AC IR Extender.
 + Minor bug fixes.
