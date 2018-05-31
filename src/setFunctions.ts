@@ -153,8 +153,24 @@ export class SetFunctions {
 	setTargetTemperature(value, callback, context, characteristic, service, IDs) {
 		if (Math.abs(value - characteristic.value) >= 0.5) {
 			value = parseFloat( (Math.round(value / 0.5) * 0.5).toFixed(1) );
-			this.command("setTargetLevel", value, service, IDs);
-			this.command("setTime", parseInt(this.platform.config.thermostattimeout) + Math.trunc((new Date()).getTime()/1000), service, IDs);
+			var currentOpMode;
+			if (service.operatingModeId) {	// Operating mode is availble on Home Center
+				// need to force the operating mode to the current one because of a Fibaro API bug (setting temperature through the API change the mode to HEAT)
+				this.platform.fibaroClient.getDeviceProperties(IDs[0])
+				.then((properties) => {
+					currentOpMode = properties.mode;
+					this.command("setTargetLevel", value, service, IDs);
+					setTimeout( () => {
+						this.command("setSetpointMode", currentOpMode, service, IDs);				
+					}, 100 );
+				})
+				.catch((err) => {
+					this.platform.log("There was a problem getting value from: ", `${IDs[0]} - Err: ${err}` );
+				});
+			} else {
+				this.command("setTargetLevel", value, service, IDs);
+				this.command("setTime", parseInt(this.platform.config.thermostattimeout) + Math.trunc((new Date()).getTime()/1000), service, IDs);
+			}
 		} else {
 			value = characteristic.value;
 		}
