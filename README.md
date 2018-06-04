@@ -22,6 +22,9 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.1.3
++ Fixed thermostat setpoint management.
+
 Version 2.1.2
 + Fixed temperature management in Remotec ZXT-120 AC IR Extender.
 

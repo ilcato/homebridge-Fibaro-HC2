@@ -101,7 +101,7 @@ export class FibaroClient {
 		let p = new Promise((resolve, reject) => {
 			let url = "http://"+this.host+"/api/devices/"+ID+"/action/"+action;
 			let body = param != undefined ? JSON.stringify({
-				  "args": [	param ]
+				  "args": param
 			}) : null;
 			let method = "post";
 			request({

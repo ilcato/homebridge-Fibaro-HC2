@@ -44,7 +44,7 @@ class SetFunctions {
     setOn(value, callback, context, characteristic, service, IDs) {
         if (service.isVirtual && !service.isGlobalVariableSwitch) {
             // It's a virtual device so the command is pressButton and not turnOn or Off
-            this.command("pressButton", IDs[1], service, IDs);
+            this.command("pressButton", [IDs[1]], service, IDs);
             // In order to behave like a push button reset the status to off
             setTimeout(() => {
                 characteristic.setValue(0, undefined, 'fromSetValue');
@@ -65,15 +65,15 @@ class SetFunctions {
             this.syncColorCharacteristics(rgb, service, IDs);
         }
         else {
-            this.command("setValue", value, service, IDs);
+            this.command("setValue", [value], service, IDs);
         }
     }
     setTargetPosition(value, callback, context, characteristic, service, IDs) {
-        this.command("setValue", value, service, IDs);
+        this.command("setValue", [value], service, IDs);
     }
     setLockTargetState(value, callback, context, characteristic, service, IDs) {
         var action = value == this.hapCharacteristic.LockTargetState.UNSECURED ? "unsecure" : "secure";
-        this.command(action, 0, service, IDs);
+        this.command(action, [0], service, IDs);
         // check if the action is correctly executed by reading the stae after a specified timeout. If the lock is not active after the timeout an IFTTT message is generated
         if (this.platform.config.doorlocktimeout != "0") {
             var timeout = parseInt(this.platform.config.doorlocktimeout) * 1000;
@@ -84,7 +84,7 @@ class SetFunctions {
     }
     setTargetDoorState(value, callback, context, characteristic, service, IDs) {
         var action = value == 1 ? "close" : "open";
-        this.command(action, 0, service, IDs);
+        this.command(action, [0], service, IDs);
         setTimeout(() => {
             characteristic.setValue(value, undefined, 'fromSetValue');
             // set also current state
@@ -112,9 +112,9 @@ class SetFunctions {
                     return;
             }
             if (v != "0") { // set subset mode on the temperature controller ...
-                this.command("setSetpointMode", v, service, IDs);
+                this.command("setSetpointMode", [v], service, IDs);
             }
-            this.command("setMode", v, service, [service.operatingModeId]); // ... and full mode on mode controller	
+            this.command("setMode", [v], service, [service.operatingModeId]); // ... and full mode on mode controller	
         }
         else {
             if (this.platform.config.enablecoolingstatemanagemnt == "on") {
@@ -126,8 +126,8 @@ class SetFunctions {
                     temp = exports.stdTemp;
                     value = this.hapCharacteristic.TargetHeatingCoolingState.HEAT; // force the target state to HEAT because we are not managing other staes beside OFF and HEAT
                 }
-                this.command("setTargetLevel", temp, service, IDs);
-                this.command("setTime", 0 + Math.trunc((new Date()).getTime() / 1000), service, IDs);
+                this.command("setTargetLevel", [temp], service, IDs);
+                this.command("setTime", [0 + Math.trunc((new Date()).getTime() / 1000)], service, IDs);
                 setTimeout(() => {
                     characteristic.setValue(value, undefined, 'fromSetValue');
                     // set also current state
@@ -146,18 +146,15 @@ class SetFunctions {
                 this.platform.fibaroClient.getDeviceProperties(IDs[0])
                     .then((properties) => {
                     currentOpMode = properties.mode;
-                    this.command("setTargetLevel", value, service, IDs);
-                    setTimeout(() => {
-                        this.command("setSetpointMode", currentOpMode, service, IDs);
-                    }, 100);
+                    this.command("setThermostatSetpoint", [currentOpMode, value], service, IDs);
                 })
                     .catch((err) => {
                     this.platform.log("There was a problem getting value from: ", `${IDs[0]} - Err: ${err}`);
                 });
             }
             else {
-                this.command("setTargetLevel", value, service, IDs);
-                this.command("setTime", parseInt(this.platform.config.thermostattimeout) + Math.trunc((new Date()).getTime() / 1000), service, IDs);
+                this.command("setTargetLevel", [value], service, IDs);
+                this.command("setTime", [parseInt(this.platform.config.thermostattimeout) + Math.trunc((new Date()).getTime() / 1000)], service, IDs);
             }
         }
         else {
@@ -243,19 +240,19 @@ class SetFunctions {
                 service.timeoutIdColorCharacteristics = setTimeout(() => {
                     if (service.countColorCharacteristics < 2)
                         return;
-                    this.command("setR", rgb.r, service, IDs);
-                    this.command("setG", rgb.g, service, IDs);
-                    this.command("setB", rgb.b, service, IDs);
-                    this.command("setW", rgb.w, service, IDs);
+                    this.command("setR", [rgb.r], service, IDs);
+                    this.command("setG", [rgb.g], service, IDs);
+                    this.command("setB", [rgb.b], service, IDs);
+                    this.command("setW", [rgb.w], service, IDs);
                     service.countColorCharacteristics = 0;
                     service.timeoutIdColorCharacteristics = 0;
                 }, 1000);
                 break;
             case 0:
-                this.command("setR", rgb.r, service, IDs);
-                this.command("setG", rgb.g, service, IDs);
-                this.command("setB", rgb.b, service, IDs);
-                this.command("setW", rgb.w, service, IDs);
+                this.command("setR", [rgb.r], service, IDs);
+                this.command("setG", [rgb.g], service, IDs);
+                this.command("setB", [rgb.b], service, IDs);
+                this.command("setW", [rgb.w], service, IDs);
                 service.countColorCharacteristics = 0;
                 service.timeoutIdColorCharacteristics = 0;
                 break;
