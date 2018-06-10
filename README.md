@@ -25,6 +25,9 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.1.5
++ Fixed further Security System bug #74.
+
 Version 2.1.4
 + Fixed Security System bug #74.
 
