@@ -58,7 +58,8 @@ class Poller {
                         return;
                     let state = this.platform.getFunctions.getCurrentSecuritySystemStateMapping.get(securitySystemStatus.value);
                     let c = this.platform.securitySystemService.getCharacteristic(this.hapCharacteristic.SecuritySystemCurrentState);
-                    if (state == this.hapCharacteristic.SecuritySystemCurrentState.ALARM_TRIGGERED && c.value != state)
+                    //							if (state == this.hapCharacteristic.SecuritySystemCurrentState.ALARM_TRIGGERED && c.value != state)
+                    if (c.value != state)
                         c.updateValue(state);
                 })
                     .catch((err) => {
