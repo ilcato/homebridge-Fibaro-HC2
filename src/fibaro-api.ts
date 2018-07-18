@@ -175,7 +175,8 @@ export class FibaroClient {
 		let p = new Promise((resolve, reject) => {
 			let url = "http://"+this.host+"/api/globalVariables/"+globalVariableID;
 			let body = value != undefined ? JSON.stringify({
-				  "value": value
+				  "value": value,
+				  "invokeScenes": true
 			}) : null;
 
 			let method = "PUT";
