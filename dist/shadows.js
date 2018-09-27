@@ -43,7 +43,7 @@ class ShadowAccessory {
         this.accessory.getService(this.hapService.AccessoryInformation)
             .setCharacteristic(this.hapCharacteristic.Manufacturer, "IlCato")
             .setCharacteristic(this.hapCharacteristic.Model, "HomeCenterBridgedAccessory")
-            .setCharacteristic(this.hapCharacteristic.SerialNumber, "<unknown>");
+            .setCharacteristic(this.hapCharacteristic.SerialNumber, this.name);
     }
     removeNoMoreExistingServices() {
         for (let t = 0; t < this.accessory.services.length; t++) {
