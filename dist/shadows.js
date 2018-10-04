@@ -28,8 +28,10 @@ class ShadowAccessory {
         this.name = device.name;
         this.roomID = device.roomID;
         this.services = services;
-        this.accessory = null,
-            this.hapAccessory = hapAccessory;
+        this.model = device.type.replace(/com.fibaro./i, ''); // ex: com.fibaro.FGRM222 => FGRM222;
+        this.serial = device.properties.serialNumber;
+        this.accessory = null;
+        this.hapAccessory = hapAccessory;
         this.hapService = hapService;
         this.hapCharacteristic = hapCharacteristic;
         this.platform = platform;
@@ -41,9 +43,17 @@ class ShadowAccessory {
     }
     initAccessory() {
         this.accessory.getService(this.hapService.AccessoryInformation)
-            .setCharacteristic(this.hapCharacteristic.Manufacturer, "IlCato")
-            .setCharacteristic(this.hapCharacteristic.Model, "HomeCenterBridgedAccessory")
-            .setCharacteristic(this.hapCharacteristic.SerialNumber, "<unknown>");
+            .setCharacteristic(this.hapCharacteristic.Manufacturer, "Fibaro HC2")
+            //.setCharacteristic(this.hapCharacteristic.Model, "HomeCenterBridgedAccessory")
+            .setCharacteristic(this.hapCharacteristic.Model, this.model);
+        if (this.serial != "") {
+            this.accessory.getService(this.hapService.AccessoryInformation)
+                .setCharacteristic(this.hapCharacteristic.SerialNumber, this.serial);
+        }
+        else {
+            this.accessory.getService(this.hapService.AccessoryInformation)
+                .setCharacteristic(this.hapCharacteristic.SerialNumber, "<unknown>");
+        }
     }
     removeNoMoreExistingServices() {
         for (let t = 0; t < this.accessory.services.length; t++) {
