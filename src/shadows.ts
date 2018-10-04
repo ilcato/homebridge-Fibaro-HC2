@@ -64,9 +64,6 @@ export class ShadowAccessory {
             .setCharacteristic(this.hapCharacteristic.Manufacturer, "Fibaro HC2")
             //.setCharacteristic(this.hapCharacteristic.Model, "HomeCenterBridgedAccessory")
             .setCharacteristic(this.hapCharacteristic.Model, this.model);
-            
-            console.log("serial:");
-            console.log(JSON.stringify(this.serial, null, 4)); //DEBUG
             if (this.serial !="") {
                 this.accessory.getService(this.hapService.AccessoryInformation)
                     .setCharacteristic(this.hapCharacteristic.SerialNumber, this.serial);
