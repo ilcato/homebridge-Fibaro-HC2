@@ -41,28 +41,41 @@ export class ShadowAccessory {
 	platform: any;
 	isSecuritySystem: boolean;
 	
-	constructor(device: any, services: ShadowService[], hapAccessory: any, hapService: any, hapCharacteristic: any, platform, isSecurritySystem?: boolean) {
-		this.name = device.name;
-		this.roomID = device.roomID;
-		this.services = services;
-		this.accessory = null,
-		this.hapAccessory = hapAccessory;
-		this.hapService = hapService;
-		this.hapCharacteristic = hapCharacteristic;
-		this.platform = platform;
-		this.isSecuritySystem = isSecurritySystem ? isSecurritySystem : false;
-		for (let i=0; i < services.length; i++ ) {
-			if (services[i].controlService.subtype == undefined)
-				services[i].controlService.subtype = device.id + "--"			// "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
-		}
-	}
+    constructor(device: any, services: ShadowService[], hapAccessory: any, hapService: any, hapCharacteristic: any, platform, isSecurritySystem?: boolean) {
+        this.name = device.name;
+        this.roomID = device.roomID;
+        this.services = services;
+        this.model = device.type.replace(/com.fibaro./i, '');	// ex: com.fibaro.FGRM222 => FGRM222
+        this.serial = device.properties.serialNumber
+        this.accessory = null;
+        this.hapAccessory = hapAccessory;
+        this.hapService = hapService;
+        this.hapCharacteristic = hapCharacteristic;
+        this.platform = platform;
+        this.isSecuritySystem = isSecurritySystem ? isSecurritySystem : false;
+        for (let i = 0; i < services.length; i++) {
+            if (services[i].controlService.subtype == undefined)
+                services[i].controlService.subtype = device.id + "--"; // "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
+        }
+    }
 
   	initAccessory() {
-		this.accessory.getService(this.hapService.AccessoryInformation)
-						.setCharacteristic(this.hapCharacteristic.Manufacturer, "IlCato")
-						.setCharacteristic(this.hapCharacteristic.Model, "HomeCenterBridgedAccessory")
-						.setCharacteristic(this.hapCharacteristic.SerialNumber, "<unknown>");
-  	}
+        this.accessory.getService(this.hapService.AccessoryInformation)
+            .setCharacteristic(this.hapCharacteristic.Manufacturer, "Fibaro HC2")
+            //.setCharacteristic(this.hapCharacteristic.Model, "HomeCenterBridgedAccessory")
+            .setCharacteristic(this.hapCharacteristic.Model, this.model);
+            
+            console.log("serial:");
+            console.log(JSON.stringify(this.serial, null, 4)); //DEBUG
+            if (this.serial !="") {
+                this.accessory.getService(this.hapService.AccessoryInformation)
+                    .setCharacteristic(this.hapCharacteristic.SerialNumber, this.serial);
+            } 
+            else {
+                this.accessory.getService(this.hapService.AccessoryInformation)
+                    .setCharacteristic(this.hapCharacteristic.SerialNumber, "<unknown>");
+            }
+    }
 
   	removeNoMoreExistingServices() {
 		for (let t = 0; t < this.accessory.services.length; t++) {
