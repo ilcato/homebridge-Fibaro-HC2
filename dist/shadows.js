@@ -36,7 +36,7 @@ class ShadowAccessory {
         this.isSecuritySystem = isSecurritySystem ? isSecurritySystem : false;
         for (let i = 0; i < services.length; i++) {
             if (services[i].controlService.subtype == undefined)
-                services[i].controlService.subtype = device.id + "--"; // "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
+                services[i].controlService.subtype = device.id + "----"; // DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER-OPERATING_MODE_ID-PLUGIN_MARKER
         }
     }
     initAccessory() {
@@ -179,7 +179,7 @@ class ShadowAccessory {
                 let m = siblings.get("com.fibaro.operatingMode");
                 if (m) {
                     controlService.operatingModeId = m.id;
-                    controlService.subtype = device.id + "---" + m.id; // for setPint like devices add a subtype parameter; it will go into 4th position: "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER-OPERATING_MODE_ID
+                    controlService.subtype = device.id + "---" + m.id;
                 }
                 ss = [new ShadowService(controlService, controlCharacteristics)];
                 break;
@@ -190,7 +190,7 @@ class ShadowAccessory {
                     if (device.properties.rows[r].type == "button") {
                         for (let e = 0; e < device.properties.rows[r].elements.length; e++) {
                             pushButtonService = new ShadowService(new hapService.Switch(device.properties.rows[r].elements[e].caption), [hapCharacteristic.On]);
-                            pushButtonService.controlService.subtype = device.id + "-" + device.properties.rows[r].elements[e].id; // For Virtual devices it is device_id + "-" + button_id
+                            pushButtonService.controlService.subtype = device.id + "-" + device.properties.rows[r].elements[e].id;
                             pushButtonServices.push(pushButtonService);
                         }
                     }
@@ -205,8 +205,13 @@ class ShadowAccessory {
                 service.controlService.RGBValue = { red: 0, green: 0, blue: 0, white: 0 };
                 service.controlService.countColorCharacteristics = 0;
                 service.controlService.timeoutIdColorCharacteristics = 0;
-                service.controlService.subtype = device.id + "--RGB"; // for RGB color add a subtype parameter; it will go into 3rd position: "DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER
+                service.controlService.subtype = device.id + "--RGB";
                 ss = [service];
+                break;
+            case "com.fibaro.logitechHarmonyActivity":
+                controlService = new hapService.Switch(device.name);
+                controlService.subtype = device.id + "----" + "HP"; // HP: Harmony Plugin		
+                ss = [new ShadowService(controlService, [hapCharacteristic.On])];
                 break;
             default:
                 break;

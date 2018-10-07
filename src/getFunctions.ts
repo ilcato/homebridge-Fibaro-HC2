@@ -83,10 +83,15 @@ export class GetFunctions {
 	// Boolean getter
 	getBool(callback, characteristic, service, IDs, properties) { 
 		let v = properties.value;
-		let r = (v == "true" || v == "false") ?
-			((v == "false") ? false : true)   :
-			((parseInt(v) == 0) ? false : true);
-		this.returnValue(r, callback, characteristic);
+		if (v) {
+			let r = (v == "true" || v == "false") ?
+				((v == "false") ? false : true)   :
+				((parseInt(v) == 0) ? false : true);
+			this.returnValue(r, callback, characteristic);
+		} else {
+			v = properties["ui.startStopActivitySwitch.value"];
+			this.returnValue(v, callback, characteristic);
+		}
 	}
 	// Float getter
 	getFloat(callback, characteristic, service, IDs, properties) {

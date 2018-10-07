@@ -253,6 +253,7 @@ class FibaroHC2 {
 		service.isVirtual = IDs[1] != "" ? true : false;
 		service.isSecuritySystem = IDs[0] == "0" ? true : false;
 		service.isGlobalVariableSwitch = IDs[0] == "G" ? true : false;
+		service.isHarmonyDevice = (IDs.length >= 4 && IDs[4] == "HP") ? true : false;
 		
 		if (!service.isVirtual) {
 			var propertyChanged = "value"; // subscribe to the changes of this property

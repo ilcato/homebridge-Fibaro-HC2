@@ -50,8 +50,10 @@ export class Poller {
 					updates.changes.map((s) => {
 						if (s.value != undefined) {
 							this.manageValue(s);
-						}
-						if (s.color != undefined) {
+						} else if (s["ui.startStopActivitySwitch.value"] != undefined) {
+							s.value = s["ui.startStopActivitySwitch.value"];
+							this.manageValue(s);
+						} else if (s.color != undefined) {
 							this.manageColor(s);
 						} 
 					});

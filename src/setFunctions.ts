@@ -68,6 +68,11 @@ export class SetFunctions {
 			}, 100 );
 		} else if (service.isGlobalVariableSwitch) {
 			this.setGlobalVariable(IDs[1], value == true ? "true": "false");
+		} else if (service.isHarmonyDevice) {
+			this.command("changeActivityState", null, service, IDs);
+			setTimeout( () => {
+				this.command("changeActivityState", null, service, IDs);	// bug in Fibaro plugin: need to call 2 times
+			}, 10000 );
 		} else {
 			if (characteristic.value == true && value == 0 || characteristic.value == false && value == 1)
 				this.command(value == 0 ? "turnOff": "turnOn", null, service, IDs);
