@@ -111,8 +111,10 @@ export class Poller {
 	manageValue(change) {
 		for (let i = 0; i < this.platform.updateSubscriptions.length; i++) {
 			let subscription = this.platform.updateSubscriptions[i];
-			if (subscription.id == change.id && subscription.property == "value") {
+			if (subscription.id == change.id && subscription.property == "value") {				
 				this.platform.log("Updating value for device: ", `${subscription.id}  parameter: ${subscription.characteristic.displayName}, value: ${change.value}`);
+				if (this.platform.mqtt != undefined)
+					this.platform.notifyMQTT(VALUE_GET, subscription.id, subscription.characteristic.displayName.replace(" ", "_"), change.value);
 				if (this.platform.config.enableIFTTTnotification == "all" || this.platform.config.enableIFTTTnotification == "hc")
 					this.platform.notifyIFTTT(VALUE_GET, subscription.id, subscription.characteristic.displayName.replace(" ", "_"), change.value);
 				let getFunction = this.platform.getFunctions.getFunctionsMapping.get(subscription.characteristic.UUID);

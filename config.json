@@ -5,11 +5,9 @@
         "port": 51826,
         "pin": "031-45-154"
     },
-    
     "description": "This is an example configuration file. You can use this as a template for creating your own configuration file.",
-
     "platforms": [
-            {
+        {
             "platform": "FibaroHC2",
             "name": "FibaroHC2",
             "host": "PUT IP ADDRESS OF YOUR HC2 HERE",
@@ -22,11 +20,11 @@
             "enablecoolingstatemanagemnt": "PUT on TO AUTOMATICALLY MANAGE HEATING STATE FOR THERMOSTAT, off TO DISABLE IT. DEFAULT off",
             "doorlocktimeout": "PUT 0 FOR DISABLING THE CHECK. PUT A POSITIVE INTEGER N NUMBER ENABLE IT AFTER N SECONDS. DEFAULT 0",
             "IFTTTmakerkey": "PUT KEY OF YOUR MAKER CHANNEL HERE (USED TO SIGNAL EVENTS TO THE OUTSIDE)",
-            "enableIFTTTnotification": "PUT all FOR ENABLING NOTIFICATIONS OF ALL KIND OF EVENTS, hc FOR CHANGE EVENTS COMING FROM HOME CENTER, hk FOR CHANGE EVENTS COMING FROM HOMEKIT, none FOR DISABLING NOTIFICATIONS; DEFAULT IS none"
+            "enableIFTTTnotification": "PUT all FOR ENABLING NOTIFICATIONS OF ALL KIND OF EVENTS, hc FOR CHANGE EVENTS COMING FROM HOME CENTER, hk FOR CHANGE EVENTS COMING FROM HOMEKIT, none FOR DISABLING NOTIFICATIONS; DEFAULT IS none",
+            "mqtthost": "PUT IP ADDRESS OF YOUR MQTT HERE (IF ANY). EMPTY - FEATURE IS DISABLED",
+            "mqttport": "PUT PORT NUMBER OF YOUR MQTT HERE (IF ANY). DEFAILT IS 1883",
+            "mqtttopic": "PUT MQTT topic (IF MQTT server is ON). DEFAULT IS hc2"
         }
-
     ],
-
-    "accessories": [
-    ]
+    "accessories": []
 }

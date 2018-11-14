@@ -27,7 +27,8 @@
   ],
   "dependencies": {
     "request": "^2.65.0",
-    "typescript": "^2.2.2"
+    "typescript": "^2.2.2",
+    "ng2-mqtt": "^0.1.2"
   },
   "devDependencies": {},
   "author": "ilcato",

@@ -29,6 +29,9 @@
 //            "doorlocktimeout": "PUT 0 FOR DISABLING THE CHECK. PUT A POSITIVE INTEGER N NUMBER ENABLE IT AFTER N SECONDS. DEFAULT 0",
 //			  "IFTTTmakerkey": "PUT KEY OF YOUR MAKER CHANNEL HERE (USED TO SIGNAL EVENTS TO THE OUTSIDE)",
 //			  "enableIFTTTnotification": "PUT all FOR ENABLING NOTIFICATIONS OF ALL KIND OF EVENTS, hc FOR CHANGE EVENTS COMING FROM HOME CENTER, hk FOR CHANGE EVENTS COMING FROM HOMEKIT, none FOR DISABLING NOTIFICATIONS; DEFAULT IS none"
+//			  "MQTTServer" : "PUT IP ADDRESS OF YOUR MQTT HERE (IF ANY)",
+//			  "MQTTPort" : "PUT PORT NUMBER OF YOUR MQTT HERE (IF ANY). DEFAILT IS 1883",
+//			  "MQTTTopic" : "PUT MQTT topic (IF MQTT server is ON). DEFAULT IS hc2"
 //     }
 // ],
 //
@@ -41,6 +44,7 @@ const shadows_1 = require("./shadows");
 const setFunctions_1 = require("./setFunctions");
 const getFunctions_1 = require("./getFunctions");
 const pollerupdate_1 = require("./pollerupdate");
+const mqtt_1 = require("./mqtt");
 const defaultPollerPeriod = 5;
 const timeOffset = 2 * 3600;
 const defaultEnableCoolingStateManagemnt = "off";
@@ -79,8 +83,18 @@ class FibaroHC2 {
             this.config.IFTTTmakerkey = "";
         if (this.config.enableIFTTTnotification == undefined || this.config.enableIFTTTnotification == "")
             this.config.enableIFTTTnotification = "none";
+        if (this.config.mqtthost == undefined)
+            this.config.mqtthost = "";
+        if (this.config.mqttport == undefined)
+            this.config.mqttport = 1883;
+        if (this.config.mqtttopic == undefined)
+            this.config.mqtttopic = "hc2";
         this.fibaroClient = new fibaro_api_1.FibaroClient(this.config.host, this.config.username, this.config.password);
         this.poller = new pollerupdate_1.Poller(this, pollerPeriod, Service, Characteristic);
+        if (this.config.mqtthost == "")
+            this.mqtt = null;
+        else
+            this.mqtt = new mqtt_1.MqttConnection(this.config.mqtthost, this.config.mqttport);
         this.api.on('didFinishLaunching', this.didFinishLaunching.bind(this));
         this.getFunctions = new getFunctions_1.GetFunctions(Characteristic, this);
     }
@@ -293,6 +307,17 @@ class FibaroHC2 {
             }
         });
         return siblings;
+    }
+    notifyMQTT(e, val1, val2, val3) {
+        if (this.mqtt == undefined)
+            return;
+        if (this.config.mqtthost == "")
+            return;
+        if (this.config.mqtttopic == undefined)
+            return;
+        let data = { "id": val1, "value": val3, "name": val2 };
+        this.mqtt.sendMessage(data, this.config.mqtttopic);
+        this.log("Sent MQTT event: ", `${e}, to: ${this.config.mqtthost}, for ${val1}`);
     }
     notifyIFTTT(e, val1, val2, val3) {
         if (this.config.IFTTTmakerkey == "")
