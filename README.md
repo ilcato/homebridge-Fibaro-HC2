@@ -25,6 +25,9 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.1.8
++ Added support for Fibaro FGWPG111.
+
 Version 2.1.7
 + Added support for Harmony Hub Fibaro plugin.
 

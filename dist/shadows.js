@@ -163,6 +163,7 @@ class ShadowAccessory {
                 break;
             case "com.fibaro.FGWP101":
             case "com.fibaro.FGWP102":
+            case "com.fibaro.FGWPG111":
                 ss = [new ShadowService(new hapService.Outlet(device.name), [hapCharacteristic.On, hapCharacteristic.OutletInUse])];
                 break;
             case "com.fibaro.doorLock":
