@@ -63,7 +63,7 @@ class FibaroHC2 {
         this.securitySystemService = {};
         this.config = config;
         let pollerPeriod = this.config.pollerperiod ? parseInt(this.config.pollerperiod) : defaultPollerPeriod;
-        if (isNaN(pollerPeriod) || pollerPeriod < 1 || pollerPeriod > 100)
+        if (isNaN(pollerPeriod) || pollerPeriod < 0 || pollerPeriod > 100)
             pollerPeriod = defaultPollerPeriod;
         if (this.config.securitysystem == undefined || (this.config.securitysystem != "enabled" && this.config.securitysystem != "disabled"))
             this.config.securitysystem = "disabled";
@@ -80,7 +80,8 @@ class FibaroHC2 {
         if (this.config.enableIFTTTnotification == undefined || this.config.enableIFTTTnotification == "")
             this.config.enableIFTTTnotification = "none";
         this.fibaroClient = new fibaro_api_1.FibaroClient(this.config.host, this.config.username, this.config.password);
-        this.poller = new pollerupdate_1.Poller(this, pollerPeriod, Service, Characteristic);
+        if (pollerPeriod != 0)
+            this.poller = new pollerupdate_1.Poller(this, pollerPeriod, Service, Characteristic);
         this.api.on('didFinishLaunching', this.didFinishLaunching.bind(this));
         this.getFunctions = new getFunctions_1.GetFunctions(Characteristic, this);
     }
@@ -109,7 +110,7 @@ class FibaroHC2 {
                     // For RGB devices add specific attributes for managing it
                     service.HSBValue = { hue: 0, saturation: 0, brightness: 0 };
                     service.RGBValue = { red: 0, green: 0, blue: 0 };
-                    service.countColorCharacteristics = 0;
+                    service.countColorCharacteristics = 2;
                     service.timeoutIdColorCharacteristics = 0;
                 }
                 if (subtypeParams.length >= 4) {
@@ -134,6 +135,7 @@ class FibaroHC2 {
                 this.addAccessory(shadows_1.ShadowAccessory.createShadowAccessory(s, siblings, Accessory, Service, Characteristic, this));
             }
         });
+        // Create Thermostats based on heating and AC zones
         // Create Security System accessory
         if (this.config.securitysystem == "enabled") {
             let device = { name: "FibaroSecuritySystem", roomID: 0, id: 0 };
@@ -157,7 +159,8 @@ class FibaroHC2 {
             }
         }
         // Start the poller update mechanism
-        this.poller.poll();
+        if (this.poller)
+            this.poller.poll();
     }
     addAccessory(shadowAccessory) {
         if (shadowAccessory == undefined)

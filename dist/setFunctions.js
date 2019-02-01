@@ -241,16 +241,15 @@ class SetFunctions {
     }
     syncColorCharacteristics(rgb, service, IDs) {
         switch (--service.countColorCharacteristics) {
-            case -1:
-                service.countColorCharacteristics = 2;
+            case 1:
                 service.timeoutIdColorCharacteristics = setTimeout(() => {
-                    if (service.countColorCharacteristics < 2)
+                    if (service.countColorCharacteristics < 1)
                         return;
                     this.command("setR", [rgb.r], service, IDs);
                     this.command("setG", [rgb.g], service, IDs);
                     this.command("setB", [rgb.b], service, IDs);
                     this.command("setW", [rgb.w], service, IDs);
-                    service.countColorCharacteristics = 0;
+                    service.countColorCharacteristics = 2;
                     service.timeoutIdColorCharacteristics = 0;
                 }, 1000);
                 break;
@@ -259,7 +258,8 @@ class SetFunctions {
                 this.command("setG", [rgb.g], service, IDs);
                 this.command("setB", [rgb.b], service, IDs);
                 this.command("setW", [rgb.w], service, IDs);
-                service.countColorCharacteristics = 0;
+                service.countColorCharacteristics = 2;
+                clearTimeout(service.timeoutIdColorCharacteristics);
                 service.timeoutIdColorCharacteristics = 0;
                 break;
             default:
