@@ -123,6 +123,7 @@ export class ShadowAccessory {
   			case "com.fibaro.multilevelSwitch":
   			case "com.fibaro.FGD212":
 			  switch (device.properties.deviceControlType) {
+				case "2": // Lighting
 				case "23": // Lighting
 					controlService = new hapService.Lightbulb(device.name);
 					controlCharacteristics = [hapCharacteristic.On, hapCharacteristic.Brightness];
