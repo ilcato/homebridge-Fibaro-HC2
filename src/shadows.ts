@@ -45,8 +45,12 @@ export class ShadowAccessory {
         this.name = device.name;
         this.roomID = device.roomID;
         this.services = services;
-        this.model = device.type.replace(/com.fibaro./i, '');	// ex: com.fibaro.FGRM222 => FGRM222
-        this.serial = device.properties.serialNumber
+        if (this.model && this.model !="") {
+            this.model = device.type.replace(/com.fibaro./i, ''); // ex: com.fibaro.FGRM222 => FGRM222;
+        }
+        if (this.serial && this.serial !="") {
+            this.serial = device.properties.serialNumber;
+        }
         this.accessory = null;
         this.hapAccessory = hapAccessory;
         this.hapService = hapService;
