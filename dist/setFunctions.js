@@ -184,7 +184,6 @@ class SetFunctions {
             value = this.hapCharacteristic.SecuritySystemCurrentState.DISARMED;
         if (sceneID == undefined)
             return;
-        //		service.setCharacteristic(this.hapCharacteristic.SecuritySystemCurrentState, value);
         this.scene(sceneID);
     }
     updateHomeCenterColorFromHomeKit(h, s, v, service) {
