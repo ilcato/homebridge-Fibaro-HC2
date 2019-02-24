@@ -61,13 +61,13 @@ class Poller {
                     if (this.platform.securitySystemService == undefined)
                         return;
                     let statec = this.platform.getFunctions.getCurrentSecuritySystemStateMapping.get(securitySystemStatus.value);
-                    let statet = this.platform.getFunctions.getTargetSecuritySystemStateMapping.get(securitySystemStatus.value);
+                    //							let statet = this.platform.getFunctions.getTargetSecuritySystemStateMapping.get(securitySystemStatus.value);
                     let c = this.platform.securitySystemService.getCharacteristic(this.hapCharacteristic.SecuritySystemCurrentState);
-                    let t = this.platform.securitySystemService.getCharacteristic(this.hapCharacteristic.SecuritySystemTargetState);
+                    //							let t = this.platform.securitySystemService.getCharacteristic(this.hapCharacteristic.SecuritySystemTargetState);
                     if (c.value != statec)
                         c.updateValue(statec);
-                    if (statet != this.hapCharacteristic.SecuritySystemCurrentState.ALARM_TRIGGERED && t.value != statet)
-                        t.updateValue(statet);
+                    //							if (statet != this.hapCharacteristic.SecuritySystemCurrentState.ALARM_TRIGGERED && t.value != statet)
+                    //								t.updateValue(statet);
                 })
                     .catch((err) => {
                     this.platform.log("There was a problem getting value from Global Variable: SecuritySystem", ` - Err: ${err}`);

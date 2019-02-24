@@ -25,6 +25,11 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.2.0
++ Fixed Aeon Labs Dimmer seen as switch.
++ Fixed flickering bug in Security System
++ Support for Fibaro Roller Shutter 3, Fibaro Door/Window Sensor 2 and Fibaro Double Switch 2
+
 Version 2.1.9
 + Fixed not working poller period disabling.
 + Fixed Fibaro RGBW support.
