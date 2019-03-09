@@ -78,9 +78,13 @@ class SetFunctions {
         this.command("setValue", [value], service, IDs);
     }
     setLockTargetState(value, callback, context, characteristic, service, IDs) {
-        var action = value == this.hapCharacteristic.LockTargetState.UNSECURED ? "unsecure" : "secure";
+        var action = (value == this.hapCharacteristic.LockTargetState.UNSECURED) ? "unsecure" : "secure";
         this.command(action, [0], service, IDs);
-        // check if the action is correctly executed by reading the stae after a specified timeout. If the lock is not active after the timeout an IFTTT message is generated
+        setTimeout(() => {
+            let lockCurrentStateCharacteristic = service.getCharacteristic(this.hapCharacteristic.LockCurrentState);
+            lockCurrentStateCharacteristic.updateValue(value, undefined, 'fromSetValue');
+        }, 1000);
+        // check if the action is correctly executed by reading the state after a specified timeout. If the lock is not active after the timeout an IFTTT message is generated
         if (this.platform.config.doorlocktimeout != "0") {
             var timeout = parseInt(this.platform.config.doorlocktimeout) * 1000;
             setTimeout(() => {
@@ -297,7 +301,7 @@ class SetFunctions {
     checkLockCurrentState(IDs, value) {
         this.platform.fibaroClient.getDeviceProperties(IDs[0])
             .then((properties) => {
-            var currentValue = properties.value == "true" ? this.hapCharacteristic.LockCurrentState.SECURED : this.hapCharacteristic.LockCurrentState.UNSECURED;
+            var currentValue = (properties.value == "true") ? this.hapCharacteristic.LockCurrentState.SECURED : this.hapCharacteristic.LockCurrentState.UNSECURED;
             if (currentValue != value) {
                 this.platform.log("There was a problem setting value to Lock: ", `${IDs[0]}`);
                 this.platform.notifyIFTTT(LOCK_ERROR, IDs[0], "", "");

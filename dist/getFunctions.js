@@ -109,6 +109,8 @@ class GetFunctions {
         if (r >= characteristic.props.minValue && r <= characteristic.props.maxValue) {
             if (r == 99)
                 r = 100;
+            else if (r == 1)
+                r = 0;
         }
         else {
             r = characteristic.props.minValue;
