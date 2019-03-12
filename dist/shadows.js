@@ -113,6 +113,7 @@ class ShadowAccessory {
                 break;
             case "com.fibaro.binarySwitch":
             case "com.fibaro.developer.bxs.virtualBinarySwitch":
+            case "com.fibaro.satelOutput":     
                 switch (device.properties.deviceControlType) {
                     case "2": // Lighting
                     case "5": // Bedside Lamp
@@ -146,6 +147,7 @@ class ShadowAccessory {
                 break;
             case "com.fibaro.doorSensor":
             case "com.fibaro.windowSensor":
+            case "com.fibaro.satelZone":    
                 ss = [new ShadowService(new hapService.ContactSensor(device.name), [hapCharacteristic.ContactSensorState])];
                 break;
             case "com.fibaro.FGFS101":
