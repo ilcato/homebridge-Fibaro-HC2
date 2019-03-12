@@ -264,16 +264,20 @@ class FibaroHC2 {
             return;
         }
         // Manage all other status
-        this.fibaroClient.getDeviceProperties(IDs[0])
-            .then((properties) => {
-            let getFunction = this.getFunctions.getFunctionsMapping.get(characteristic.UUID);
-            if (getFunction)
-                getFunction.call(this.getFunctions, callback, characteristic, service, IDs, properties);
-        })
-            .catch((err) => {
-            this.log("There was a problem getting value from: ", `${IDs[0]} - Err: ${err}`);
-            callback(err, null);
-        });
+        let getFunction = this.getFunctions.getFunctionsMapping.get(characteristic.UUID);
+        setTimeout(() => {
+            this.fibaroClient.getDeviceProperties(IDs[0])
+                .then((properties) => {
+                if (getFunction.function)
+                    getFunction.function.call(this.getFunctions, callback, characteristic, service, IDs, properties);
+                else
+                    callback(`No get function defined for: ${characteristic.displayName}`, null);
+            })
+                .catch((err) => {
+                this.log("There was a problem getting value from: ", `${IDs[0]} - Err: ${err}`);
+                callback(err, null);
+            });
+        }, getFunction.delay * 1000);
     }
     subscribeUpdate(service, characteristic, propertyChanged) {
         var IDs = service.subtype.split("-"); // IDs[0] is always device ID; for virtual device IDs[1] is the button ID

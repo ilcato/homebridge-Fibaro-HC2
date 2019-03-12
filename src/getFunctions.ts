@@ -30,34 +30,34 @@ export class GetFunctions {
 		this.platform = platform;
 		
 		this.getFunctionsMapping = new Map([
-			[(new hapCharacteristic.On()).UUID, 						this.getBool],
-			[(new hapCharacteristic.Brightness()).UUID, 				this.getBrightness],
-			[(new hapCharacteristic.PositionState()).UUID, 				this.getPositionState],
-			[(new hapCharacteristic.CurrentPosition()).UUID, 			this.getCurrentPosition],
-			[(new hapCharacteristic.TargetPosition()).UUID, 			this.getCurrentPosition], 				// Manage the same as currentPosition
-			[(new hapCharacteristic.MotionDetected()).UUID, 			this.getBool],
-			[(new hapCharacteristic.CurrentTemperature()).UUID, 		this.getFloat],
-			[(new hapCharacteristic.TargetTemperature()).UUID, 			this.getTargetTemperature],
-			[(new hapCharacteristic.CurrentRelativeHumidity()).UUID, 	this.getFloat],
-			[(new hapCharacteristic.ContactSensorState()).UUID, 		this.getContactSensorState],
-			[(new hapCharacteristic.LeakDetected()).UUID, 				this.getLeakDetected],
-			[(new hapCharacteristic.SmokeDetected()).UUID, 				this.getSmokeDetected],
-			[(new hapCharacteristic.CarbonMonoxideDetected()).UUID, 	this.getCarbonMonoxideDetected],
-			[(new hapCharacteristic.CarbonMonoxideLevel()).UUID, 		this.getFloat],
-			[(new hapCharacteristic.CarbonMonoxidePeakLevel()).UUID, 	this.getFloat],
-			[(new hapCharacteristic.CurrentAmbientLightLevel()).UUID, 	this.getFloat],
-			[(new hapCharacteristic.OutletInUse()).UUID, 				this.getOutletInUse],
-			[(new hapCharacteristic.LockCurrentState()).UUID, 			this.getLockCurrentState],
-			[(new hapCharacteristic.LockTargetState()).UUID, 			this.getLockCurrentState], 				// Manage the same as currentState
-			[(new hapCharacteristic.CurrentHeatingCoolingState()).UUID, this.getCurrentHeatingCoolingState], 
-			[(new hapCharacteristic.TargetHeatingCoolingState()).UUID, 	this.getTargetHeatingCoolingState],
-			[(new hapCharacteristic.TemperatureDisplayUnits()).UUID, 	this.getTemperatureDisplayUnits],
-			[(new hapCharacteristic.Hue()).UUID, 						this.getHue],
-			[(new hapCharacteristic.Saturation()).UUID, 				this.getSaturation],
-			[(new hapCharacteristic.CurrentDoorState()).UUID, 			this.getCurrentDoorState],			
-			[(new hapCharacteristic.TargetDoorState()).UUID, 			this.getCurrentDoorState],
-			[(new hapCharacteristic.ObstructionDetected()).UUID, 		this.getObstructionDetected],
-			[(new hapCharacteristic.BatteryLevel()).UUID, 				this.getBatteryLevel]
+			[(new hapCharacteristic.On()).UUID, 						{"function": this.getBool, "delay": 0}],
+			[(new hapCharacteristic.Brightness()).UUID, 				{"function": this.getBrightness, "delay": 0}],
+			[(new hapCharacteristic.PositionState()).UUID, 				{"function": this.getPositionState, "delay": 0}],
+			[(new hapCharacteristic.CurrentPosition()).UUID, 			{"function": this.getCurrentPosition, "delay": 0}],
+			[(new hapCharacteristic.TargetPosition()).UUID, 			{"function": this.getCurrentPosition, "delay": 0}], 				// Manage the same as currentPosition
+			[(new hapCharacteristic.MotionDetected()).UUID, 			{"function": this.getBool, "delay": 0}],
+			[(new hapCharacteristic.CurrentTemperature()).UUID, 		{"function": this.getFloat, "delay": 0}],
+			[(new hapCharacteristic.TargetTemperature()).UUID, 			{"function": this.getTargetTemperature, "delay": 0}],
+			[(new hapCharacteristic.CurrentRelativeHumidity()).UUID, 	{"function": this.getFloat, "delay": 0}],
+			[(new hapCharacteristic.ContactSensorState()).UUID, 		{"function": this.getContactSensorState, "delay": 0}],
+			[(new hapCharacteristic.LeakDetected()).UUID, 				{"function": this.getLeakDetected, "delay": 0}],
+			[(new hapCharacteristic.SmokeDetected()).UUID, 				{"function": this.getSmokeDetected, "delay": 0}],
+			[(new hapCharacteristic.CarbonMonoxideDetected()).UUID, 	{"function": this.getCarbonMonoxideDetected, "delay": 0}],
+			[(new hapCharacteristic.CarbonMonoxideLevel()).UUID, 		{"function": this.getFloat, "delay": 0}],
+			[(new hapCharacteristic.CarbonMonoxidePeakLevel()).UUID, 	{"function": this.getFloat, "delay": 0}],
+			[(new hapCharacteristic.CurrentAmbientLightLevel()).UUID, 	{"function": this.getFloat, "delay": 0}],
+			[(new hapCharacteristic.OutletInUse()).UUID, 				{"function": this.getOutletInUse, "delay": 0}],
+			[(new hapCharacteristic.LockCurrentState()).UUID, 			{"function": this.getLockCurrentState, "delay": 2}],
+			[(new hapCharacteristic.LockTargetState()).UUID, 			{"function": this.getLockCurrentState, "delay": 2}], 				// Manage the same as currentState
+			[(new hapCharacteristic.CurrentHeatingCoolingState()).UUID, {"function": this.getCurrentHeatingCoolingState, "delay": 0}], 
+			[(new hapCharacteristic.TargetHeatingCoolingState()).UUID, 	{"function": this.getTargetHeatingCoolingState, "delay": 0}],
+			[(new hapCharacteristic.TemperatureDisplayUnits()).UUID, 	{"function": this.getTemperatureDisplayUnits, "delay": 0}],
+			[(new hapCharacteristic.Hue()).UUID, 						{"function": this.getHue, "delay": 0}],
+			[(new hapCharacteristic.Saturation()).UUID, 				{"function": this.getSaturation, "delay": 0}],
+			[(new hapCharacteristic.CurrentDoorState()).UUID, 			{"function": this.getCurrentDoorState, "delay": 0}],			
+			[(new hapCharacteristic.TargetDoorState()).UUID, 			{"function": this.getCurrentDoorState, "delay": 0}],
+			[(new hapCharacteristic.ObstructionDetected()).UUID, 		{"function": this.getObstructionDetected, "delay": 0}],
+			[(new hapCharacteristic.BatteryLevel()).UUID, 				{"function": this.getBatteryLevel, "delay": 0}]
 		]);
 		this.getCurrentSecuritySystemStateMapping = new Map([
 			["AwayArmed", 	this.hapCharacteristic.SecuritySystemCurrentState.AWAY_ARM],
