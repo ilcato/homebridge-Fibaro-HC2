@@ -100,8 +100,8 @@ class Poller {
                 if (this.platform.config.enableIFTTTnotification == "all" || this.platform.config.enableIFTTTnotification == "hc")
                     this.platform.notifyIFTTT(VALUE_GET, subscription.id, subscription.characteristic.displayName.replace(" ", "_"), change.value);
                 let getFunction = this.platform.getFunctions.getFunctionsMapping.get(subscription.characteristic.UUID);
-                if (getFunction)
-                    getFunction.call(this.platform.getFunctions, null, subscription.characteristic, subscription.service, null, change);
+                if (getFunction.function)
+                    getFunction.function.call(this.platform.getFunctions, null, subscription.characteristic, subscription.service, null, change);
             }
         }
     }
@@ -127,8 +127,8 @@ class Poller {
             if (subscription.service.operatingModeId != undefined && subscription.service.operatingModeId == event.data.id && subscription.property == "mode") {
                 this.platform.log("Updating value for device: ", `${subscription.service.operatingModeId}  parameter: ${subscription.characteristic.displayName}, value: ${event.data.newValue}`);
                 let getFunction = this.platform.getFunctions.getFunctionsMapping.get(subscription.characteristic.UUID);
-                if (getFunction)
-                    getFunction.call(this.platform.getFunctions, null, subscription.characteristic, subscription.service, null, null);
+                if (getFunction.function)
+                    getFunction.function.call(this.platform.getFunctions, null, subscription.characteristic, subscription.service, null, null);
             }
         }
     }

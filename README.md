@@ -25,6 +25,10 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.2.1
++ Fixed Danalock Siri #136.
++ Satel plugin zone and output support
+
 Version 2.2.0
 + Fixed Aeon Labs Dimmer seen as switch.
 + Fixed flickering bug in Security System
