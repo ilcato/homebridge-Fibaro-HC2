@@ -46,7 +46,7 @@ export class ShadowAccessory {
 		this.name = device.name;
 		this.roomID = device.roomID;
 		this.services = services;
-		this.accessory = null,
+		this.accessory = null;
 		this.hapAccessory = hapAccessory;
 		this.hapService = hapService;
 		this.hapCharacteristic = hapCharacteristic;
@@ -68,7 +68,6 @@ export class ShadowAccessory {
 			.setCharacteristic(this.hapCharacteristic.SerialNumber, `${this.device.properties.serialNumber || "<unknown>"}`)
 			.setCharacteristic(this.hapCharacteristic.FirmwareRevision, this.device.properties.zwaveVersion);
 	}
-
   	removeNoMoreExistingServices() {
 		for (let t = 0; t < this.accessory.services.length; t++) {
 			let found = false;
@@ -134,7 +133,7 @@ export class ShadowAccessory {
 					controlCharacteristics = [hapCharacteristic.On, hapCharacteristic.Brightness];
 					break;
 				default:
-					controlService = new hapService.Switch(device.name)
+					controlService = new hapService.Switch(device.name);
 					controlCharacteristics = [hapCharacteristic.On];
 					break;
 				}
@@ -154,9 +153,9 @@ export class ShadowAccessory {
 						controlService = new hapService.LockMechanism(device.name);
 						controlService.subtype = device.id + "----" + "LOCK";
 						controlCharacteristics = [hapCharacteristic.LockCurrentState, hapCharacteristic.LockTargetState];
-						break
+						break;
 					default:
-						controlService = new hapService.Switch(device.name)
+						controlService = new hapService.Switch(device.name);
 						controlCharacteristics = [hapCharacteristic.On];
 						break;
 				}
@@ -169,6 +168,7 @@ export class ShadowAccessory {
 			case "com.fibaro.FGRM222":
 			case "com.fibaro.FGR223":
 			case "com.fibaro.rollerShutter":
+								
 				controlService = new hapService.WindowCovering(device.name);
 				controlCharacteristics = [
 					hapCharacteristic.CurrentPosition,
@@ -269,8 +269,14 @@ export class ShadowAccessory {
 			default:
 				break
   		}
-  		if (!ss)
-  			return undefined;
+  		if (!ss) {
+			return undefined;
+		}
+		
+		if (device.interfaces && device.interfaces.includes("battery")) {
+			ss.push(new ShadowService(new hapService.BatteryService(device.name), [hapCharacteristic.BatteryLevel, hapCharacteristic.ChargingState, hapCharacteristic.StatusLowBattery]))
+		} 
+		
   		return new ShadowAccessory(device, ss, hapAccessory, hapService, hapCharacteristic, platform);
   	}
 	static createShadowSecuritySystemAccessory(device, hapAccessory, hapService, hapCharacteristic, platform) {
