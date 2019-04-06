@@ -157,7 +157,19 @@ export class ShadowAccessory {
 			case "com.fibaro.FGRM222":
 			case "com.fibaro.FGR223":
 			case "com.fibaro.rollerShutter":
-				ss = [new ShadowService(new hapService.WindowCovering(device.name), [hapCharacteristic.CurrentPosition, hapCharacteristic.TargetPosition, hapCharacteristic.PositionState])];
+				controlService = new hapService.WindowCovering(device.name);
+				controlCharacteristics = [
+					hapCharacteristic.CurrentPosition,
+					hapCharacteristic.TargetPosition,
+					hapCharacteristic.PositionState
+				];
+				if (device.actions.setValue2 == 1) {
+					controlCharacteristics.push(
+						hapCharacteristic.CurrentHorizontalTiltAngle,
+						hapCharacteristic.TargetHorizontalTiltAngle
+					);
+				}
+				ss = [new ShadowService(controlService, controlCharacteristics)];
 				break;
 			case "com.fibaro.FGMS001":
 			case "com.fibaro.FGMS001v2":

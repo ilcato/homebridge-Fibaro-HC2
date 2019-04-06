@@ -268,7 +268,13 @@ class FibaroHC2 {
 					propertyChanged = "mode";
 				}
 			}
-			this.subscribeUpdate(service, characteristic, propertyChanged); 
+			if(service.UUID == (Service.WindowCovering.UUID) && (characteristic.UUID == (new Characteristic.CurrentHorizontalTiltAngle).UUID)) {
+				propertyChanged = "value2";
+			}
+			if(service.UUID == (Service.WindowCovering.UUID) && (characteristic.UUID == (new Characteristic.TargetHorizontalTiltAngle).UUID)) {
+				propertyChanged = "value2";
+			}
+			this.subscribeUpdate(service, characteristic, propertyChanged);
 		}
 		characteristic.on('set', (value, callback, context) => {
 			this.setCharacteristicValue(value, callback, context, characteristic, service, IDs);
