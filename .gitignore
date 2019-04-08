@@ -33,9 +33,6 @@ node_modules
 # Optional REPL history
 .node_repl_history
 
-.vscode/arduino.json
-.vscode/c_cpp_properties.json
-.vscode/launch.json
-.vscode/tasks.json
+.vscode
 .DS_Store
 dist
