@@ -28,6 +28,7 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 Version 2.2.1
 + Fixed Danalock Siri #136.
 + Satel plugin zone and output support
++ Fixed support for Fibaro Roller Shutter 3
 
 Version 2.2.0
 + Fixed Aeon Labs Dimmer seen as switch.
