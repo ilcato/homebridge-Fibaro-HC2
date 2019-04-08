@@ -38,3 +38,4 @@ node_modules
 .vscode/launch.json
 .vscode/tasks.json
 .DS_Store
+dist
