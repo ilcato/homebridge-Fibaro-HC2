@@ -28,8 +28,10 @@
 //            "thermostattimeout": "PUT THE NUMBER OF SECONDS FOR THE THERMOSTAT TIMEOUT, DEFAULT: 7200 (2 HOURS). PUT 0 FOR INFINITE",
 //            "enablecoolingstatemanagemnt": "PUT on TO AUTOMATICALLY MANAGE HEATING STATE FOR THERMOSTAT, off TO DISABLE IT. DEFAULT off",
 //            "doorlocktimeout": "PUT 0 FOR DISABLING THE CHECK. PUT A POSITIVE INTEGER N NUMBER ENABLE IT AFTER N SECONDS. DEFAULT 0",
-//			  "IFTTTmakerkey": "PUT KEY OF YOUR MAKER CHANNEL HERE (USED TO SIGNAL EVENTS TO THE OUTSIDE)",
-//			  "enableIFTTTnotification": "PUT all FOR ENABLING NOTIFICATIONS OF ALL KIND OF EVENTS, hc FOR CHANGE EVENTS COMING FROM HOME CENTER, hk FOR CHANGE EVENTS COMING FROM HOMEKIT, none FOR DISABLING NOTIFICATIONS; DEFAULT IS none"
+//			  		"IFTTTmakerkey": "PUT KEY OF YOUR MAKER CHANNEL HERE (USED TO SIGNAL EVENTS TO THE OUTSIDE)",
+//			  		"enableIFTTTnotification": "PUT all FOR ENABLING NOTIFICATIONS OF ALL KIND OF EVENTS, hc FOR CHANGE EVENTS COMING FROM HOME CENTER, hk FOR CHANGE EVENTS COMING FROM HOMEKIT, none FOR DISABLING NOTIFICATIONS; DEFAULT IS none",
+//						"LockCurrentStateDelay": "PUT THE NUMBER OF SECONDS (DEFAULT 2) TO DELAY THE UPDATE OF LockCurrentState READ EVENT",
+// 						"LockTargetStateDelay": "PUT THE NUMBER OF SECONDS (DEFAULT 2) TO DELAY THE UPDATE OF LockTargetState READ EVENT"
 //     }
 // ],
 //
@@ -78,6 +80,8 @@ class Config {
 	doorlocktimeout?: string;
 	IFTTTmakerkey?: string;
 	enableIFTTTnotification?: string;
+	LockCurrentStateDelay?: string;
+	LockTargetStateDelay?: string;
 	constructor () {
 		this.name = "";
 		this.host = "";
@@ -121,13 +125,17 @@ class FibaroHC2 {
 	  		this.config.thermostattimeout = timeOffset.toString();
   		if (this.config.enablecoolingstatemanagemnt == undefined)
 	  		this.config.enablecoolingstatemanagemnt = defaultEnableCoolingStateManagemnt;
-		if (this.config.doorlocktimeout == undefined)
+			if (this.config.doorlocktimeout == undefined)
 			  this.config.doorlocktimeout = "0";
-		if (this.config.IFTTTmakerkey == undefined)
-		  this.config.IFTTTmakerkey = "";
+			if (this.config.IFTTTmakerkey == undefined)
+		  	this.config.IFTTTmakerkey = "";
     	if (this.config.enableIFTTTnotification == undefined || this.config.enableIFTTTnotification == "")
-		  this.config.enableIFTTTnotification = "none";
-		  
+		  	this.config.enableIFTTTnotification = "none";
+			if (this.config.LockCurrentStateDelay == undefined)
+			  this.config.LockCurrentStateDelay = "2";
+			if (this.config.LockTargetStateDelay == undefined)
+			  this.config.LockTargetStateDelay = "2";
+				
 		this.fibaroClient = new FibaroClient(this.config.host, this.config.username, this.config.password);
 		if (pollerPeriod != 0)  
 			this.poller = new Poller(this, pollerPeriod, Service, Characteristic);

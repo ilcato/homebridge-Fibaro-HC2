@@ -47,8 +47,8 @@ export class GetFunctions {
 			[(new hapCharacteristic.CarbonMonoxidePeakLevel()).UUID, 	{"function": this.getFloat, "delay": 0}],
 			[(new hapCharacteristic.CurrentAmbientLightLevel()).UUID, 	{"function": this.getFloat, "delay": 0}],
 			[(new hapCharacteristic.OutletInUse()).UUID, 				{"function": this.getOutletInUse, "delay": 0}],
-			[(new hapCharacteristic.LockCurrentState()).UUID, 			{"function": this.getLockCurrentState, "delay": 2}],
-			[(new hapCharacteristic.LockTargetState()).UUID, 			{"function": this.getLockCurrentState, "delay": 2}], 				// Manage the same as currentState
+			[(new hapCharacteristic.LockCurrentState()).UUID, 			{"function": this.getLockCurrentState, "delay": this.platform.config.LockCurrentStateDelay}],
+			[(new hapCharacteristic.LockTargetState()).UUID, 			{"function": this.getLockCurrentState, "delay": this.platform.config.LockTargetStateDelay}], 				// Manage the same as currentState
 			[(new hapCharacteristic.CurrentHeatingCoolingState()).UUID, {"function": this.getCurrentHeatingCoolingState, "delay": 0}], 
 			[(new hapCharacteristic.TargetHeatingCoolingState()).UUID, 	{"function": this.getTargetHeatingCoolingState, "delay": 0}],
 			[(new hapCharacteristic.TemperatureDisplayUnits()).UUID, 	{"function": this.getTemperatureDisplayUnits, "delay": 0}],

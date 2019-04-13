@@ -25,6 +25,9 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.2.3
++ Debug version for fixing Danalock Siri #136.
+
 Version 2.2.2
 + Fixed support for Fibaro Roller Shutter 3
 
