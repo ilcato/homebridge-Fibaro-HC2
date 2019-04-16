@@ -7,7 +7,127 @@ The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-f
 
     npm install -g homebridge-fibaro-hc2
     
+# Configuration
+Remember to configure the plugin in config.json in your home directory inside the .homebridge directory. Configuration parameters:
++ "host": "PUT IP ADDRESS OF YOUR HC2 HERE"
++ "username": "PUT USERNAME OF YOUR HC2 HERE"
++ "password": "PUT PASSWORD OF YOUR HC2 HERE"
++ "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 2 SECONDS IS THE DEFAULT"
++ "securitysystem": "PUT enabled OR disabled IN ORDER TO MANAGE THE AVAILABILITY OF THE SECURITY SYSTEM"
++ "switchglobalvariables": "PUT A COMMA SEPARATED LIST OF HOME CENTER GLOBAL VARIABLES ACTING LIKE A BISTABLE SWITCH"
++ "thermostattimeout": "PUT THE NUMBER OF SECONDS FOR THE THERMOSTAT TIMEOUT, DEFAULT: 7200 (2 HOURS). PUT 0 FOR INFINITE"
++ "enablecoolingstatemanagemnt": "PUT on TO AUTOMATICALLY MANAGE HEATING STATE FOR THERMOSTAT, off TO DISABLE IT. DEFAULT off"
++ "doorlocktimeout": "PUT 0 FOR DISABLING THE CHECK. PUT A POSITIVE INTEGER N NUMBER ENABLE IT AFTER N SECONDS. DEFAULT 0"
++ "IFTTTmakerkey": "PUT KEY OF YOUR MAKER CHANNEL HERE (USED TO SIGNAL EVENTS TO THE OUTSIDE)"
++ "enableIFTTTnotification": "PUT all FOR ENABLING NOTIFICATIONS OF ALL KIND OF EVENTS, hc FOR CHANGE EVENTS COMING FROM HOME CENTER, hk FOR CHANGE EVENTS COMING FROM HOMEKIT, none FOR DISABLING NOTIFICATIONS; DEFAULT IS none"
+
+Look for a sample config in [config.json example](https://github.com/ilcato/homebridge-Fibaro-HC2/blob/master/config.json)
+
+
 # Release notes
+Version 2.2.3
++ Debug version for fixing Danalock Siri #136.
+
+Version 2.2.2
++ Fixed support for Fibaro Roller Shutter 3
+
+Version 2.2.1
++ Fixed Danalock Siri #136.
++ Satel plugin zone and output support
++ Fixed support for Fibaro Roller Shutter 3
+
+Version 2.2.0
++ Fixed Aeon Labs Dimmer seen as switch.
++ Fixed flickering bug in Security System
++ Support for Fibaro Roller Shutter 3, Fibaro Door/Window Sensor 2 and Fibaro Double Switch 2
+
+Version 2.1.9
++ Fixed not working poller period disabling.
++ Fixed Fibaro RGBW support.
+
+Version 2.1.8
++ Added support for Fibaro FGWPG111.
+
+Version 2.1.7
++ Added support for Harmony Hub Fibaro plugin.
+
+Version 2.1.6
++ Fixed triggering a scene via global variable change #108.
+
+Version 2.1.5
++ Fixed further Security System bug #74.
+
+Version 2.1.4
++ Fixed Security System bug #74.
+
+Version 2.1.3
++ Fixed thermostat setpoint management.
+
+Version 2.1.2
++ Fixed temperature management in Remotec ZXT-120 AC IR Extender.
+
+Version 2.1.1
++ Fixed mode management in Remotec ZXT-120 AC IR Extender.
+
+Version 2.1.0
++ Added support for Remotec ZXT-120 AC IR Extender.
++ Minor bug fixes.
+
+Version 2.0.9
++ Added support for generic Smoke Detector.
++ Added support for Fibaro Thermostat.
++ Added support for Fibaro CO Sensor.
++ Added support for IFTTT notification integration. See Wiki.
++ Added support for Lock error detection and notification via IFTTT.
+
+Version 2.0.8
++ Added support for Garage Door Controllers. Tested only on Aeon Garage Door Controller.
++ Fix in RGBW mapping
+
+Version 2.0.7
++ Various fixes
+
+Version 2.0.6
++ Fix automatic cooling state management.
+
+Version 2.0.5
++ New config parameter for enabling automatic cooling state management.
+
+Version 2.0.4
++ New config parameter for setting thermostat timeout.
+
+Version 2.0.3
++ Fixed support for Switch accessories mapped on Home Center global variable. See Wiki.
+
+Version 2.0.2
++ Added support for FGMS001v2
++ Added support for Switch accessories mapped on Home Center global variable. See Wiki.
+
+Version 2.0.1
++ Added management for Heating Cooling state for thermostats
++ Fixed poller update
+
+Version 2.0.0
++ Rewritten in TypeScript
++ Fixed Security System management (see updated Wiki)
++ Removed room grouping support
++ Better maintainability and extensibility 
+
+Version 1.1.2
++ Fixed RGBW
+
+Version 1.1.1
++ Security system accessory fixed reading current status
+
+Version 1.1.0
++ Security system accessory added - See wiki
+
+Version 1.0.9
++ Thermostat logic fix.
+
+Version 1.0.8
++ Thermostat logic cleanup and refactoring.
+
 Version 1.0.7
 + Fixed Danfoss thermostat. Default 2 hours delay.
 
@@ -94,16 +214,4 @@ Version 0.5.0
 + Virtual devices are managed in the old way: an Accessory for each virtual device that contains a push button for each virtual button
 + Initial support for Fibaro RGB (only on off commands works for now)
 + Initial support for Danfoss Thermostat (only temperature commands works for now)
-
-# Configuration
-Remember to configure the plugin in config.json in your home directory inside the .homebridge directory. Configuration parameters:
-+ "host": "PUT IP ADDRESS OF YOUR HC2 HERE",
-+ "username": "PUT USERNAME OF YOUR HC2 HERE",
-+ "password": "PUT PASSWORD OF YOUR HC2 HERE",
-+ "grouping": "PUT none OR room"
-+ "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 2 SECONDS IS THE DEFAULT"
-
-Look for a sample config in [config.json example](https://github.com/ilcato/homebridge-Fibaro-HC2/blob/master/config.json)
-
-
 
