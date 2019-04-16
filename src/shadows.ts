@@ -143,12 +143,19 @@ export class ShadowAccessory {
 					case "5": // Bedside Lamp
 					case "7": // Wall Lamp
 						controlService = new hapService.Lightbulb(device.name);
+						controlCharacteristics = [hapCharacteristic.On];
 						break;
+					case "25": // Video gate open
+						controlService = new hapService.LockMechanism(device.name);
+						controlService.subtype = device.id + "----" + "LOCK";
+						controlCharacteristics = [hapCharacteristic.LockCurrentState, hapCharacteristic.LockTargetState];
+						break
 					default:
 						controlService = new hapService.Switch(device.name)
+						controlCharacteristics = [hapCharacteristic.On];
 						break;
 				}
-				ss = [new ShadowService(controlService, [hapCharacteristic.On])];
+				ss = [new ShadowService(controlService, controlCharacteristics)];
 				break;
 			case "com.fibaro.barrier":
 				ss = [new ShadowService(new hapService.GarageDoorOpener(device.name), [hapCharacteristic.CurrentDoorState, hapCharacteristic.TargetDoorState, hapCharacteristic.ObstructionDetected])];

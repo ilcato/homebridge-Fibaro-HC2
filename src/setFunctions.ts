@@ -91,6 +91,14 @@ export class SetFunctions {
 		this.command("setValue", [value], service, IDs);
 	}
 	setLockTargetState(value, callback, context, characteristic, service, IDs) {
+		if (service.isLockSwitch) {
+			var action = (value == this.hapCharacteristic.LockTargetState.UNSECURED) ? "turnOn" : "turnOff";
+			this.command(action, null, service, IDs);
+			let lockCurrentStateCharacteristic = service.getCharacteristic(this.hapCharacteristic.LockCurrentState);
+			lockCurrentStateCharacteristic.updateValue(value, undefined, 'fromSetValue');
+			return
+		}
+
 		var action = (value == this.hapCharacteristic.LockTargetState.UNSECURED) ? "unsecure" : "secure";
 		this.command(action, [0], service, IDs);
 		setTimeout( () => {
