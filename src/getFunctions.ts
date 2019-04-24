@@ -144,6 +144,10 @@ export class GetFunctions {
 		this.returnValue(parseFloat(properties.power) > 1.0 ? true : false, callback, characteristic);
 	}
 	getLockCurrentState(callback, characteristic, service, IDs, properties) {
+		if (service.isLockSwitch) {
+			this.returnValue(properties.value == "false" ? this.hapCharacteristic.LockCurrentState.SECURED : this.hapCharacteristic.LockCurrentState.UNSECURED, callback, characteristic);
+			return
+		}
 		this.returnValue(properties.value == "true" ? this.hapCharacteristic.LockCurrentState.SECURED : this.hapCharacteristic.LockCurrentState.UNSECURED, callback, characteristic);
 	}
 	getCurrentHeatingCoolingState(callback, characteristic, service, IDs, properties) {
