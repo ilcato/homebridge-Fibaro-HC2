@@ -16,7 +16,7 @@
 
 'use strict'
 
-import {lowestTemp} from './setFunctions'
+import {lowestTemp, SetFunctions} from './setFunctions'
 
 export class GetFunctions {
 	hapCharacteristic: any;
@@ -35,6 +35,8 @@ export class GetFunctions {
 			[(new hapCharacteristic.PositionState()).UUID, 				{"function": this.getPositionState, "delay": 0}],
 			[(new hapCharacteristic.CurrentPosition()).UUID, 			{"function": this.getCurrentPosition, "delay": 0}],
 			[(new hapCharacteristic.TargetPosition()).UUID, 			{"function": this.getCurrentPosition, "delay": 0}], 				// Manage the same as currentPosition
+			[(new hapCharacteristic.CurrentHorizontalTiltAngle()).UUID,	{"function": this.getCurrentTiltAngle, "delay": 0}],
+			[(new hapCharacteristic.TargetHorizontalTiltAngle()).UUID,	{"function": this.getCurrentTiltAngle, "delay": 0}],
 			[(new hapCharacteristic.MotionDetected()).UUID, 			{"function": this.getBool, "delay": 0}],
 			[(new hapCharacteristic.CurrentTemperature()).UUID, 		{"function": this.getFloat, "delay": 0}],
 			[(new hapCharacteristic.TargetTemperature()).UUID, 			{"function": this.getTargetTemperature, "delay": 0}],
@@ -125,6 +127,20 @@ export class GetFunctions {
 		}
 		this.returnValue(r, callback, characteristic);
 	}
+	getCurrentTiltAngle(callback, characteristic, service, IDs, properties) {
+		let value2 = parseInt(properties.value2);
+		if (value2 >= 0 && value2 <= 100) {
+			if (value2 == 99)
+				value2 = 100;
+			else if (value2 == 1)
+				value2 = 0;
+		} else {
+			value2 = characteristic.props.minValue;
+		}
+		let angle = SetFunctions.scale(value2, 0, 100, characteristic.props.minValue, characteristic.props.maxValue);
+		this.returnValue(angle, callback, characteristic);
+	}
+
 	getTargetTemperature(callback, characteristic, service, IDs, properties) {
 		this.returnValue(parseFloat(properties.targetLevel), callback, characteristic);
 	}

@@ -47,14 +47,14 @@ export class Poller {
 				if (updates.last != undefined)
 					this.lastPoll = updates.last;
 				if (updates.changes != undefined) {
-					updates.changes.map((s) => {
-						if (s.value != undefined) {
-							this.manageValue(s);
-						} else if (s["ui.startStopActivitySwitch.value"] != undefined) {
-							s.value = s["ui.startStopActivitySwitch.value"];
-							this.manageValue(s);
-						} else if (s.color != undefined) {
-							this.manageColor(s);
+					updates.changes.map((change) => {
+						if ((change.value != undefined) || (change.value2 != undefined)) {
+							this.manageValue(change);
+						} else if (change["ui.startStopActivitySwitch.value"] != undefined) {
+							change.value = change["ui.startStopActivitySwitch.value"];
+							this.manageValue(change);
+						} else if (change.color != undefined) {
+							this.manageColor(change);
 						} 
 					});
 				}
@@ -107,10 +107,12 @@ export class Poller {
 	manageValue(change) {
 		for (let i = 0; i < this.platform.updateSubscriptions.length; i++) {
 			let subscription = this.platform.updateSubscriptions[i];
-			if (subscription.id == change.id && subscription.property == "value") {
-				this.platform.log("Updating value for device: ", `${subscription.id}  parameter: ${subscription.characteristic.displayName}, value: ${change.value}`);
+			let property = subscription.property;
+			if (subscription.id == change.id && ((property == "value" && change.value != undefined) || (property == "value2" && change.value2 != undefined))) {
+				let changePropertyValue = change[property];
+				this.platform.log(`Updating ${property} for device: `, `${subscription.id}  parameter: ${subscription.characteristic.displayName}, ${property}: ${changePropertyValue}`);
 				if (this.platform.config.enableIFTTTnotification == "all" || this.platform.config.enableIFTTTnotification == "hc")
-					this.platform.notifyIFTTT(VALUE_GET, subscription.id, subscription.characteristic.displayName.replace(" ", "_"), change.value);
+					this.platform.notifyIFTTT(VALUE_GET, subscription.id, subscription.characteristic.displayName.replace(" ", "_"), changePropertyValue);
 				let getFunction = this.platform.getFunctions.getFunctionsMapping.get(subscription.characteristic.UUID);
 				if (getFunction.function)
 					getFunction.function.call(this.platform.getFunctions, null, subscription.characteristic, subscription.service, null, change);
