@@ -40,6 +40,7 @@ export class ShadowAccessory {
 	hapCharacteristic: any;
 	platform: any;
 	isSecuritySystem: boolean;
+	device: any;
 	
 	constructor(device: any, services: ShadowService[], hapAccessory: any, hapService: any, hapCharacteristic: any, platform, isSecurritySystem?: boolean) {
 		this.name = device.name;
@@ -51,18 +52,22 @@ export class ShadowAccessory {
 		this.hapCharacteristic = hapCharacteristic;
 		this.platform = platform;
 		this.isSecuritySystem = isSecurritySystem ? isSecurritySystem : false;
+		this.device = { id: device.id, name: device.name, type: device.type, properties: device.properties };
+		
 		for (let i=0; i < services.length; i++ ) {
 			if (services[i].controlService.subtype == undefined)
 				services[i].controlService.subtype = device.id + "----"			// DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER-OPERATING_MODE_ID-PLUGIN_MARKER
 		}
 	}
 
-  	initAccessory() {
+	initAccessory() {
+		let manufacturer = (this.device.properties.zwaveCompany || "IlCato").replace("Fibargroup", "Fibar Group");
 		this.accessory.getService(this.hapService.AccessoryInformation)
-						.setCharacteristic(this.hapCharacteristic.Manufacturer, "IlCato")
-						.setCharacteristic(this.hapCharacteristic.Model, "HomeCenterBridgedAccessory")
-						.setCharacteristic(this.hapCharacteristic.SerialNumber, "<unknown>");
-  	}
+			.setCharacteristic(this.hapCharacteristic.Manufacturer, manufacturer)
+			.setCharacteristic(this.hapCharacteristic.Model, `${this.device.type || "HomeCenterBridgedAccessory"}`)
+			.setCharacteristic(this.hapCharacteristic.SerialNumber, `${this.device.properties.serialNumber || "<unknown>"}`)
+			.setCharacteristic(this.hapCharacteristic.FirmwareRevision, this.device.properties.zwaveVersion);
+	}
 
   	removeNoMoreExistingServices() {
 		for (let t = 0; t < this.accessory.services.length; t++) {
