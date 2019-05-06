@@ -16,7 +16,7 @@
 
 'use strict'
 
-import {lowestTemp} from './setFunctions'
+import {lowestTemp, SetFunctions} from './setFunctions'
 
 export class GetFunctions {
 	hapCharacteristic: any;
@@ -35,6 +35,8 @@ export class GetFunctions {
 			[(new hapCharacteristic.PositionState()).UUID, 				{"function": this.getPositionState, "delay": 0}],
 			[(new hapCharacteristic.CurrentPosition()).UUID, 			{"function": this.getCurrentPosition, "delay": 0}],
 			[(new hapCharacteristic.TargetPosition()).UUID, 			{"function": this.getCurrentPosition, "delay": 0}], 				// Manage the same as currentPosition
+			[(new hapCharacteristic.CurrentHorizontalTiltAngle()).UUID,	{"function": this.getCurrentTiltAngle, "delay": 0}],
+			[(new hapCharacteristic.TargetHorizontalTiltAngle()).UUID,	{"function": this.getCurrentTiltAngle, "delay": 0}],
 			[(new hapCharacteristic.MotionDetected()).UUID, 			{"function": this.getBool, "delay": 0}],
 			[(new hapCharacteristic.CurrentTemperature()).UUID, 		{"function": this.getFloat, "delay": 0}],
 			[(new hapCharacteristic.TargetTemperature()).UUID, 			{"function": this.getTargetTemperature, "delay": 0}],
@@ -57,7 +59,9 @@ export class GetFunctions {
 			[(new hapCharacteristic.CurrentDoorState()).UUID, 			{"function": this.getCurrentDoorState, "delay": 0}],			
 			[(new hapCharacteristic.TargetDoorState()).UUID, 			{"function": this.getCurrentDoorState, "delay": 0}],
 			[(new hapCharacteristic.ObstructionDetected()).UUID, 		{"function": this.getObstructionDetected, "delay": 0}],
-			[(new hapCharacteristic.BatteryLevel()).UUID, 				{"function": this.getBatteryLevel, "delay": 0}]
+			[(new hapCharacteristic.BatteryLevel()).UUID, 				{"function": this.getBatteryLevel, "delay": 0}],
+			[(new hapCharacteristic.ChargingState()).UUID, 				{"function": this.getChargingState, "delay": 0}],
+			[(new hapCharacteristic.StatusLowBattery()).UUID, 			{"function": this.getStatusLowBattery, "delay": 0}]
 		]);
 		this.getCurrentSecuritySystemStateMapping = new Map([
 			["AwayArmed", 	this.hapCharacteristic.SecuritySystemCurrentState.AWAY_ARM],
@@ -125,6 +129,20 @@ export class GetFunctions {
 		}
 		this.returnValue(r, callback, characteristic);
 	}
+	getCurrentTiltAngle(callback, characteristic, service, IDs, properties) {
+		let value2 = parseInt(properties.value2);
+		if (value2 >= 0 && value2 <= 100) {
+			if (value2 == 99)
+				value2 = 100;
+			else if (value2 == 1)
+				value2 = 0;
+		} else {
+			value2 = characteristic.props.minValue;
+		}
+		let angle = SetFunctions.scale(value2, 0, 100, characteristic.props.minValue, characteristic.props.maxValue);
+		this.returnValue(angle, callback, characteristic);
+	}
+
 	getTargetTemperature(callback, characteristic, service, IDs, properties) {
 		this.returnValue(parseFloat(properties.targetLevel), callback, characteristic);
 	}
@@ -144,6 +162,10 @@ export class GetFunctions {
 		this.returnValue(parseFloat(properties.power) > 1.0 ? true : false, callback, characteristic);
 	}
 	getLockCurrentState(callback, characteristic, service, IDs, properties) {
+		if (service.isLockSwitch) {
+			this.returnValue(properties.value == "false" ? this.hapCharacteristic.LockCurrentState.SECURED : this.hapCharacteristic.LockCurrentState.UNSECURED, callback, characteristic);
+			return
+		}
 		this.returnValue(properties.value == "true" ? this.hapCharacteristic.LockCurrentState.SECURED : this.hapCharacteristic.LockCurrentState.UNSECURED, callback, characteristic);
 	}
 	getCurrentHeatingCoolingState(callback, characteristic, service, IDs, properties) {
@@ -236,7 +258,14 @@ export class GetFunctions {
 		let r = parseFloat(properties.batteryLevel);
 		this.returnValue(r, callback, characteristic);
 	}
-	
+	getChargingState(callback, characteristic, service, IDs, properties) {
+		let r = 0;//parseFloat(properties.batteryLevel);
+		this.returnValue(r, callback, characteristic);
+	}	
+	getStatusLowBattery(callback, characteristic, service, IDs, properties) {
+		let r = parseFloat(properties.batteryLevel) <=30 ? 1 : 0;
+		this.returnValue(r, callback, characteristic);
+	}	
 	getSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus) {
 		let r;
 		if (characteristic.UUID == (new this.hapCharacteristic.SecuritySystemCurrentState()).UUID) {

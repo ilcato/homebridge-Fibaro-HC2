@@ -266,6 +266,7 @@ class FibaroHC2 {
 		service.isSecuritySystem = IDs[0] == "0" ? true : false;
 		service.isGlobalVariableSwitch = IDs[0] == "G" ? true : false;
 		service.isHarmonyDevice = (IDs.length >= 4 && IDs[4] == "HP") ? true : false;
+		service.isLockSwitch = (IDs.length >= 4 && IDs[4] == "LOCK") ? true : false;
 		
 		if (!service.isVirtual) {
 			var propertyChanged = "value"; // subscribe to the changes of this property
@@ -276,7 +277,13 @@ class FibaroHC2 {
 					propertyChanged = "mode";
 				}
 			}
-			this.subscribeUpdate(service, characteristic, propertyChanged); 
+			if(service.UUID == (Service.WindowCovering.UUID) && (characteristic.UUID == (new Characteristic.CurrentHorizontalTiltAngle).UUID)) {
+				propertyChanged = "value2";
+			}
+			if(service.UUID == (Service.WindowCovering.UUID) && (characteristic.UUID == (new Characteristic.TargetHorizontalTiltAngle).UUID)) {
+				propertyChanged = "value2";
+			}
+			this.subscribeUpdate(service, characteristic, propertyChanged);
 		}
 		characteristic.on('set', (value, callback, context) => {
 			this.setCharacteristicValue(value, callback, context, characteristic, service, IDs);

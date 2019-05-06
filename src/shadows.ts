@@ -40,30 +40,34 @@ export class ShadowAccessory {
 	hapCharacteristic: any;
 	platform: any;
 	isSecuritySystem: boolean;
+	device: any;
 	
 	constructor(device: any, services: ShadowService[], hapAccessory: any, hapService: any, hapCharacteristic: any, platform, isSecurritySystem?: boolean) {
 		this.name = device.name;
 		this.roomID = device.roomID;
 		this.services = services;
-		this.accessory = null,
+		this.accessory = null;
 		this.hapAccessory = hapAccessory;
 		this.hapService = hapService;
 		this.hapCharacteristic = hapCharacteristic;
 		this.platform = platform;
 		this.isSecuritySystem = isSecurritySystem ? isSecurritySystem : false;
+		this.device = { id: device.id, name: device.name, type: device.type, properties: device.properties };
+		
 		for (let i=0; i < services.length; i++ ) {
 			if (services[i].controlService.subtype == undefined)
 				services[i].controlService.subtype = device.id + "----"			// DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER-OPERATING_MODE_ID-PLUGIN_MARKER
 		}
 	}
 
-  	initAccessory() {
+	initAccessory() {
+		let manufacturer = (this.device.properties.zwaveCompany || "IlCato").replace("Fibargroup", "Fibar Group");
 		this.accessory.getService(this.hapService.AccessoryInformation)
-						.setCharacteristic(this.hapCharacteristic.Manufacturer, "IlCato")
-						.setCharacteristic(this.hapCharacteristic.Model, "HomeCenterBridgedAccessory")
-						.setCharacteristic(this.hapCharacteristic.SerialNumber, "<unknown>");
-  	}
-
+			.setCharacteristic(this.hapCharacteristic.Manufacturer, manufacturer)
+			.setCharacteristic(this.hapCharacteristic.Model, `${this.device.type || "HomeCenterBridgedAccessory"}`)
+			.setCharacteristic(this.hapCharacteristic.SerialNumber, `${this.device.properties.serialNumber || "<unknown>"}`)
+			.setCharacteristic(this.hapCharacteristic.FirmwareRevision, this.device.properties.zwaveVersion);
+	}
   	removeNoMoreExistingServices() {
 		for (let t = 0; t < this.accessory.services.length; t++) {
 			let found = false;
@@ -129,7 +133,7 @@ export class ShadowAccessory {
 					controlCharacteristics = [hapCharacteristic.On, hapCharacteristic.Brightness];
 					break;
 				default:
-					controlService = new hapService.Switch(device.name)
+					controlService = new hapService.Switch(device.name);
 					controlCharacteristics = [hapCharacteristic.On];
 					break;
 				}
@@ -143,12 +147,19 @@ export class ShadowAccessory {
 					case "5": // Bedside Lamp
 					case "7": // Wall Lamp
 						controlService = new hapService.Lightbulb(device.name);
+						controlCharacteristics = [hapCharacteristic.On];
+						break;
+					case "25": // Video gate open
+						controlService = new hapService.LockMechanism(device.name);
+						controlService.subtype = device.id + "----" + "LOCK";
+						controlCharacteristics = [hapCharacteristic.LockCurrentState, hapCharacteristic.LockTargetState];
 						break;
 					default:
-						controlService = new hapService.Switch(device.name)
+						controlService = new hapService.Switch(device.name);
+						controlCharacteristics = [hapCharacteristic.On];
 						break;
 				}
-				ss = [new ShadowService(controlService, [hapCharacteristic.On])];
+				ss = [new ShadowService(controlService, controlCharacteristics)];
 				break;
 			case "com.fibaro.barrier":
 				ss = [new ShadowService(new hapService.GarageDoorOpener(device.name), [hapCharacteristic.CurrentDoorState, hapCharacteristic.TargetDoorState, hapCharacteristic.ObstructionDetected])];
@@ -157,7 +168,20 @@ export class ShadowAccessory {
 			case "com.fibaro.FGRM222":
 			case "com.fibaro.FGR223":
 			case "com.fibaro.rollerShutter":
-				ss = [new ShadowService(new hapService.WindowCovering(device.name), [hapCharacteristic.CurrentPosition, hapCharacteristic.TargetPosition, hapCharacteristic.PositionState])];
+								
+				controlService = new hapService.WindowCovering(device.name);
+				controlCharacteristics = [
+					hapCharacteristic.CurrentPosition,
+					hapCharacteristic.TargetPosition,
+					hapCharacteristic.PositionState
+				];
+				if (device.actions.setValue2 == 1) {
+					controlCharacteristics.push(
+						hapCharacteristic.CurrentHorizontalTiltAngle,
+						hapCharacteristic.TargetHorizontalTiltAngle
+					);
+				}
+				ss = [new ShadowService(controlService, controlCharacteristics)];
 				break;
 			case "com.fibaro.FGMS001":
 			case "com.fibaro.FGMS001v2":
@@ -245,8 +269,14 @@ export class ShadowAccessory {
 			default:
 				break
   		}
-  		if (!ss)
-  			return undefined;
+  		if (!ss) {
+			return undefined;
+		}
+		
+		if (device.interfaces && device.interfaces.includes("battery")) {
+			ss.push(new ShadowService(new hapService.BatteryService(device.name), [hapCharacteristic.BatteryLevel, hapCharacteristic.ChargingState, hapCharacteristic.StatusLowBattery]))
+		} 
+		
   		return new ShadowAccessory(device, ss, hapAccessory, hapService, hapCharacteristic, platform);
   	}
 	static createShadowSecuritySystemAccessory(device, hapAccessory, hapService, hapCharacteristic, platform) {

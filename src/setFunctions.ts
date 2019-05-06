@@ -36,7 +36,8 @@ export class SetFunctions {
 		this.setFunctionsMapping = new Map([
 			[(new hapCharacteristic.On()).UUID, 							this.setOn],
 			[(new hapCharacteristic.Brightness()).UUID, 					this.setBrightness],
-			[(new hapCharacteristic.TargetPosition()).UUID, 				this.setTargetPosition],	
+			[(new hapCharacteristic.TargetPosition()).UUID, 				this.setTargetPosition],
+			[(new hapCharacteristic.TargetHorizontalTiltAngle()).UUID, this.setTargetTiltAngle],
 			[(new hapCharacteristic.LockTargetState()).UUID, 				this.setLockTargetState],
 			[(new hapCharacteristic.TargetHeatingCoolingState()).UUID, 		this.setTargetHeatingCoolingState],
 			[(new hapCharacteristic.TargetTemperature()).UUID, 				this.setTargetTemperature],
@@ -90,7 +91,19 @@ export class SetFunctions {
 	setTargetPosition(value, callback, context, characteristic, service, IDs) {
 		this.command("setValue", [value], service, IDs);
 	}
+	setTargetTiltAngle(angle, callback, context, characteristic, service, IDs) {
+		let value2 = SetFunctions.scale(angle, characteristic.props.minValue, characteristic.props.maxValue, 0, 100);
+		this.command("setValue2", [value2], service, IDs);
+	}
 	setLockTargetState(value, callback, context, characteristic, service, IDs) {
+		if (service.isLockSwitch) {
+			var action = (value == this.hapCharacteristic.LockTargetState.UNSECURED) ? "turnOn" : "turnOff";
+			this.command(action, null, service, IDs);
+			let lockCurrentStateCharacteristic = service.getCharacteristic(this.hapCharacteristic.LockCurrentState);
+			lockCurrentStateCharacteristic.updateValue(value, undefined, 'fromSetValue');
+			return
+		}
+
 		var action = (value == this.hapCharacteristic.LockTargetState.UNSECURED) ? "unsecure" : "secure";
 		this.command(action, [0], service, IDs);
 		setTimeout( () => {
@@ -313,6 +326,18 @@ export class SetFunctions {
 		.catch((err) => {
 			this.platform.log("There was a problem getting value from: ", `${IDs[0]} - Err: ${err}` );
 		});
+	}
+
+	/***
+	 *  Scale the value from input range to output range as integer
+	 * @param num value to be scaled
+	 * @param in_min input value range minimum
+	 * @param in_max input value range maximum
+	 * @param out_min output value range minimum
+	 * @param out_max output value range maximum
+	 */
+	static scale(num: number, in_min: number, in_max: number, out_min: number, out_max: number): number {
+		return Math.trunc((num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
 	}
 }
 
