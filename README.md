@@ -25,6 +25,11 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.2.4
++ Support for lamellas position in Venetian blinds.
++ Accessory information - Manufacturer, model, serial and firmware.
++ Battery level support.
+
 Version 2.2.3
 + Debug version for fixing Danalock Siri #136.
 
