@@ -61,7 +61,7 @@ export class ShadowAccessory {
 	}
 
 	initAccessory() {
-		const properties = this.device.properties || {}:
+		const properties = this.device.properties || {};
 		const manufacturer = (properties.zwaveCompany || "IlCato").replace("Fibargroup", "Fibar Group");
 		this.accessory.getService(this.hapService.AccessoryInformation)
 			.setCharacteristic(this.hapCharacteristic.Manufacturer, manufacturer)
