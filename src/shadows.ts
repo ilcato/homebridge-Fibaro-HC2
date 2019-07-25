@@ -233,7 +233,13 @@ export class ShadowAccessory {
 				let m = siblings.get("com.fibaro.operatingMode");
 				if (m) {
 					controlService.operatingModeId = m.id;
-					controlService.subtype = device.id + "---" + m.id;		
+					controlService.subtype = device.id + "---" + m.id;
+				}
+				// Check if there's a temperature Sensor and use it instead of the provided float value
+				let t = siblings.get("com.fibaro.temperatureSensor");
+				if(t) {
+					controlService.floatServiceId = t.id;
+					controlService.subtype = (controlService.subtype || device.id + "----") + t.id;
 				}
 				ss = [new ShadowService(controlService, controlCharacteristics)];
 				break;

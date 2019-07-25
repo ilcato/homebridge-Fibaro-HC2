@@ -164,7 +164,7 @@ class FibaroHC2 {
 		for (let s = 0; s < accessory.services.length; s++) {
 			let service = accessory.services[s];
 			if (service.subtype != undefined) {
-				let subtypeParams = service.subtype.split("-"); // DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER-OPERATING_MODE_ID
+				let subtypeParams = service.subtype.split("-"); // DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER-OPERATING_MODE_ID-FLOAT_SVC_ID
 				if (subtypeParams.length >= 3 && subtypeParams[2] == "RGB") {
 					// For RGB devices add specific attributes for managing it
 					service.HSBValue = {hue: 0, saturation: 0, brightness: 0};
@@ -174,6 +174,9 @@ class FibaroHC2 {
 				}
 				if (subtypeParams.length >= 4) {
 					service.operatingModeId = subtypeParams[3];
+				}
+				if (subtypeParams.length >= 5) {
+					service.floatServiceId = subtypeParams[4];
 				}
 			}
 			for (let i = 0; i < service.characteristics.length; i++) {
