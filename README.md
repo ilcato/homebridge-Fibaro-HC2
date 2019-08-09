@@ -25,6 +25,9 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.2.5
++ Support for Fibaro Walli dimmer.
+
 Version 2.2.4
 + Support for lamellas position in Venetian blinds.
 + Accessory information - Manufacturer, model, serial and firmware.
