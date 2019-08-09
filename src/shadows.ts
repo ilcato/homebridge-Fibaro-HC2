@@ -144,6 +144,7 @@ export class ShadowAccessory {
 			case "com.fibaro.binarySwitch":
 			case "com.fibaro.developer.bxs.virtualBinarySwitch":
 			case "com.fibaro.satelOutput":	
+			case "com.fibaro.FGWDS221":
 				switch (device.properties.deviceControlType) {
 					case "2": // Lighting
 					case "5": // Bedside Lamp
@@ -170,7 +171,7 @@ export class ShadowAccessory {
 			case "com.fibaro.FGRM222":
 			case "com.fibaro.FGR223":
 			case "com.fibaro.rollerShutter":
-								
+			case "com.fibaro.FGWR111":
 				controlService = new hapService.WindowCovering(device.name);
 				controlCharacteristics = [
 					hapCharacteristic.CurrentPosition,
@@ -218,6 +219,7 @@ export class ShadowAccessory {
 			case "com.fibaro.FGWP101":
 			case "com.fibaro.FGWP102":
 			case "com.fibaro.FGWPG111":
+			case "com.fibaro.FGWOEF011":
 				ss = [new ShadowService(new hapService.Outlet(device.name), [hapCharacteristic.On, hapCharacteristic.OutletInUse])];
 				break;
 			case "com.fibaro.doorLock":

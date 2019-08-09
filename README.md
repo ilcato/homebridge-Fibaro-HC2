@@ -25,7 +25,10 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
-Version 2.2.5
+Version 2.2.7
++ Support for Fibaro Walli Roller Shutter, Smartplug and Switch.
+
+Version 2.2.6
 + Support for Fibaro Walli dimmer.
 
 Version 2.2.4
