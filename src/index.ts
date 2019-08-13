@@ -99,9 +99,9 @@ class FibaroHC2 {
   	poller?: Poller;
   	securitySystemScenes: Object;
   	securitySystemService: Object;
-  	fibaroClient: FibaroClient;
+  	fibaroClient?: FibaroClient;
   	setFunctions?: SetFunctions;
-  	getFunctions: GetFunctions;
+  	getFunctions?: GetFunctions;
 
 	  	
   	constructor (log: (format: string, message: any) => void, config: Config, api: any) {
@@ -149,12 +149,14 @@ class FibaroHC2 {
     	this.getFunctions = new GetFunctions(Characteristic, this);
   	}
   	didFinishLaunching () { 
-	    this.log('didFinishLaunching.', '')
-		this.fibaroClient.getScenes()
+			this.log('didFinishLaunching.', '');
+			if (!this.fibaroClient)
+				return;
+			this.fibaroClient.getScenes()
 			.then((scenes) => {
 				this.mapSceneIDs(scenes);
-		    	this.setFunctions = new SetFunctions(Characteristic, this);	// There's a dependency in setFunction to Scene Mapping
-				return this.fibaroClient.getDevices();
+		    this.setFunctions = new SetFunctions(Characteristic, this);	// There's a dependency in setFunction to Scene Mapping
+				return this.fibaroClient ? this.fibaroClient.getDevices() : {};
 			})
 			.then((devices) => {
 				this.LoadAccessories(devices);    		
@@ -319,9 +321,11 @@ class FibaroHC2 {
 		this.log("Getting value from device: ", `${IDs[0]}  parameter: ${characteristic.displayName}`);
 		// Manage security system status
 		if (service.isSecuritySystem) { 
+			if (!this.fibaroClient) return;
 			this.fibaroClient.getGlobalVariable("SecuritySystem")
 				.then((securitySystemStatus) => {
-					this.getFunctions.getSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus);
+					if (this.getFunctions)
+						this.getFunctions.getSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus);
 				})
 				.catch((err) =>{
 					this.log("There was a problem getting value from Global Variable: SecuritySystem", ` - Err: ${err}` );
@@ -331,9 +335,11 @@ class FibaroHC2 {
 		}
 		// Manage global variable switches
 		if (service.isGlobalVariableSwitch) { 
+			if (!this.fibaroClient) return;
 			this.fibaroClient.getGlobalVariable(IDs[1])
 				.then((switchStatus) => {
-					this.getFunctions.getBool(callback, characteristic, service, IDs, switchStatus);
+					if (this.getFunctions)
+						this.getFunctions.getBool(callback, characteristic, service, IDs, switchStatus);
 				})
 				.catch((err) =>{
 					this.log("There was a problem getting value from Global Variable: ", `${IDs[1]} - Err: ${err}` );
@@ -342,8 +348,10 @@ class FibaroHC2 {
 			return;
 		}
 		// Manage all other status
+		if (!this.getFunctions) return;
 		let getFunction = this.getFunctions.getFunctionsMapping.get(characteristic.UUID);
 		setTimeout( () => {
+			if (!this.fibaroClient) return;
 			this.fibaroClient.getDeviceProperties(IDs[0])
 			.then((properties) => {
 				if (getFunction.function)
