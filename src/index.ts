@@ -114,9 +114,10 @@ class FibaroHC2 {
 	  	this.securitySystemService = {};
 			this.config = config;
 		
-			if (!config)
-		    this.log('Fibaro HC2 configuration:', 'cannot load config.json');
-
+			if (!config) {
+		    this.log('Fibaro HC2 configuration:', 'cannot find configuration for the plugin');
+				return;
+			}
 			let pollerPeriod = this.config.pollerperiod ? parseInt(this.config.pollerperiod) : defaultPollerPeriod;
   		if (isNaN(pollerPeriod) || pollerPeriod < 0 || pollerPeriod > 100)
   			pollerPeriod = defaultPollerPeriod;
@@ -139,9 +140,9 @@ class FibaroHC2 {
 			if (this.config.LockTargetStateDelay == undefined)
 			  this.config.LockTargetStateDelay = "2";
 				
-		this.fibaroClient = new FibaroClient(this.config.host, this.config.username, this.config.password);
-		if (pollerPeriod != 0)  
-			this.poller = new Poller(this, pollerPeriod, Service, Characteristic);
+			this.fibaroClient = new FibaroClient(this.config.host, this.config.username, this.config.password);
+			if (pollerPeriod != 0)  
+				this.poller = new Poller(this, pollerPeriod, Service, Characteristic);
 
     	this.api.on('didFinishLaunching', this.didFinishLaunching.bind(this));
     	
