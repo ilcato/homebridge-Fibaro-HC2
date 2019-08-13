@@ -108,13 +108,16 @@ class FibaroHC2 {
     	this.log = log;
     	this.api = api;
 
-		this.accessories = new Map();
+			this.accessories = new Map();
 	  	this.updateSubscriptions = new Array();
 	  	this.securitySystemScenes = {};
 	  	this.securitySystemService = {};
-		this.config = config;
+			this.config = config;
 		
-		let pollerPeriod = this.config.pollerperiod ? parseInt(this.config.pollerperiod) : defaultPollerPeriod;
+			if (!config)
+		    this.log('Fibaro HC2 configuration:', 'cannot load config.json');
+
+			let pollerPeriod = this.config.pollerperiod ? parseInt(this.config.pollerperiod) : defaultPollerPeriod;
   		if (isNaN(pollerPeriod) || pollerPeriod < 0 || pollerPeriod > 100)
   			pollerPeriod = defaultPollerPeriod;
   		if (this.config.securitysystem == undefined || (this.config.securitysystem != "enabled" && this.config.securitysystem != "disabled"))
