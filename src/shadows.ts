@@ -95,7 +95,7 @@ export class ShadowAccessory {
 					let characteristic = service.controlService.getCharacteristic(service.characteristics[i]);
 					characteristic.props.needsBinding = true;
 					if (characteristic.UUID == (new this.hapCharacteristic.CurrentAmbientLightLevel()).UUID) {
-						characteristic.props.maxValue = 10000;
+						characteristic.props.maxValue = 100000;
 						characteristic.props.minStep = 1;
 						characteristic.props.minValue = 0;
 					}
