@@ -25,6 +25,9 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.2.9
++ Manage fahrenheit units.
+
 Version 2.2.8
 + Manage the case of absence of plugin configuration.
 + Max ambient light level to 100000
