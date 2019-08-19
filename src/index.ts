@@ -28,10 +28,11 @@
 //            "thermostattimeout": "PUT THE NUMBER OF SECONDS FOR THE THERMOSTAT TIMEOUT, DEFAULT: 7200 (2 HOURS). PUT 0 FOR INFINITE",
 //            "enablecoolingstatemanagemnt": "PUT on TO AUTOMATICALLY MANAGE HEATING STATE FOR THERMOSTAT, off TO DISABLE IT. DEFAULT off",
 //            "doorlocktimeout": "PUT 0 FOR DISABLING THE CHECK. PUT A POSITIVE INTEGER N NUMBER ENABLE IT AFTER N SECONDS. DEFAULT 0",
-//			  		"IFTTTmakerkey": "PUT KEY OF YOUR MAKER CHANNEL HERE (USED TO SIGNAL EVENTS TO THE OUTSIDE)",
-//			  		"enableIFTTTnotification": "PUT all FOR ENABLING NOTIFICATIONS OF ALL KIND OF EVENTS, hc FOR CHANGE EVENTS COMING FROM HOME CENTER, hk FOR CHANGE EVENTS COMING FROM HOMEKIT, none FOR DISABLING NOTIFICATIONS; DEFAULT IS none",
-//						"LockCurrentStateDelay": "PUT THE NUMBER OF SECONDS (DEFAULT 2) TO DELAY THE UPDATE OF LockCurrentState READ EVENT",
-// 						"LockTargetStateDelay": "PUT THE NUMBER OF SECONDS (DEFAULT 2) TO DELAY THE UPDATE OF LockTargetState READ EVENT"
+//            "IFTTTmakerkey": "PUT KEY OF YOUR MAKER CHANNEL HERE (USED TO SIGNAL EVENTS TO THE OUTSIDE)",
+//            "enableIFTTTnotification": "PUT all FOR ENABLING NOTIFICATIONS OF ALL KIND OF EVENTS, hc FOR CHANGE EVENTS COMING FROM HOME CENTER, hk FOR CHANGE EVENTS COMING FROM HOMEKIT, none FOR DISABLING NOTIFICATIONS; DEFAULT IS none",
+//            "LockCurrentStateDelay": "PUT THE NUMBER OF SECONDS (DEFAULT 2) TO DELAY THE UPDATE OF LockCurrentState READ EVENT",
+//            "LockTargetStateDelay": "PUT THE NUMBER OF SECONDS (DEFAULT 2) TO DELAY THE UPDATE OF LockTargetState READ EVENT",
+//            "FibaroTemperatureUnit": "PUT TEMPERATURE UNIT C OR F, C IS THE DEFAULT"
 //     }
 // ],
 //
@@ -82,6 +83,7 @@ class Config {
 	enableIFTTTnotification?: string;
 	LockCurrentStateDelay?: string;
 	LockTargetStateDelay?: string;
+	FibaroTemperatureUnit?:string;
 	constructor () {
 		this.name = "";
 		this.host = "";
@@ -108,11 +110,11 @@ class FibaroHC2 {
     	this.log = log;
     	this.api = api;
 
-			this.accessories = new Map();
+		this.accessories = new Map();
 	  	this.updateSubscriptions = new Array();
 	  	this.securitySystemScenes = {};
 	  	this.securitySystemService = {};
-			this.config = config;
+		this.config = config;
 		
 			if (!config) {
 		    this.log('Fibaro HC2 configuration:', 'cannot find configuration for the plugin');
@@ -139,11 +141,11 @@ class FibaroHC2 {
 			  this.config.LockCurrentStateDelay = "2";
 			if (this.config.LockTargetStateDelay == undefined)
 			  this.config.LockTargetStateDelay = "2";
-				
-			this.fibaroClient = new FibaroClient(this.config.host, this.config.username, this.config.password);
-			if (pollerPeriod != 0)  
-				this.poller = new Poller(this, pollerPeriod, Service, Characteristic);
-
+		if (this.config.FibaroTemperatureUnit == undefined)
+			this.config.FibaroTemperatureUnit = "C";
+		this.fibaroClient = new FibaroClient(this.config.host, this.config.username, this.config.password);
+		if (pollerPeriod != 0)  
+			this.poller = new Poller(this, pollerPeriod, Service, Characteristic);
     	this.api.on('didFinishLaunching', this.didFinishLaunching.bind(this));
     	
     	this.getFunctions = new GetFunctions(Characteristic, this);
@@ -353,9 +355,15 @@ class FibaroHC2 {
 		setTimeout( () => {
 			if (!this.fibaroClient) return;
 			this.fibaroClient.getDeviceProperties(IDs[0])
-			.then((properties) => {
-				if (getFunction.function)
+			.then((properties:any) => {
+				if (getFunction.function) {
+					if (this.config.FibaroTemperatureUnit == "F") {
+						if (characteristic.displayName == 'Current Temperature') {
+							properties.value = (properties.value -32 ) * 5 / 9;
+						}
+					}
 					getFunction.function.call(this.getFunctions, callback, characteristic, service, IDs, properties);
+				}
 				else
 					callback(`No get function defined for: ${characteristic.displayName}`, null);
 			})

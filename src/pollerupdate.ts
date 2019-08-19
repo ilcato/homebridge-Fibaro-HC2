@@ -109,6 +109,11 @@ export class Poller {
 			let subscription = this.platform.updateSubscriptions[i];
 			let property = subscription.property;
 			if (subscription.id == change.id && ((property == "value" && change.value != undefined) || (property == "value2" && change.value2 != undefined))) {
+				if (this.platform.config.FibaroTemperatureUnit == "F") {
+					if (subscription.characteristic.displayName == "Current Temperature") {
+						change.value = (change.value - 32) * 5 / 9;
+					}
+				}
 				let changePropertyValue = change[property];
 				this.platform.log(`Updating ${property} for device: `, `${subscription.id}  parameter: ${subscription.characteristic.displayName}, ${property}: ${changePropertyValue}`);
 				if (this.platform.config.enableIFTTTnotification == "all" || this.platform.config.enableIFTTTnotification == "hc")
