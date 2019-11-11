@@ -178,7 +178,8 @@ export class ShadowAccessory {
 					hapCharacteristic.TargetPosition,
 					hapCharacteristic.PositionState
 				];
-				if (device.actions.setValue2 == 1) {
+				//if (device.actions.setValue2 == 1) {
+				if (device.properties.deviceControlType == 54) {
 					controlCharacteristics.push(
 						hapCharacteristic.CurrentHorizontalTiltAngle,
 						hapCharacteristic.TargetHorizontalTiltAngle
