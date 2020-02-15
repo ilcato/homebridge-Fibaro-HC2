@@ -100,7 +100,20 @@ export class GetFunctions {
 	// Float getter
 	getFloat(callback, characteristic, service, IDs, properties) {
 		let r = parseFloat(properties.value);
-		this.returnValue(r, callback, characteristic);
+
+		if(service.floatServiceId) {
+			this.platform.fibaroClient.getDeviceProperties(service.floatServiceId)
+			.then((properties) => {
+				r = parseFloat(properties.value);
+				this.returnValue(r, callback, characteristic);
+			})
+			.catch((err) => {
+				console.log("There was a problem getting value from: ", `${service.floatServiceId} - Err: ${err}` );
+				callback(err, null);
+			});
+		} else {
+			this.returnValue(r, callback, characteristic);
+		}
 	}
 	getBrightness(callback, characteristic, service, IDs, properties) {
 		let r;
