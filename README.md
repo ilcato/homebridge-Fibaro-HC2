@@ -25,6 +25,9 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.3.0
++ Fix thermostat temperature reading.
+
 Version 2.2.9
 + Manage fahrenheit units.
 
