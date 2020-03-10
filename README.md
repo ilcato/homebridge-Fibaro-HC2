@@ -25,6 +25,9 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.3.1
++ Added support for Fibaro FGRGBW442CC. Attention!!! It may broke support for other color controllers types. Please have a check and report an issue in case of mulfunctioning.
+
 Version 2.3.0
 + Fix thermostat temperature reading.
 
