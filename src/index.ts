@@ -43,16 +43,18 @@
 
 import request = require("request");
 
-import {FibaroClient} from './fibaro-api'
-import {	pluginName,
-			platformName, 
-			ShadowAccessory} from './shadows'
-import {SetFunctions} from './setFunctions'
-import {GetFunctions} from './getFunctions'
-import {Poller} from './pollerupdate'
+import { FibaroClient } from './fibaro-api'
+import {
+	pluginName,
+	platformName,
+	ShadowAccessory
+} from './shadows'
+import { SetFunctions } from './setFunctions'
+import { GetFunctions } from './getFunctions'
+import { Poller } from './pollerupdate'
 
 const defaultPollerPeriod = 5;
-const timeOffset = 2*3600;
+const timeOffset = 2 * 3600;
 const defaultEnableCoolingStateManagemnt = "off";
 
 let Accessory,
@@ -71,10 +73,10 @@ export = function (homebridge) {
 class Config {
 	name: string;
 	host: string;
-  	username: string;
-  	password: string;
-  	pollerperiod?: string;
-  	securitysystem?: string;
+	username: string;
+	password: string;
+	pollerperiod?: string;
+	securitysystem?: string;
 	switchglobalvariables?: string;
 	thermostattimeout?: string;
 	enablecoolingstatemanagemnt?: string;
@@ -83,8 +85,8 @@ class Config {
 	enableIFTTTnotification?: string;
 	LockCurrentStateDelay?: string;
 	LockTargetStateDelay?: string;
-	FibaroTemperatureUnit?:string;
-	constructor () {
+	FibaroTemperatureUnit?: string;
+	constructor() {
 		this.name = "";
 		this.host = "";
 		this.username = "";
@@ -95,88 +97,88 @@ class Config {
 class FibaroHC2 {
 	log: (format: string, message: any) => void;
 	config: Config;
-  	api: any;
+	api: any;
 	accessories: Map<string, any>;
 	updateSubscriptions: Array<Object>;
-  	poller?: Poller;
-  	securitySystemScenes: Object;
-  	securitySystemService: Object;
-  	fibaroClient?: FibaroClient;
-  	setFunctions?: SetFunctions;
-  	getFunctions?: GetFunctions;
+	poller?: Poller;
+	securitySystemScenes: Object;
+	securitySystemService: Object;
+	fibaroClient?: FibaroClient;
+	setFunctions?: SetFunctions;
+	getFunctions?: GetFunctions;
 
-	  	
-  	constructor (log: (format: string, message: any) => void, config: Config, api: any) {
-    	this.log = log;
-    	this.api = api;
+
+	constructor(log: (format: string, message: any) => void, config: Config, api: any) {
+		this.log = log;
+		this.api = api;
 
 		this.accessories = new Map();
-	  	this.updateSubscriptions = new Array();
-	  	this.securitySystemScenes = {};
-	  	this.securitySystemService = {};
+		this.updateSubscriptions = new Array();
+		this.securitySystemScenes = {};
+		this.securitySystemService = {};
 		this.config = config;
-		
-			if (!config) {
-		    this.log('Fibaro HC2 configuration:', 'cannot find configuration for the plugin');
-				return;
-			}
-			let pollerPeriod = this.config.pollerperiod ? parseInt(this.config.pollerperiod) : defaultPollerPeriod;
-  		if (isNaN(pollerPeriod) || pollerPeriod < 0 || pollerPeriod > 100)
-  			pollerPeriod = defaultPollerPeriod;
-  		if (this.config.securitysystem == undefined || (this.config.securitysystem != "enabled" && this.config.securitysystem != "disabled"))
-	  		this.config.securitysystem = "disabled";
-  		if (this.config.switchglobalvariables == undefined)
-	  		this.config.switchglobalvariables = "";
-  		if (this.config.thermostattimeout == undefined)
-	  		this.config.thermostattimeout = timeOffset.toString();
-  		if (this.config.enablecoolingstatemanagemnt == undefined)
-	  		this.config.enablecoolingstatemanagemnt = defaultEnableCoolingStateManagemnt;
-			if (this.config.doorlocktimeout == undefined)
-			  this.config.doorlocktimeout = "0";
-			if (this.config.IFTTTmakerkey == undefined)
-		  	this.config.IFTTTmakerkey = "";
-    	if (this.config.enableIFTTTnotification == undefined || this.config.enableIFTTTnotification == "")
-		  	this.config.enableIFTTTnotification = "none";
-			if (this.config.LockCurrentStateDelay == undefined)
-			  this.config.LockCurrentStateDelay = "2";
-			if (this.config.LockTargetStateDelay == undefined)
-			  this.config.LockTargetStateDelay = "2";
+
+		if (!config) {
+			this.log('Fibaro HC2 configuration:', 'cannot find configuration for the plugin');
+			return;
+		}
+		let pollerPeriod = this.config.pollerperiod ? parseInt(this.config.pollerperiod) : defaultPollerPeriod;
+		if (isNaN(pollerPeriod) || pollerPeriod < 0 || pollerPeriod > 100)
+			pollerPeriod = defaultPollerPeriod;
+		if (this.config.securitysystem == undefined || (this.config.securitysystem != "enabled" && this.config.securitysystem != "disabled"))
+			this.config.securitysystem = "disabled";
+		if (this.config.switchglobalvariables == undefined)
+			this.config.switchglobalvariables = "";
+		if (this.config.thermostattimeout == undefined)
+			this.config.thermostattimeout = timeOffset.toString();
+		if (this.config.enablecoolingstatemanagemnt == undefined)
+			this.config.enablecoolingstatemanagemnt = defaultEnableCoolingStateManagemnt;
+		if (this.config.doorlocktimeout == undefined)
+			this.config.doorlocktimeout = "0";
+		if (this.config.IFTTTmakerkey == undefined)
+			this.config.IFTTTmakerkey = "";
+		if (this.config.enableIFTTTnotification == undefined || this.config.enableIFTTTnotification == "")
+			this.config.enableIFTTTnotification = "none";
+		if (this.config.LockCurrentStateDelay == undefined)
+			this.config.LockCurrentStateDelay = "2";
+		if (this.config.LockTargetStateDelay == undefined)
+			this.config.LockTargetStateDelay = "2";
 		if (this.config.FibaroTemperatureUnit == undefined)
 			this.config.FibaroTemperatureUnit = "C";
 		this.fibaroClient = new FibaroClient(this.config.host, this.config.username, this.config.password);
-		if (pollerPeriod != 0)  
+		if (pollerPeriod != 0)
 			this.poller = new Poller(this, pollerPeriod, Service, Characteristic);
-    	this.api.on('didFinishLaunching', this.didFinishLaunching.bind(this));
-    	
-    	this.getFunctions = new GetFunctions(Characteristic, this);
-  	}
-  	didFinishLaunching () { 
-			this.log('didFinishLaunching.', '');
-			if (!this.fibaroClient)
-				return;
-			this.fibaroClient.getScenes()
+		this.api.on('didFinishLaunching', this.didFinishLaunching.bind(this));
+
+		this.getFunctions = new GetFunctions(Characteristic, this);
+	}
+	didFinishLaunching() {
+		this.log('didFinishLaunching.', '');
+		if (!this.fibaroClient)
+			return;
+		this.fibaroClient.getScenes()
 			.then((scenes) => {
 				this.mapSceneIDs(scenes);
-		    this.setFunctions = new SetFunctions(Characteristic, this);	// There's a dependency in setFunction to Scene Mapping
+				this.setFunctions = new SetFunctions(Characteristic, this);	// There's a dependency in setFunction to Scene Mapping
 				return this.fibaroClient ? this.fibaroClient.getDevices() : {};
 			})
 			.then((devices) => {
-				this.LoadAccessories(devices);    		
+				this.LoadAccessories(devices);
 			})
 			.catch((err) => {
 				this.log("Error getting data from Home Center: ", err);
 				throw new Error("Startup error: get scenes or devices");
 			});
-  	}
-  	configureAccessory (accessory) {
+	}
+	configureAccessory(accessory) {
 		for (let s = 0; s < accessory.services.length; s++) {
 			let service = accessory.services[s];
 			if (service.subtype != undefined) {
 				let subtypeParams = service.subtype.split("-"); // DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER-OPERATING_MODE_ID-FLOAT_SVC_ID
 				if (subtypeParams.length >= 3 && subtypeParams[2] == "RGB") {
 					// For RGB devices add specific attributes for managing it
-					service.HSBValue = {hue: 0, saturation: 0, brightness: 0};
-					service.RGBValue = {red: 0, green: 0, blue: 0};
+					service.HSBValue = { hue: 0, saturation: 0, brightness: 0 };
+					service.RGBValue = { red: 0, green: 0, blue: 0 };
 					service.countColorCharacteristics = 2;
 					service.timeoutIdColorCharacteristics = 0;
 				}
@@ -196,8 +198,8 @@ class FibaroHC2 {
 		this.log("Configured Accessory: ", accessory.displayName);
 		this.accessories.set(accessory.context.uniqueSeed, accessory);
 		accessory.reachable = true;
-  	}
-  	LoadAccessories(devices) {
+	}
+	LoadAccessories(devices) {
 		this.log('Loading accessories', '');
 		devices.map((s, i, a) => {
 			if (s.visible == true && s.name.charAt(0) != "_") {
@@ -205,12 +207,12 @@ class FibaroHC2 {
 				this.addAccessory(ShadowAccessory.createShadowAccessory(s, siblings, Accessory, Service, Characteristic, this));
 			}
 		});
-		
+
 		// Create Thermostats based on heating and AC zones
-		
+
 		// Create Security System accessory
 		if (this.config.securitysystem == "enabled") {
-			let device = {name: "FibaroSecuritySystem", roomID: 0, id: 0};
+			let device = { name: "FibaroSecuritySystem", roomID: 0, id: 0 };
 			let sa = ShadowAccessory.createShadowSecuritySystemAccessory(device, Accessory, Service, Characteristic, this);
 			this.addAccessory(sa);
 		}
@@ -218,12 +220,12 @@ class FibaroHC2 {
 		// Create Global Variable Switches
 		if (this.config.switchglobalvariables && this.config.switchglobalvariables != "") {
 			let globalVariables = this.config.switchglobalvariables.split(',');
-			for(let i = 0; i < globalVariables.length; i++) {
-				let device = {name: globalVariables[i], roomID: 0, id: 0};
+			for (let i = 0; i < globalVariables.length; i++) {
+				let device = { name: globalVariables[i], roomID: 0, id: 0 };
 				let sa = ShadowAccessory.createShadowGlobalVariableSwitchAccessory(device, Accessory, Service, Characteristic, this);
 				this.addAccessory(sa);
 			}
-	  	}		
+		}
 		// Remove not reviewd accessories: cached accessories no more present in Home Center
 		let accessories = this.accessories.values() // Iterator for accessories, key is the uniqueseed
 		for (let a of accessories) {
@@ -236,12 +238,12 @@ class FibaroHC2 {
 			this.poller.poll();
 	}
 
-  	addAccessory (shadowAccessory) {
-  		if (shadowAccessory == undefined)
-  			return;
+	addAccessory(shadowAccessory) {
+		if (shadowAccessory == undefined)
+			return;
 		let uniqueSeed = shadowAccessory.name + shadowAccessory.roomID;
 		let isNewAccessory = false;
-		let a:any = this.accessories.get(uniqueSeed);
+		let a: any = this.accessories.get(uniqueSeed);
 		if (a == null) {
 			isNewAccessory = true;
 			let uuid = UUIDGen.generate(uniqueSeed);
@@ -252,7 +254,7 @@ class FibaroHC2 {
 		// Store SecuritySystem Accessory
 		if (this.config.securitysystem == "enabled" && shadowAccessory.isSecuritySystem) {
 			this.securitySystemService = a.getService(Service.SecuritySystem);
-		} 
+		}
 		shadowAccessory.setAccessory(a);
 		// init accessory
 		shadowAccessory.initAccessory();
@@ -263,14 +265,14 @@ class FibaroHC2 {
 		// Register or update platform accessory
 		shadowAccessory.registerUpdateAccessory(isNewAccessory, this.api);
 		this.log("Added/changed accessory: ", shadowAccessory.name);
-  	}
+	}
 
-	removeAccessory (accessory) {
-	    this.log('Remove accessory', accessory.displayName);
+	removeAccessory(accessory) {
+		this.log('Remove accessory', accessory.displayName);
 		this.api.unregisterPlatformAccessories(pluginName, platformName, [accessory]);
 		this.accessories.delete(accessory.context.uniqueSeed);
 	}
-	
+
 	bindCharacteristicEvents(characteristic, service) {
 		let IDs = service.subtype.split("-"); // IDs[0] is always device ID; for virtual device IDs[1] is the button ID
 		service.isVirtual = IDs[1] != "" ? true : false;
@@ -278,20 +280,20 @@ class FibaroHC2 {
 		service.isGlobalVariableSwitch = IDs[0] == "G" ? true : false;
 		service.isHarmonyDevice = (IDs.length >= 4 && IDs[4] == "HP") ? true : false;
 		service.isLockSwitch = (IDs.length >= 4 && IDs[4] == "LOCK") ? true : false;
-		
+
 		if (!service.isVirtual) {
 			var propertyChanged = "value"; // subscribe to the changes of this property
 			if (service.HSBValue != undefined)
-				propertyChanged = "color";
-			if(service.operatingModeId != undefined) {
+				propertyChanged = "valueandcolor";
+			if (service.operatingModeId != undefined) {
 				if (characteristic.UUID == (new Characteristic.CurrentHeatingCoolingState()).UUID || characteristic.UUID == (new Characteristic.TargetHeatingCoolingState()).UUID) {
 					propertyChanged = "mode";
 				}
 			}
-			if(service.UUID == (Service.WindowCovering.UUID) && (characteristic.UUID == (new Characteristic.CurrentHorizontalTiltAngle).UUID)) {
+			if (service.UUID == (Service.WindowCovering.UUID) && (characteristic.UUID == (new Characteristic.CurrentHorizontalTiltAngle).UUID)) {
 				propertyChanged = "value2";
 			}
-			if(service.UUID == (Service.WindowCovering.UUID) && (characteristic.UUID == (new Characteristic.TargetHorizontalTiltAngle).UUID)) {
+			if (service.UUID == (Service.WindowCovering.UUID) && (characteristic.UUID == (new Characteristic.TargetHorizontalTiltAngle).UUID)) {
 				propertyChanged = "value2";
 			}
 			this.subscribeUpdate(service, characteristic, propertyChanged);
@@ -308,10 +310,10 @@ class FibaroHC2 {
 			}
 		});
 	}
-	
+
 	setCharacteristicValue(value, callback, context, characteristic, service, IDs) {
-		if( context !== 'fromFibaro' && context !== 'fromSetValue') {
-			let d = IDs[0] != "G" ? IDs[0]: IDs[1];
+		if (context !== 'fromFibaro' && context !== 'fromSetValue') {
+			let d = IDs[0] != "G" ? IDs[0] : IDs[1];
 			this.log("Setting value to device: ", `${d}  parameter: ${characteristic.displayName}`);
 			if (this.setFunctions) {
 				let setFunction = this.setFunctions.setFunctionsMapping.get(characteristic.UUID);
@@ -321,33 +323,33 @@ class FibaroHC2 {
 		}
 		callback();
 	}
-	
+
 	getCharacteristicValue(callback, characteristic, service, IDs) {
 		this.log("Getting value from device: ", `${IDs[0]}  parameter: ${characteristic.displayName}`);
 		// Manage security system status
-		if (service.isSecuritySystem) { 
+		if (service.isSecuritySystem) {
 			if (!this.fibaroClient) return;
 			this.fibaroClient.getGlobalVariable("SecuritySystem")
 				.then((securitySystemStatus) => {
 					if (this.getFunctions)
 						this.getFunctions.getSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus);
 				})
-				.catch((err) =>{
-					this.log("There was a problem getting value from Global Variable: SecuritySystem", ` - Err: ${err}` );
+				.catch((err) => {
+					this.log("There was a problem getting value from Global Variable: SecuritySystem", ` - Err: ${err}`);
 					callback(err, null);
 				});
 			return;
 		}
 		// Manage global variable switches
-		if (service.isGlobalVariableSwitch) { 
+		if (service.isGlobalVariableSwitch) {
 			if (!this.fibaroClient) return;
 			this.fibaroClient.getGlobalVariable(IDs[1])
 				.then((switchStatus) => {
 					if (this.getFunctions)
 						this.getFunctions.getBool(callback, characteristic, service, IDs, switchStatus);
 				})
-				.catch((err) =>{
-					this.log("There was a problem getting value from Global Variable: ", `${IDs[1]} - Err: ${err}` );
+				.catch((err) => {
+					this.log("There was a problem getting value from Global Variable: ", `${IDs[1]} - Err: ${err}`);
 					callback(err, null);
 				});
 			return;
@@ -355,33 +357,33 @@ class FibaroHC2 {
 		// Manage all other status
 		if (!this.getFunctions) return;
 		let getFunction = this.getFunctions.getFunctionsMapping.get(characteristic.UUID);
-		setTimeout( () => {
+		setTimeout(() => {
 			if (!this.fibaroClient) return;
 			this.fibaroClient.getDeviceProperties(IDs[0])
-			.then((properties:any) => {
-				if (getFunction.function) {
-					if (this.config.FibaroTemperatureUnit == "F") {
-						if (characteristic.displayName == 'Current Temperature') {
-							properties.value = (properties.value -32 ) * 5 / 9;
+				.then((properties: any) => {
+					if (getFunction.function) {
+						if (this.config.FibaroTemperatureUnit == "F") {
+							if (characteristic.displayName == 'Current Temperature') {
+								properties.value = (properties.value - 32) * 5 / 9;
+							}
 						}
+						getFunction.function.call(this.getFunctions, callback, characteristic, service, IDs, properties);
 					}
-					getFunction.function.call(this.getFunctions, callback, characteristic, service, IDs, properties);
-				}
-				else
-					callback(`No get function defined for: ${characteristic.displayName}`, null);
-			})
-			.catch((err) => {
-				this.log("There was a problem getting value from: ", `${IDs[0]} - Err: ${err}` );
-				callback(err, null);
-			});
-		}, getFunction.delay * 1000 );
+					else
+						callback(`No get function defined for: ${characteristic.displayName}`, null);
+				})
+				.catch((err) => {
+					this.log("There was a problem getting value from: ", `${IDs[0]} - Err: ${err}`);
+					callback(err, null);
+				});
+		}, getFunction.delay * 1000);
 	}
 
 	subscribeUpdate(service, characteristic, propertyChanged) {
 		var IDs = service.subtype.split("-"); 							// IDs[0] is always device ID; for virtual device IDs[1] is the button ID
 		this.updateSubscriptions.push({ 'id': IDs[0], 'service': service, 'characteristic': characteristic, "property": propertyChanged });
 	}
-	
+
 	mapSceneIDs(scenes) {
 		if (this.config.securitysystem == "enabled") {
 			scenes.map((s) => {
@@ -407,21 +409,21 @@ class FibaroHC2 {
 		if (this.config.IFTTTmakerkey == "") return;
 		if (val2 == undefined) val2 = "";
 		if (val3 == undefined) val3 = "";
-		
-		var url = "https://maker.ifttt.com/trigger/"+e+"/with/key/"+this.config.IFTTTmakerkey+"?value1="+val1+"&value2="+val2+"&value3="+val3;
+
+		var url = "https://maker.ifttt.com/trigger/" + e + "/with/key/" + this.config.IFTTTmakerkey + "?value1=" + val1 + "&value2=" + val2 + "&value3=" + val3;
 		var method = "get";
 		var that = this;
 		request({
-		  url: url,
-		  method: method
-		}, function(err, response) {
-		  if (err) {
-			that.log("There was a problem sending event: ", `${e}, to: ${that.config.IFTTTmakerkey} - Err: ${err}`);
-		  } else {
-			that.log("Sent event: ", `${e}, to: ${that.config.IFTTTmakerkey}, for ${val1}`);
-		  }
+			url: url,
+			method: method
+		}, function (err, response) {
+			if (err) {
+				that.log("There was a problem sending event: ", `${e}, to: ${that.config.IFTTTmakerkey} - Err: ${err}`);
+			} else {
+				that.log("Sent event: ", `${e}, to: ${that.config.IFTTTmakerkey}, for ${val1}`);
+			}
 		});
 	}
-	
+
 }
 

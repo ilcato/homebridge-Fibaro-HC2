@@ -108,6 +108,7 @@ export class Poller {
 		for (let i = 0; i < this.platform.updateSubscriptions.length; i++) {
 			let subscription = this.platform.updateSubscriptions[i];
 			let property = subscription.property;
+			if (property === "valueandcolor") property = "value";
 			if (subscription.id == change.id && ((property == "value" && change.value != undefined) || (property == "value2" && change.value2 != undefined))) {
 				if (this.platform.config.FibaroTemperatureUnit == "F") {
 					if (subscription.characteristic.displayName == "Current Temperature") {
@@ -128,7 +129,7 @@ export class Poller {
 	manageColor(change) {
 		for (let i = 0; i < this.platform.updateSubscriptions.length; i++) {
 			let subscription = this.platform.updateSubscriptions[i];
-			if (subscription.id == change.id && subscription.property == "color") {
+			if (subscription.id == change.id && subscription.property == "valueandcolor") {
 				let hsv = this.platform.getFunctions.updateHomeKitColorFromHomeCenter(change.color, subscription.service);
 				if (subscription.characteristic.UUID == (new this.hapCharacteristic.On()).UUID)
 					subscription.characteristic.updateValue(hsv.v == 0 ? false : true);
@@ -136,8 +137,8 @@ export class Poller {
 					subscription.characteristic.updateValue(Math.round(hsv.h));
 				else if (subscription.characteristic.UUID == (new this.hapCharacteristic.Saturation()).UUID)
 					subscription.characteristic.updateValue(Math.round(hsv.s));
-				else if (subscription.characteristic.UUID == (new this.hapCharacteristic.Brightness()).UUID)
-					subscription.characteristic.updateValue(Math.round(hsv.v));
+//				else if (subscription.characteristic.UUID == (new this.hapCharacteristic.Brightness()).UUID)
+//					subscription.characteristic.updateValue(Math.round(hsv.v));
 			}
 		}
 	}

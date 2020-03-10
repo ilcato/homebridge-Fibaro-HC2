@@ -264,10 +264,11 @@ export class ShadowAccessory {
 				break;
 			case "com.fibaro.FGRGBW441M":
 			case "com.fibaro.colorController":
+			case "com.fibaro.FGRGBW442CC":
 				let service = {controlService: new hapService.Lightbulb(device.name), characteristics: [hapCharacteristic.On, hapCharacteristic.Brightness, hapCharacteristic.Hue, hapCharacteristic.Saturation]};
 				service.controlService.HSBValue = {hue: 0, saturation: 0, brightness: 100};
 				service.controlService.RGBValue = {red: 0, green: 0, blue: 0, white: 0};
-				service.controlService.countColorCharacteristics = 0;
+				service.controlService.countColorCharacteristics = 2;
 				service.controlService.timeoutIdColorCharacteristics = 0;
 				service.controlService.subtype = device.id + "--RGB"; 								
 				ss =  [service];

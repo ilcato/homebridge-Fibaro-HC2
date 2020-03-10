@@ -16,7 +16,7 @@
 
 'use strict'
 
-import {lowestTemp, SetFunctions} from './setFunctions'
+import { lowestTemp, SetFunctions } from './setFunctions'
 
 export class GetFunctions {
 	hapCharacteristic: any;
@@ -24,57 +24,57 @@ export class GetFunctions {
 	getCurrentSecuritySystemStateMapping: Map<string, any>;
 	getTargetSecuritySystemStateMapping: Map<string, any>;
 	platform: any;
-	
+
 	constructor(hapCharacteristic, platform) {
 		this.hapCharacteristic = hapCharacteristic;
 		this.platform = platform;
-		
+
 		this.getFunctionsMapping = new Map([
-			[(new hapCharacteristic.On()).UUID, 						{"function": this.getBool, "delay": 0}],
-			[(new hapCharacteristic.Brightness()).UUID, 				{"function": this.getBrightness, "delay": 0}],
-			[(new hapCharacteristic.PositionState()).UUID, 				{"function": this.getPositionState, "delay": 0}],
-			[(new hapCharacteristic.CurrentPosition()).UUID, 			{"function": this.getCurrentPosition, "delay": 0}],
-			[(new hapCharacteristic.TargetPosition()).UUID, 			{"function": this.getCurrentPosition, "delay": 0}], 				// Manage the same as currentPosition
-			[(new hapCharacteristic.CurrentHorizontalTiltAngle()).UUID,	{"function": this.getCurrentTiltAngle, "delay": 0}],
-			[(new hapCharacteristic.TargetHorizontalTiltAngle()).UUID,	{"function": this.getCurrentTiltAngle, "delay": 0}],
-			[(new hapCharacteristic.MotionDetected()).UUID, 			{"function": this.getBool, "delay": 0}],
-			[(new hapCharacteristic.CurrentTemperature()).UUID, 		{"function": this.getFloat, "delay": 0}],
-			[(new hapCharacteristic.TargetTemperature()).UUID, 			{"function": this.getTargetTemperature, "delay": 0}],
-			[(new hapCharacteristic.CurrentRelativeHumidity()).UUID, 	{"function": this.getFloat, "delay": 0}],
-			[(new hapCharacteristic.ContactSensorState()).UUID, 		{"function": this.getContactSensorState, "delay": 0}],
-			[(new hapCharacteristic.LeakDetected()).UUID, 				{"function": this.getLeakDetected, "delay": 0}],
-			[(new hapCharacteristic.SmokeDetected()).UUID, 				{"function": this.getSmokeDetected, "delay": 0}],
-			[(new hapCharacteristic.CarbonMonoxideDetected()).UUID, 	{"function": this.getCarbonMonoxideDetected, "delay": 0}],
-			[(new hapCharacteristic.CarbonMonoxideLevel()).UUID, 		{"function": this.getFloat, "delay": 0}],
-			[(new hapCharacteristic.CarbonMonoxidePeakLevel()).UUID, 	{"function": this.getFloat, "delay": 0}],
-			[(new hapCharacteristic.CurrentAmbientLightLevel()).UUID, 	{"function": this.getFloat, "delay": 0}],
-			[(new hapCharacteristic.OutletInUse()).UUID, 				{"function": this.getOutletInUse, "delay": 0}],
-			[(new hapCharacteristic.LockCurrentState()).UUID, 			{"function": this.getLockCurrentState, "delay": this.platform.config.LockCurrentStateDelay}],
-			[(new hapCharacteristic.LockTargetState()).UUID, 			{"function": this.getLockCurrentState, "delay": this.platform.config.LockTargetStateDelay}], 				// Manage the same as currentState
-			[(new hapCharacteristic.CurrentHeatingCoolingState()).UUID, {"function": this.getCurrentHeatingCoolingState, "delay": 0}], 
-			[(new hapCharacteristic.TargetHeatingCoolingState()).UUID, 	{"function": this.getTargetHeatingCoolingState, "delay": 0}],
-			[(new hapCharacteristic.TemperatureDisplayUnits()).UUID, 	{"function": this.getTemperatureDisplayUnits, "delay": 0}],
-			[(new hapCharacteristic.Hue()).UUID, 						{"function": this.getHue, "delay": 0}],
-			[(new hapCharacteristic.Saturation()).UUID, 				{"function": this.getSaturation, "delay": 0}],
-			[(new hapCharacteristic.CurrentDoorState()).UUID, 			{"function": this.getCurrentDoorState, "delay": 0}],			
-			[(new hapCharacteristic.TargetDoorState()).UUID, 			{"function": this.getCurrentDoorState, "delay": 0}],
-			[(new hapCharacteristic.ObstructionDetected()).UUID, 		{"function": this.getObstructionDetected, "delay": 0}],
-			[(new hapCharacteristic.BatteryLevel()).UUID, 				{"function": this.getBatteryLevel, "delay": 0}],
-			[(new hapCharacteristic.ChargingState()).UUID, 				{"function": this.getChargingState, "delay": 0}],
-			[(new hapCharacteristic.StatusLowBattery()).UUID, 			{"function": this.getStatusLowBattery, "delay": 0}]
+			[(new hapCharacteristic.On()).UUID, { "function": this.getBool, "delay": 0 }],
+			[(new hapCharacteristic.Brightness()).UUID, { "function": this.getBrightness, "delay": 0 }],
+			[(new hapCharacteristic.PositionState()).UUID, { "function": this.getPositionState, "delay": 0 }],
+			[(new hapCharacteristic.CurrentPosition()).UUID, { "function": this.getCurrentPosition, "delay": 0 }],
+			[(new hapCharacteristic.TargetPosition()).UUID, { "function": this.getCurrentPosition, "delay": 0 }], 				// Manage the same as currentPosition
+			[(new hapCharacteristic.CurrentHorizontalTiltAngle()).UUID, { "function": this.getCurrentTiltAngle, "delay": 0 }],
+			[(new hapCharacteristic.TargetHorizontalTiltAngle()).UUID, { "function": this.getCurrentTiltAngle, "delay": 0 }],
+			[(new hapCharacteristic.MotionDetected()).UUID, { "function": this.getBool, "delay": 0 }],
+			[(new hapCharacteristic.CurrentTemperature()).UUID, { "function": this.getFloat, "delay": 0 }],
+			[(new hapCharacteristic.TargetTemperature()).UUID, { "function": this.getTargetTemperature, "delay": 0 }],
+			[(new hapCharacteristic.CurrentRelativeHumidity()).UUID, { "function": this.getFloat, "delay": 0 }],
+			[(new hapCharacteristic.ContactSensorState()).UUID, { "function": this.getContactSensorState, "delay": 0 }],
+			[(new hapCharacteristic.LeakDetected()).UUID, { "function": this.getLeakDetected, "delay": 0 }],
+			[(new hapCharacteristic.SmokeDetected()).UUID, { "function": this.getSmokeDetected, "delay": 0 }],
+			[(new hapCharacteristic.CarbonMonoxideDetected()).UUID, { "function": this.getCarbonMonoxideDetected, "delay": 0 }],
+			[(new hapCharacteristic.CarbonMonoxideLevel()).UUID, { "function": this.getFloat, "delay": 0 }],
+			[(new hapCharacteristic.CarbonMonoxidePeakLevel()).UUID, { "function": this.getFloat, "delay": 0 }],
+			[(new hapCharacteristic.CurrentAmbientLightLevel()).UUID, { "function": this.getFloat, "delay": 0 }],
+			[(new hapCharacteristic.OutletInUse()).UUID, { "function": this.getOutletInUse, "delay": 0 }],
+			[(new hapCharacteristic.LockCurrentState()).UUID, { "function": this.getLockCurrentState, "delay": this.platform.config.LockCurrentStateDelay }],
+			[(new hapCharacteristic.LockTargetState()).UUID, { "function": this.getLockCurrentState, "delay": this.platform.config.LockTargetStateDelay }], 				// Manage the same as currentState
+			[(new hapCharacteristic.CurrentHeatingCoolingState()).UUID, { "function": this.getCurrentHeatingCoolingState, "delay": 0 }],
+			[(new hapCharacteristic.TargetHeatingCoolingState()).UUID, { "function": this.getTargetHeatingCoolingState, "delay": 0 }],
+			[(new hapCharacteristic.TemperatureDisplayUnits()).UUID, { "function": this.getTemperatureDisplayUnits, "delay": 0 }],
+			[(new hapCharacteristic.Hue()).UUID, { "function": this.getHue, "delay": 0 }],
+			[(new hapCharacteristic.Saturation()).UUID, { "function": this.getSaturation, "delay": 0 }],
+			[(new hapCharacteristic.CurrentDoorState()).UUID, { "function": this.getCurrentDoorState, "delay": 0 }],
+			[(new hapCharacteristic.TargetDoorState()).UUID, { "function": this.getCurrentDoorState, "delay": 0 }],
+			[(new hapCharacteristic.ObstructionDetected()).UUID, { "function": this.getObstructionDetected, "delay": 0 }],
+			[(new hapCharacteristic.BatteryLevel()).UUID, { "function": this.getBatteryLevel, "delay": 0 }],
+			[(new hapCharacteristic.ChargingState()).UUID, { "function": this.getChargingState, "delay": 0 }],
+			[(new hapCharacteristic.StatusLowBattery()).UUID, { "function": this.getStatusLowBattery, "delay": 0 }]
 		]);
 		this.getCurrentSecuritySystemStateMapping = new Map([
-			["AwayArmed", 	this.hapCharacteristic.SecuritySystemCurrentState.AWAY_ARM],
-			["Disarmed", 	this.hapCharacteristic.SecuritySystemCurrentState.DISARMED],
-			["NightArmed", 	this.hapCharacteristic.SecuritySystemCurrentState.NIGHT_ARM],
-			["StayArmed", 	this.hapCharacteristic.SecuritySystemCurrentState.STAY_ARM],
+			["AwayArmed", this.hapCharacteristic.SecuritySystemCurrentState.AWAY_ARM],
+			["Disarmed", this.hapCharacteristic.SecuritySystemCurrentState.DISARMED],
+			["NightArmed", this.hapCharacteristic.SecuritySystemCurrentState.NIGHT_ARM],
+			["StayArmed", this.hapCharacteristic.SecuritySystemCurrentState.STAY_ARM],
 			["AlarmTriggered", this.hapCharacteristic.SecuritySystemCurrentState.ALARM_TRIGGERED]
 		]);
 		this.getTargetSecuritySystemStateMapping = new Map([
-			["AwayArmed", 	this.hapCharacteristic.SecuritySystemTargetState.AWAY_ARM],
-			["Disarmed", 	this.hapCharacteristic.SecuritySystemTargetState.DISARM],
-			["NightArmed", 	this.hapCharacteristic.SecuritySystemTargetState.NIGHT_ARM],
-			["StayArmed", 	this.hapCharacteristic.SecuritySystemTargetState.STAY_ARM]
+			["AwayArmed", this.hapCharacteristic.SecuritySystemTargetState.AWAY_ARM],
+			["Disarmed", this.hapCharacteristic.SecuritySystemTargetState.DISARM],
+			["NightArmed", this.hapCharacteristic.SecuritySystemTargetState.NIGHT_ARM],
+			["StayArmed", this.hapCharacteristic.SecuritySystemTargetState.STAY_ARM]
 		]);
 	}
 
@@ -85,11 +85,11 @@ export class GetFunctions {
 			characteristic.updateValue(r);
 	}
 	// Boolean getter
-	getBool(callback, characteristic, service, IDs, properties) { 
+	getBool(callback, characteristic, service, IDs, properties) {
 		let v = properties.value;
 		if (v) {
 			let r = (v == "true" || v == "false") ?
-				((v == "false") ? false : true)   :
+				((v == "false") ? false : true) :
 				((parseInt(v) == 0) ? false : true);
 			this.returnValue(r, callback, characteristic);
 		} else {
@@ -101,30 +101,30 @@ export class GetFunctions {
 	getFloat(callback, characteristic, service, IDs, properties) {
 		let r = parseFloat(properties.value);
 
-		if(service.floatServiceId) {
+		if (service.floatServiceId) {
 			this.platform.fibaroClient.getDeviceProperties(service.floatServiceId)
-			.then((properties) => {
-				r = parseFloat(properties.value);
-				this.returnValue(r, callback, characteristic);
-			})
-			.catch((err) => {
-				console.log("There was a problem getting value from: ", `${service.floatServiceId} - Err: ${err}` );
-				callback(err, null);
-			});
+				.then((properties) => {
+					r = parseFloat(properties.value);
+					this.returnValue(r, callback, characteristic);
+				})
+				.catch((err) => {
+					console.log("There was a problem getting value from: ", `${service.floatServiceId} - Err: ${err}`);
+					callback(err, null);
+				});
 		} else {
 			this.returnValue(r, callback, characteristic);
 		}
 	}
 	getBrightness(callback, characteristic, service, IDs, properties) {
 		let r;
-		if (service.HSBValue != null) {
-			let hsv = this.updateHomeKitColorFromHomeCenter(properties.color, service);
-			r = Math.round(hsv.v);
-		} else {
-			r = parseFloat(properties.value);
-			if (r == 99)
-				r = 100;
-		}
+		//		if (service.HSBValue != null) {
+		//			let hsv = this.updateHomeKitColorFromHomeCenter(properties.color, service);
+		//			r = Math.round(hsv.v);
+		//		} else {
+		r = parseFloat(properties.value);
+		if (r == 99)
+			r = 100;
+		//	}
 		this.returnValue(r, callback, characteristic);
 	}
 	getPositionState(callback, characteristic, service, IDs, properties) {
@@ -184,25 +184,25 @@ export class GetFunctions {
 	getCurrentHeatingCoolingState(callback, characteristic, service, IDs, properties) {
 		if (service.operatingModeId) {	// Operating mode is availble on Home Center
 			this.platform.fibaroClient.getDeviceProperties(service.operatingModeId)
-			.then((properties) => {
-				switch(properties.mode) {
-					case "0": // OFF
-						this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.OFF, callback, characteristic);
-						break;
-					case "1": // HEAT
-						this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
-						break;
-					case "2": // COOL
-						this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.COOL, callback, characteristic);
-						break;
-					default:
-						break;					
-				}
-			})
-			.catch((err) => {
-				this.platform.log("There was a problem getting value from: ", `${service.operatingModeId} - Err: ${err}` );
-				callback(err, null);
-			});
+				.then((properties) => {
+					switch (properties.mode) {
+						case "0": // OFF
+							this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.OFF, callback, characteristic);
+							break;
+						case "1": // HEAT
+							this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
+							break;
+						case "2": // COOL
+							this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.COOL, callback, characteristic);
+							break;
+						default:
+							break;
+					}
+				})
+				.catch((err) => {
+					this.platform.log("There was a problem getting value from: ", `${service.operatingModeId} - Err: ${err}`);
+					callback(err, null);
+				});
 		} else {
 			if (this.platform.config.enablecoolingstatemanagemnt == "on") { // Simulated operating mode
 				let t = parseFloat(properties.value);
@@ -211,35 +211,35 @@ export class GetFunctions {
 				else
 					this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
 			} else { // Fake simulated mode: always heat
-					this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
+				this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
 			}
 		}
 	}
 	getTargetHeatingCoolingState(callback, characteristic, service, IDs, properties) {
 		if (service.operatingModeId) {	// Operating mode is availble on Home Center
 			this.platform.fibaroClient.getDeviceProperties(service.operatingModeId)
-			.then((properties) => {
-				switch(properties.mode) {
-					case "0": // OFF
-						this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.OFF, callback, characteristic);
-						break;
-					case "1": // HEAT
-						this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);
-						break;
-					case "2": // COOL
-						this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.COOL, callback, characteristic);
-						break;
-					case "10": // AUTO
-						this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.AUTO, callback, characteristic);
-						break;
-					default:
-						break;					
-				}
-			})
-			.catch((err) => {
-				this.platform.log("There was a problem getting value from: ", `${service.operatingModeId} - Err: ${err}` );
-				callback(err, null);
-			});
+				.then((properties) => {
+					switch (properties.mode) {
+						case "0": // OFF
+							this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.OFF, callback, characteristic);
+							break;
+						case "1": // HEAT
+							this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);
+							break;
+						case "2": // COOL
+							this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.COOL, callback, characteristic);
+							break;
+						case "10": // AUTO
+							this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.AUTO, callback, characteristic);
+							break;
+						default:
+							break;
+					}
+				})
+				.catch((err) => {
+					this.platform.log("There was a problem getting value from: ", `${service.operatingModeId} - Err: ${err}`);
+					callback(err, null);
+				});
 		} else {
 			if (this.platform.config.enablecoolingstatemanagemnt == "on") {
 				let t = parseFloat(properties.targetLevel);
@@ -248,21 +248,23 @@ export class GetFunctions {
 				else
 					this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.HEAT, callback, characteristic);
 			} else {
-					this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
+				this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.HEAT, callback, characteristic);
 			}
 		}
-	}	
+	}
 	getTemperatureDisplayUnits(callback, characteristic, service, IDs, properties) {
 		this.returnValue(this.hapCharacteristic.TemperatureDisplayUnits.CELSIUS, callback, characteristic);
 	}
 	getHue(callback, characteristic, service, IDs, properties) {
-		this.returnValue(Math.round(this.updateHomeKitColorFromHomeCenter(properties.color, service).h), callback, characteristic);
+		if (properties.color)
+			this.returnValue(Math.round(this.updateHomeKitColorFromHomeCenter(properties.color, service).h), callback, characteristic);
 	}
 	getSaturation(callback, characteristic, service, IDs, properties) {
-		this.returnValue(Math.round(this.updateHomeKitColorFromHomeCenter(properties.color, service).s), callback, characteristic);
+		if (properties.color)
+			this.returnValue(Math.round(this.updateHomeKitColorFromHomeCenter(properties.color, service).s), callback, characteristic);
 	}
 	getCurrentDoorState(callback, characteristic, service, IDs, properties) {
-		this.returnValue(properties.state == "Closed" ?  this.hapCharacteristic.CurrentDoorState.CLOSED : this.hapCharacteristic.CurrentDoorState.OPEN, callback, characteristic);
+		this.returnValue(properties.state == "Closed" ? this.hapCharacteristic.CurrentDoorState.CLOSED : this.hapCharacteristic.CurrentDoorState.OPEN, callback, characteristic);
 	}
 	getObstructionDetected(callback, characteristic, service, IDs, properties) {
 		this.returnValue(0, callback, characteristic);
@@ -274,11 +276,11 @@ export class GetFunctions {
 	getChargingState(callback, characteristic, service, IDs, properties) {
 		let r = 0;//parseFloat(properties.batteryLevel);
 		this.returnValue(r, callback, characteristic);
-	}	
+	}
 	getStatusLowBattery(callback, characteristic, service, IDs, properties) {
-		let r = parseFloat(properties.batteryLevel) <=30 ? 1 : 0;
+		let r = parseFloat(properties.batteryLevel) <= 30 ? 1 : 0;
 		this.returnValue(r, callback, characteristic);
-	}	
+	}
 	getSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus) {
 		let r;
 		if (characteristic.UUID == (new this.hapCharacteristic.SecuritySystemCurrentState()).UUID) {
@@ -305,7 +307,7 @@ export class GetFunctions {
 		service.HSBValue.hue = hsv.h;
 		service.HSBValue.saturation = hsv.s;
 		service.HSBValue.brightness = hsv.v;
-		return hsv;  	
+		return hsv;
 	}
 	RGBtoHSV(r, g, b, w) {
 		if (arguments.length === 1) {
@@ -320,7 +322,7 @@ export class GetFunctions {
 
 		switch (max) {
 			case min: h = 0; break;
-			case r: h = (g - b) + d * (g < b ? 6: 0); h /= 6 * d; break;
+			case r: h = (g - b) + d * (g < b ? 6 : 0); h /= 6 * d; break;
 			case g: h = (b - r) + d * 2; h /= 6 * d; break;
 			case b: h = (r - g) + d * 4; h /= 6 * d; break;
 		}
