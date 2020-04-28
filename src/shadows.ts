@@ -22,7 +22,7 @@ export const platformName = 'FibaroHC2'
 export class ShadowService {
 	controlService: any;
 	characteristics: any[];
-	
+
 	constructor(controlService, characteristics: any[]) {
 		this.controlService = controlService;
 		this.characteristics = characteristics;
@@ -41,7 +41,7 @@ export class ShadowAccessory {
 	platform: any;
 	isSecuritySystem: boolean;
 	device: any;
-	
+
 	constructor(device: any, services: ShadowService[], hapAccessory: any, hapService: any, hapCharacteristic: any, platform, isSecurritySystem?: boolean) {
 		this.name = device.name;
 		this.roomID = device.roomID;
@@ -53,8 +53,8 @@ export class ShadowAccessory {
 		this.platform = platform;
 		this.isSecuritySystem = isSecurritySystem ? isSecurritySystem : false;
 		this.device = { id: device.id, name: device.name, type: device.type, properties: device.properties };
-		
-		for (let i=0; i < services.length; i++ ) {
+
+		for (let i = 0; i < services.length; i++) {
 			if (services[i].controlService.subtype == undefined)
 				services[i].controlService.subtype = device.id + "----"			// DEVICE_ID-VIRTUAL_BUTTON_ID-RGB_MARKER-OPERATING_MODE_ID-PLUGIN_MARKER
 		}
@@ -69,21 +69,21 @@ export class ShadowAccessory {
 			.setCharacteristic(this.hapCharacteristic.SerialNumber, `${properties.serialNumber || "<unknown>"}`)
 			.setCharacteristic(this.hapCharacteristic.FirmwareRevision, properties.zwaveVersion);
 	}
-  	removeNoMoreExistingServices() {
+	removeNoMoreExistingServices() {
 		for (let t = 0; t < this.accessory.services.length; t++) {
 			let found = false;
 			for (let s = 0; s < this.services.length; s++) {
 				// TODO: check why test for undefined
 				if (this.accessory.services[t].displayName == undefined || this.services[s].controlService.displayName == this.accessory.services[t].displayName) {
 					found = true;
-					break;	  		
+					break;
 				}
 			}
-			if (!found) {
-				this.accessory.removeService(this.accessory	.services[t]);
+			if (!found && this.accessory.services[t].UUID !== "0000003E-0000-1000-8000-0026BB765291") { // Accessory Information must be present
+				this.accessory.removeService(this.accessory.services[t]);
 			}
-		}    
-  	}
+		}
+	}
 
 	addNewServices(platform) {
 		for (let s = 0; s < this.services.length; s++) {
@@ -107,7 +107,7 @@ export class ShadowAccessory {
 			}
 		}
 	}
-	
+
 	registerUpdateAccessory(isNewAccessory, api) {
 		if (isNewAccessory)
 			api.registerPlatformAccessories(pluginName, platformName, [this.accessory]);
@@ -115,20 +115,20 @@ export class ShadowAccessory {
 			api.updatePlatformAccessories([this.accessory]);
 		this.accessory.reviewed = true; // Mark accessory as reviewed in order to remove the not reviewed ones
 	}
-	
-  	setAccessory(accessory) {
-		this.accessory = accessory;
-  	}
 
-  	static createShadowAccessory(device, siblings, hapAccessory, hapService, hapCharacteristic, platform) {
+	setAccessory(accessory) {
+		this.accessory = accessory;
+	}
+
+	static createShadowAccessory(device, siblings, hapAccessory, hapService, hapCharacteristic, platform) {
 		let ss;
 		let controlService, controlCharacteristics;
 
-		switch(device.type) {
-  			case "com.fibaro.multilevelSwitch":
-  			case "com.fibaro.FGD212":
-				case "com.fibaro.FGWD111":
-						switch (device.properties.deviceControlType) {
+		switch (device.type) {
+			case "com.fibaro.multilevelSwitch":
+			case "com.fibaro.FGD212":
+			case "com.fibaro.FGWD111":
+				switch (device.properties.deviceControlType) {
 					case "2": // Lighting
 					case "23": // Lighting
 						controlService = new hapService.Lightbulb(device.name);
@@ -138,12 +138,12 @@ export class ShadowAccessory {
 						controlService = new hapService.Switch(device.name);
 						controlCharacteristics = [hapCharacteristic.On];
 						break;
-					}
-					ss = [new ShadowService(controlService, controlCharacteristics)];
-					break;
+				}
+				ss = [new ShadowService(controlService, controlCharacteristics)];
+				break;
 			case "com.fibaro.binarySwitch":
 			case "com.fibaro.developer.bxs.virtualBinarySwitch":
-			case "com.fibaro.satelOutput":	
+			case "com.fibaro.satelOutput":
 			case "com.fibaro.FGWDS221":
 				switch (device.properties.deviceControlType) {
 					case "2": // Lighting
@@ -191,7 +191,7 @@ export class ShadowAccessory {
 			case "com.fibaro.FGMS001v2":
 			case "com.fibaro.motionSensor":
 				ss = [new ShadowService(new hapService.MotionSensor(device.name), [hapCharacteristic.MotionDetected])];
-				break; 
+				break;
 			case "com.fibaro.temperatureSensor":
 				ss = [new ShadowService(new hapService.TemperatureSensor(device.name), [hapCharacteristic.CurrentTemperature])];
 				break;
@@ -200,7 +200,7 @@ export class ShadowAccessory {
 				break;
 			case "com.fibaro.doorSensor":
 			case "com.fibaro.windowSensor":
-			case "com.fibaro.satelZone":	
+			case "com.fibaro.satelZone":
 				ss = [new ShadowService(new hapService.ContactSensor(device.name), [hapCharacteristic.ContactSensorState])];
 				break;
 			case "com.fibaro.FGFS101":
@@ -241,7 +241,7 @@ export class ShadowAccessory {
 				}
 				// Check if there's a temperature Sensor and use it instead of the provided float value
 				let t = siblings.get("com.fibaro.temperatureSensor");
-				if(t) {
+				if (t) {
 					controlService.floatServiceId = t.id;
 					controlService.subtype = (controlService.subtype || device.id + "----") + t.id;
 				}
@@ -253,11 +253,11 @@ export class ShadowAccessory {
 				for (let r = 0; r < device.properties.rows.length; r++) {
 					if (device.properties.rows[r].type == "button") {
 						for (let e = 0; e < device.properties.rows[r].elements.length; e++) {
-							pushButtonService = new ShadowService(new hapService.Switch(device.properties.rows[r].elements[e].caption),	[hapCharacteristic.On]);
-							pushButtonService.controlService.subtype = device.id + "-" + device.properties.rows[r].elements[e].id; 
+							pushButtonService = new ShadowService(new hapService.Switch(device.properties.rows[r].elements[e].caption), [hapCharacteristic.On]);
+							pushButtonService.controlService.subtype = device.id + "-" + device.properties.rows[r].elements[e].id;
 							pushButtonServices.push(pushButtonService);
 						}
-					} 
+					}
 				}
 				if (pushButtonServices.length > 0)
 					ss = pushButtonServices;
@@ -265,13 +265,13 @@ export class ShadowAccessory {
 			case "com.fibaro.FGRGBW441M":
 			case "com.fibaro.colorController":
 			case "com.fibaro.FGRGBW442CC":
-				let service = {controlService: new hapService.Lightbulb(device.name), characteristics: [hapCharacteristic.On, hapCharacteristic.Brightness, hapCharacteristic.Hue, hapCharacteristic.Saturation]};
-				service.controlService.HSBValue = {hue: 0, saturation: 0, brightness: 100};
-				service.controlService.RGBValue = {red: 0, green: 0, blue: 0, white: 0};
+				let service = { controlService: new hapService.Lightbulb(device.name), characteristics: [hapCharacteristic.On, hapCharacteristic.Brightness, hapCharacteristic.Hue, hapCharacteristic.Saturation] };
+				service.controlService.HSBValue = { hue: 0, saturation: 0, brightness: 100 };
+				service.controlService.RGBValue = { red: 0, green: 0, blue: 0, white: 0 };
 				service.controlService.countColorCharacteristics = 2;
 				service.controlService.timeoutIdColorCharacteristics = 0;
-				service.controlService.subtype = device.id + "--RGB"; 								
-				ss =  [service];
+				service.controlService.subtype = device.id + "--RGB";
+				ss = [service];
 				break;
 			case "com.fibaro.logitechHarmonyActivity":
 				controlService = new hapService.Switch(device.name);
@@ -280,25 +280,25 @@ export class ShadowAccessory {
 				break;
 			default:
 				break
-  		}
-  		if (!ss) {
+		}
+		if (!ss) {
 			return undefined;
 		}
-		
+
 		if (device.interfaces && device.interfaces.includes("battery")) {
 			ss.push(new ShadowService(new hapService.BatteryService(device.name), [hapCharacteristic.BatteryLevel, hapCharacteristic.ChargingState, hapCharacteristic.StatusLowBattery]))
-		} 
-		
-  		return new ShadowAccessory(device, ss, hapAccessory, hapService, hapCharacteristic, platform);
-  	}
+		}
+
+		return new ShadowAccessory(device, ss, hapAccessory, hapService, hapCharacteristic, platform);
+	}
 	static createShadowSecuritySystemAccessory(device, hapAccessory, hapService, hapCharacteristic, platform) {
 		let service = new ShadowService(new hapService.SecuritySystem("FibaroSecuritySystem"), [hapCharacteristic.SecuritySystemCurrentState, hapCharacteristic.SecuritySystemTargetState]);
 		service.controlService.subtype = "0--";
-  		return new ShadowAccessory(device, [service], hapAccessory, hapService, hapCharacteristic, platform, true);
-	}  	
+		return new ShadowAccessory(device, [service], hapAccessory, hapService, hapCharacteristic, platform, true);
+	}
 	static createShadowGlobalVariableSwitchAccessory(device, hapAccessory, hapService, hapCharacteristic, platform) {
 		let service = new ShadowService(new hapService.Switch(device.name), [hapCharacteristic.On]);
 		service.controlService.subtype = `G-${device.name}-`;
-  		return new ShadowAccessory(device, [service], hapAccessory, hapService, hapCharacteristic, platform, true);
-	}  	
+		return new ShadowAccessory(device, [service], hapAccessory, hapService, hapCharacteristic, platform, true);
+	}
 }
