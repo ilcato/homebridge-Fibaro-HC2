@@ -25,6 +25,9 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.3.3
++ Fixed compatibility with changes on Fibaro API
+
 Version 2.3.2
 + Fixed compatibility with homebridge 1.*
 
