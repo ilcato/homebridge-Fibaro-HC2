@@ -25,6 +25,9 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.3.6
++ Yet another fix to venetian blind device issue
+
 Version 2.3.5
 + Further fix to venetian blind device issue
 
