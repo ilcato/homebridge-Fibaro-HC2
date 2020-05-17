@@ -1,4 +1,7 @@
-# homebridge-Fibaro-HC2 [![npm version](https://badge.fury.io/js/homebridge-fibaro-hc2.svg)](https://badge.fury.io/js/homebridge-fibaro-hc2)
+# homebridge-Fibaro-HC2
+[![npm version](https://badge.fury.io/js/homebridge-fibaro-hc2.svg)](https://badge.fury.io/js/homebridge-fibaro-hc2)
+[![Downloads](https://img.shields.io/npm/dt/homebridge-fibaro-hc2)](https://www.npmjs.com/package/homebridge-fibaro-hc2)
+
 <a href="https://www.buymeacoffee.com/ilcato" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" style="height: 51px !important;width: 217px !important;" ></a>
 
 Homebridge plugin for Fibaro Home Center 2
