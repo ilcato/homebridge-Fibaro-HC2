@@ -1,6 +1,7 @@
 # homebridge-Fibaro-HC2
 [![npm version](https://badge.fury.io/js/homebridge-fibaro-hc2.svg)](https://badge.fury.io/js/homebridge-fibaro-hc2)
 [![Downloads](https://img.shields.io/npm/dt/homebridge-fibaro-hc2)](https://www.npmjs.com/package/homebridge-fibaro-hc2)
+[![Homebridge Discord](https://img.shields.io/discord/432663330281226270?color=728ED5&logo=discord&label=discord)](https://discord.gg/38Dpux)
 
 <a href="https://www.buymeacoffee.com/ilcato" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" style="height: 51px !important;width: 217px !important;" ></a>
 
