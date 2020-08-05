@@ -243,11 +243,11 @@ export class ShadowAccessory {
 				let t = siblings.get("com.fibaro.temperatureSensor");
 				if (t) {
 					controlService.floatServiceId = t.id;
-                    if (controlService.subtype) {
-                        controlService.subtype = controlService.subtype + "-" + t.id;
-                    } else {
-                        controlService.subtype = device.id + "----" + t.id;
-                    }
+					if (controlService.subtype) {
+						controlService.subtype = controlService.subtype + "-" + t.id;
+					} else {
+						controlService.subtype = device.id + "----" + t.id;
+					}
 				}
 				ss = [new ShadowService(controlService, controlCharacteristics)];
 				break;
