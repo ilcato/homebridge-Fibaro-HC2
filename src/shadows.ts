@@ -165,7 +165,8 @@ export class ShadowAccessory {
 				ss = [new ShadowService(controlService, controlCharacteristics)];
 				break;
 			case "com.fibaro.barrier":
-				ss = [new ShadowService(new hapService.GarageDoorOpener(device.name), [hapCharacteristic.CurrentDoorState, hapCharacteristic.TargetDoorState, hapCharacteristic.ObstructionDetected])];
+			case "com.fibaro.baseShutter":
+					ss = [new ShadowService(new hapService.GarageDoorOpener(device.name), [hapCharacteristic.CurrentDoorState, hapCharacteristic.TargetDoorState, hapCharacteristic.ObstructionDetected])];
 				break;
 			case "com.fibaro.FGR221":
 			case "com.fibaro.FGRM222":
@@ -199,6 +200,7 @@ export class ShadowAccessory {
 				ss = [new ShadowService(new hapService.HumiditySensor(device.name), [hapCharacteristic.CurrentRelativeHumidity])];
 				break;
 			case "com.fibaro.doorSensor":
+			case "com.fibaro.FGDW002":
 			case "com.fibaro.windowSensor":
 			case "com.fibaro.satelZone":
 				ss = [new ShadowService(new hapService.ContactSensor(device.name), [hapCharacteristic.ContactSensorState])];

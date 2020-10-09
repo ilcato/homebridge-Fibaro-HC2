@@ -31,6 +31,10 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.3.7
++ added support for com.fibaro.FGDW002
++ added support for com.fibaro.baseShutter
+
 Version 2.3.6
 + Yet another fix to venetian blind device issue
 
