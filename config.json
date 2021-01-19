@@ -5,7 +5,7 @@
         "port": 51826,
         "pin": "031-45-154"
     },
-    
+
     "description": "This is an example configuration file. You can use this as a template for creating your own configuration file.",
 
     "platforms": [
@@ -18,6 +18,8 @@
             "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 2 SECONDS IS THE DEFAULT",
             "securitysystem": "PUT enabled OR disabled IN ORDER TO MANAGE THE AVAILABILITY OF THE SECURITY SYSTEM",
             "switchglobalvariables": "PUT A COMMA SEPARATED LIST OF HOME CENTER GLOBAL VARIABLES ACTING LIKE A BISTABLE SWITCH",
+            "adminUsername": "PUT ADMIN USERNAME OF YOUR HC2 HERE TO SET GLOBAL VARIABLES",
+            "adminPassword": "PUT ADMIN PASSWORD OF YOUR HC2 HERE TO SET GLOBAL VARIABLES",
             "thermostattimeout": "PUT THE NUMBER OF SECONDS FOR THE THERMOSTAT TIMEOUT, DEFAULT: 7200 (2 HOURS). PUT 0 FOR INFINITE",
             "enablecoolingstatemanagemnt": "PUT on TO AUTOMATICALLY MANAGE HEATING STATE FOR THERMOSTAT, off TO DISABLE IT. DEFAULT off",
             "doorlocktimeout": "PUT 0 FOR DISABLING THE CHECK. PUT A POSITIVE INTEGER N NUMBER ENABLE IT AFTER N SECONDS. DEFAULT 0",
