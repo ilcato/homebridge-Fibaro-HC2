@@ -67,7 +67,7 @@ export class ShadowAccessory {
 			.setCharacteristic(this.hapCharacteristic.Manufacturer, manufacturer)
 			.setCharacteristic(this.hapCharacteristic.Model, `${this.device.type || "HomeCenterBridgedAccessory"}`)
 			.setCharacteristic(this.hapCharacteristic.SerialNumber, `${properties.serialNumber || "<unknown>"}`)
-			.setCharacteristic(this.hapCharacteristic.FirmwareRevision, properties.zwaveVersion);
+			.setCharacteristic(this.hapCharacteristic.FirmwareRevision, "-");
 	}
 	removeNoMoreExistingServices() {
 		for (let t = 0; t < this.accessory.services.length; t++) {
