@@ -87,15 +87,17 @@ export class GetFunctions {
 	// Boolean getter
 	getBool(callback, characteristic, service, IDs, properties) {
 		let v = properties.value;
-		if (v) {
-			let r = (v == "true" || v == "false") ?
+		if (v !== undefined) {
+			if (typeof v !== "boolean") {
+				v = (v == "true" || v == "false") ?
 				((v == "false") ? false : true) :
 				((parseInt(v) == 0) ? false : true);
-			this.returnValue(r, callback, characteristic);
+			}
 		} else {
 			v = properties["ui.startStopActivitySwitch.value"];
-			this.returnValue(v, callback, characteristic);
+			if (v == undefined) v = false;
 		}
+		this.returnValue(v, callback, characteristic);
 	}
 	// Float getter
 	getFloat(callback, characteristic, service, IDs, properties) {
@@ -281,7 +283,7 @@ export class GetFunctions {
 		let r = parseFloat(properties.batteryLevel) <= 30 ? 1 : 0;
 		this.returnValue(r, callback, characteristic);
 	}
-	getSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus) {
+	getSecuritySystemState(callback, characteristic, service, IDs, securitySystemStatus) {
 		let r;
 		if (characteristic.UUID == (new this.hapCharacteristic.SecuritySystemCurrentState()).UUID) {
 			r = this.getCurrentSecuritySystemStateMapping.get(securitySystemStatus.value);

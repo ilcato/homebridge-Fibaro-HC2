@@ -120,7 +120,7 @@ export class Poller {
 				if (this.platform.config.enableIFTTTnotification == "all" || this.platform.config.enableIFTTTnotification == "hc")
 					this.platform.notifyIFTTT(VALUE_GET, subscription.id, subscription.characteristic.displayName.replace(" ", "_"), changePropertyValue);
 				let getFunction = this.platform.getFunctions.getFunctionsMapping.get(subscription.characteristic.UUID);
-				if (getFunction.function)
+				if (getFunction && getFunction.function)
 					getFunction.function.call(this.platform.getFunctions, null, subscription.characteristic, subscription.service, null, change);
 			}
 		}
