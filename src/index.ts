@@ -302,6 +302,10 @@ class FibaroHC2 {
 			this.setCharacteristicValue(value, callback, context, characteristic, service, IDs);
 		});
 		characteristic.on('get', (callback) => {
+			if (characteristic.UUID == (new Characteristic.Name()).UUID) {
+				callback(undefined, characteristic.value);
+				return;
+			}
 			if (service.isVirtual && !service.isGlobalVariableSwitch) {
 				// a push button is normally off
 				callback(undefined, false);
@@ -328,10 +332,6 @@ class FibaroHC2 {
 		this.log("Getting value from device: ", `${IDs[0]}  parameter: ${characteristic.displayName}`);
 		// Manage security system status
 		if (service.isSecuritySystem) {
-			if (characteristic.UUID == (new Characteristic.Name()).UUID) {
-				callback(undefined, characteristic.value);
-				return;
-			}
 			if (!this.fibaroClient) return;
 			this.fibaroClient.getGlobalVariable("SecuritySystem")
 				.then((securitySystemStatus) => {
@@ -345,10 +345,6 @@ class FibaroHC2 {
 		}
 		// Manage global variable switches
 		if (service.isGlobalVariableSwitch) {
-			if (characteristic.UUID == (new Characteristic.Name()).UUID) {
-				callback(undefined, characteristic.value);
-				return;
-			}
 			if (!this.fibaroClient) return;
 			this.fibaroClient.getGlobalVariable(IDs[1])
 				.then((switchStatus) => {
