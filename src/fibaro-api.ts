@@ -25,6 +25,7 @@ export class FibaroClient {
 	host: string;
 	auth: string;
 	headers: any;
+	adminAuth : any;
 	adminHeaders: any;
 
 	constructor(host, username, password, adminUsername, adminPassword) {
