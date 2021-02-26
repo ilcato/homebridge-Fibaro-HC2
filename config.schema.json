@@ -1,0 +1,158 @@
+{
+    "pluginAlias": "FibaroHC2",
+    "pluginType": "platform",
+    "singular": true,
+    "headerDisplay": "Homebridge plugin for Fibaro Home Center 2 and Home Center Lite",
+    "footerDisplay": "For help or in case of issues please visit the [GitHub repository](https://github.com/ilcato/homebridge-Fibaro-HC2/issues).",
+    "schema": {
+        "type": "object",
+        "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string",
+              "default": "FibaroHC2",
+              "minLength": 1,
+              "required": true
+            },
+            "host": {
+                "title": "Home Center 2 Host",
+                "type": "string",
+                "default": "192.168.0.x",
+                "required": true,
+                "description": "IP address of your Home Center"
+            },
+            "username": {
+                "title": "Home Center 2 Username",
+                "type": "string",
+                "default": "admin",
+                "required": true,
+                "description": "Username of your Home Center"
+            },
+            "password": {
+                "title": "Home Center 2 Password",
+                "type": "string",
+                "required": true,
+                "description": "Password of your Home Center"
+            },
+            "pollerperiod": {
+                "title": "Poller Period",
+                "type": "integer",
+                "placeholder": 2,
+                "required": false,
+                "description": "Polling intervall 1 - 100 i sconds. Set to 0 to disable polling. Default is 2."
+            },
+             "securitysystem": {
+                "title": "Security System",
+                "type": "string",
+                "placeholder" : "disabled",
+                "oneOf": [
+                    { "title": "Disabled", "enum": ["disabled"] },
+                    { "title": "Enabled", "enum": ["enabled"] }
+                ],
+                "required": false,
+                "description": "Select 'enabled' or 'disabled' in order to manage the availability of the security system."
+            },
+            "switchglobalvariables": {
+               "title": "Switch Global Variables",
+               "type": "string",
+               "required": false,
+               "description": "Put a comma separated list of Home Center global variables acting like a bistable switch."
+           },
+           "adminUsername": {
+               "title": "Home Center 2 Admin Username",
+               "type": "string",
+               "placeholder": "admin",
+               "required": false,
+               "description": "If user provided above doesn't have admin rights in your Home Center, enter admin username of your Home Center to set global variables."
+           },
+           "adminPassword": {
+               "title": "Home Center 2 Admin Password",
+               "type": "string",
+               "required": false,
+               "description": "If user provided above doesn't have admin rights in your Home Center, enter password of your Home Center to set global variables."
+           },
+           "thermostattimeout": {
+              "title": "Thermostat Timeout",
+              "type": "integer",
+              "placeholder": 7200,
+              "required": false,
+              "description": "Numer of seconds for the thermostat timeout. Set to 0 for infinite. Default is 7200 (2 hours)."
+           },
+           "enablecoolingstatemanagemnt": {
+              "title": "Enable Cooling State Managemnt",
+              "type": "string",
+              "placeholder" : "off",
+              "oneOf": [
+                  { "title": "off", "enum": ["off"] },
+                  { "title": "on", "enum": ["on"] }
+              ],
+              "required": false,
+              "description": "Set to 'on' to automatically manage heating state for thermostat, 'off' to disable it. Default is 'off'."
+          },
+          "doorlocktimeout": {
+              "title": "Door Lock Timeout",
+              "type": "integer",
+              "placeholder": 0,
+              "required": false,
+              "description": "Put a positive integer number n to enable it after n seconds. Set to 0 for disabling the check. Default is 0."
+          },
+          "IFTTTmakerkey": {
+              "title": "IFTTT Maker Key",
+              "type": "string",
+              "required": false,
+              "description": "Put key of your IFTTT maker channel here. used to signal events to the outside."
+          },
+          "enableIFTTTnotification": {
+            "title": "Enable IFTTT Notification",
+            "type": "string",
+            "placeholder" : "none",
+            "oneOf": [
+                { "title": "Disable notification", "enum": ["none"] },
+                { "title": "All kind of events", "enum": ["all"] },
+                { "title": "Change events coming from Home Center 2", "enum": ["hc"] },
+                { "title": "Change events coming from HomeKit", "enum": ["hk"] }
+            ],
+            "required": false,
+            "description": "Set IFTTT notifications for all kind of events, change events coming from Home Center 2, change events coming from HomeKit, or disable notification (default)."
+          },
+          "LockCurrentStateDelay": {
+              "title": "Lock Current State Delay",
+              "type": "integer",
+              "placeholder": 2,
+              "description": "Set the number of seconds to delay the update of 'LockCurrentState' read event. Default is 2."
+          },
+          "LockTargetStateDelay": {
+              "title": "Lock Target State Delay",
+              "type": "integer",
+              "placeholder": 2,
+              "description": "Set the number of seconds to delay the update of 'LockTargetState' read event. Default is 2."
+          }
+        }
+    },
+    "form": null,
+    "display": null,
+    "layout": [
+      {
+        "items": ["name","host","username","password"]
+      },
+      {
+        "type": "fieldset",
+        "title": "Optional Configuration",
+        "expandable": true,
+        "items": [
+          "pollerperiod",
+          "securitysystem",
+          "switchglobalvariables",
+          "adminUsername",
+          "adminPassword",
+          "thermostattimeout",
+          "enablecoolingstatemanagemnt",
+          "doorlocktimeout",
+          "IFTTTmakerkey",
+          "enableIFTTTnotification",
+          "LockCurrentStateDelay",
+          "LockTargetStateDelay"
+        ]
+      }
+    ]
+}
