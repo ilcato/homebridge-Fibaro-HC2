@@ -37,9 +37,9 @@
             "pollerperiod": {
                 "title": "Poller Period",
                 "type": "integer",
-                "placeholder": 2,
+                "placeholder": 5,
                 "required": false,
-                "description": "Polling intervall 1 - 100 i sconds. Set to 0 to disable polling. Default is 2."
+                "description": "Polling intervall 1 - 100 i sconds. Set to 0 to disable polling. Default is 5."
             },
              "securitysystem": {
                 "title": "Security System",
