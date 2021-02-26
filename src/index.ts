@@ -199,8 +199,7 @@ class FibaroHC2 {
 			}
 			for (let i = 0; i < service.characteristics.length; i++) {
 				let characteristic = service.characteristics[i];
-				if (characteristic.props.needsBinding)
-					this.bindCharacteristicEvents(characteristic, service);
+				this.bindCharacteristicEvents(characteristic, service);
 			}
 		}
 		this.log("Configured Accessory: ", accessory.displayName);
@@ -282,6 +281,7 @@ class FibaroHC2 {
 	}
 
 	bindCharacteristicEvents(characteristic, service) {
+		if (service.subtype == undefined) return;
 		let IDs = service.subtype.split("-"); // IDs[0] is always device ID; for virtual device IDs[1] is the button ID
 		service.isVirtual = IDs[1] != "" ? true : false;
 		service.isSecuritySystem = IDs[0] == "0" ? true : false;
@@ -310,6 +310,10 @@ class FibaroHC2 {
 			this.setCharacteristicValue(value, callback, context, characteristic, service, IDs);
 		});
 		characteristic.on('get', (callback) => {
+			if (characteristic.UUID == (new Characteristic.Name()).UUID) {
+				callback(undefined, characteristic.value);
+				return;
+			}
 			if (service.isVirtual && !service.isGlobalVariableSwitch) {
 				// a push button is normally off
 				callback(undefined, false);
@@ -340,8 +344,7 @@ class FibaroHC2 {
 			this.fibaroClient.getGlobalVariable("SecuritySystem")
 				.then((securitySystemStatus) => {
 					if (this.getFunctions)
-						this.getFunctions.getSecuritySystemTargetState(callback, characteristic, service, IDs, securitySystemStatus);
-				})
+						this.getFunctions.getSecuritySystemState(callback, characteristic, service, IDs, securitySystemStatus);				})
 				.catch((err) => {
 					this.log("There was a problem getting value from Global Variable: SecuritySystem", ` - Err: ${err}`);
 					callback(err, null);
@@ -365,6 +368,10 @@ class FibaroHC2 {
 		// Manage all other status
 		if (!this.getFunctions) return;
 		let getFunction = this.getFunctions.getFunctionsMapping.get(characteristic.UUID);
+		if (!getFunction) {
+			callback(undefined, characteristic.value);
+			return;
+		}
 		setTimeout(() => {
 			if (!this.fibaroClient) return;
 			this.fibaroClient.getDeviceProperties(IDs[0])

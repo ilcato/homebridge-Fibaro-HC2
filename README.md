@@ -33,6 +33,12 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.3.9
++ Additional Fixes for homebridge 1.3
+
+Version 2.3.8
++ Fixes for homebridge 1.3
+
 Version 2.3.7
 + added support for com.fibaro.FGDW002
 + added support for com.fibaro.baseShutter

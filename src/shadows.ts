@@ -67,7 +67,7 @@ export class ShadowAccessory {
 			.setCharacteristic(this.hapCharacteristic.Manufacturer, manufacturer)
 			.setCharacteristic(this.hapCharacteristic.Model, `${this.device.type || "HomeCenterBridgedAccessory"}`)
 			.setCharacteristic(this.hapCharacteristic.SerialNumber, `${properties.serialNumber || "<unknown>"}`)
-			.setCharacteristic(this.hapCharacteristic.FirmwareRevision, properties.zwaveVersion);
+			.setCharacteristic(this.hapCharacteristic.FirmwareRevision, "-");
 	}
 	removeNoMoreExistingServices() {
 		for (let t = 0; t < this.accessory.services.length; t++) {
@@ -93,7 +93,6 @@ export class ShadowAccessory {
 				this.accessory.addService(service.controlService);
 				for (let i = 0; i < service.characteristics.length; i++) {
 					let characteristic = service.controlService.getCharacteristic(service.characteristics[i]);
-					characteristic.props.needsBinding = true;
 					if (characteristic.UUID == (new this.hapCharacteristic.CurrentAmbientLightLevel()).UUID) {
 						characteristic.props.maxValue = 100000;
 						characteristic.props.minStep = 1;
