@@ -33,9 +33,6 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
-Version 2.4.1
-+ Fix request dependency
-
 Version 2.4.0
 + Admin credentials to set global variables
 + Homebridge UI config settings

@@ -43,7 +43,7 @@
 
 'use strict'
 
-import superagent = require('superagent');
+import request = require("request");
 
 import { FibaroClient } from './fibaro-api'
 import {
@@ -425,25 +425,24 @@ class FibaroHC2 {
 		return siblings;
 	}
 
-	async notifyIFTTT(e, val1, val2, val3) {
+	notifyIFTTT(e, val1, val2, val3) {
 		if (this.config.IFTTTmakerkey == "") return;
 		if (val2 == undefined) val2 = "";
 		if (val3 == undefined) val3 = "";
 
-		const url = "https://maker.ifttt.com/trigger/" + e + "/with/key/" + this.config.IFTTTmakerkey + "?value1=" + val1 + "&value2=" + val2 + "&value3=" + val3;
-		
-		try {
-			superagent
-			.get(url)
-			.set('accept', 'json');					
-		} catch (err) {
+		var url = "https://maker.ifttt.com/trigger/" + e + "/with/key/" + this.config.IFTTTmakerkey + "?value1=" + val1 + "&value2=" + val2 + "&value3=" + val3;
+		var method = "get";
+		var that = this;
+		request({
+			url: url,
+			method: method
+		}, function (err, response) {
 			if (err) {
-				this.log("There was a problem sending event: ", `${e}, to: ${this.config.IFTTTmakerkey} - Err: ${err}`);
+				that.log("There was a problem sending event: ", `${e}, to: ${that.config.IFTTTmakerkey} - Err: ${err}`);
 			} else {
-				this.log("Sent event: ", `${e}, to: ${this.config.IFTTTmakerkey}, for ${val1}`);
+				that.log("Sent event: ", `${e}, to: ${that.config.IFTTTmakerkey}, for ${val1}`);
 			}
-			
-		}
+		});
 	}
 
 }
