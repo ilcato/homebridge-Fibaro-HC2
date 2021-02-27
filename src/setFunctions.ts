@@ -176,7 +176,8 @@ export class SetFunctions {
 			if (service.operatingModeId) {	// Operating mode is availble on Home Center
 				// need to force the operating mode to the current one because of a Fibaro API bug (setting temperature through the API change the mode to HEAT)
 				this.platform.fibaroClient.getDeviceProperties(IDs[0])
-					.then((properties) => {
+					.then((res) => {
+						const properties = res.body;
 						currentOpMode = properties.mode;
 						this.command("setThermostatSetpoint", [currentOpMode, value], service, IDs);
 					})
@@ -307,7 +308,8 @@ export class SetFunctions {
 	}
 	checkLockCurrentState(IDs, value) {
 		this.platform.fibaroClient.getDeviceProperties(IDs[0])
-			.then((properties) => {
+			.then((res) => {
+				const properties = res.body;
 				var currentValue = (properties.value == "true") ? this.hapCharacteristic.LockCurrentState.SECURED : this.hapCharacteristic.LockCurrentState.UNSECURED;
 				if (currentValue != value) {
 					this.platform.log("There was a problem setting value to Lock: ", `${IDs[0]}`);
