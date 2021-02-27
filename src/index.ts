@@ -165,12 +165,14 @@ class FibaroHC2 {
 		if (!this.fibaroClient)
 			return;
 		this.fibaroClient.getScenes()
-			.then((scenes) => {
+			.then((res) => {
+				const scenes = res.body;
 				this.mapSceneIDs(scenes);
 				this.setFunctions = new SetFunctions(Characteristic, this);	// There's a dependency in setFunction to Scene Mapping
 				return this.fibaroClient ? this.fibaroClient.getDevices() : {};
 			})
-			.then((devices) => {
+			.then((res) => {
+				const devices = res.body;
 				this.LoadAccessories(devices);
 			})
 			.catch((err) => {
@@ -342,7 +344,8 @@ class FibaroHC2 {
 		if (service.isSecuritySystem) {
 			if (!this.fibaroClient) return;
 			this.fibaroClient.getGlobalVariable("SecuritySystem")
-				.then((securitySystemStatus) => {
+				.then((res) => {
+					const securitySystemStatus = res.body;
 					if (this.getFunctions)
 						this.getFunctions.getSecuritySystemState(callback, characteristic, service, IDs, securitySystemStatus);				})
 				.catch((err) => {
@@ -355,7 +358,8 @@ class FibaroHC2 {
 		if (service.isGlobalVariableSwitch) {
 			if (!this.fibaroClient) return;
 			this.fibaroClient.getGlobalVariable(IDs[1])
-				.then((switchStatus) => {
+				.then((res) => {
+					const switchStatus = res.body;
 					if (this.getFunctions)
 						this.getFunctions.getBool(callback, characteristic, service, IDs, switchStatus);
 				})
@@ -375,7 +379,8 @@ class FibaroHC2 {
 		setTimeout(() => {
 			if (!this.fibaroClient) return;
 			this.fibaroClient.getDeviceProperties(IDs[0])
-				.then((properties: any) => {
+				.then((res) => {
+					const properties = res.body;
 					if (getFunction.function) {
 						if (this.config.FibaroTemperatureUnit == "F") {
 							if (characteristic.displayName == 'Current Temperature') {
