@@ -12,7 +12,7 @@ Follow the instruction in [homebridge](https://www.npmjs.com/package/homebridge)
 The plugin is published through [NPM](https://www.npmjs.com/package/homebridge-fibaro-hc2) and should be installed "globally" by typing:
 
     npm install -g homebridge-fibaro-hc2
-    
+
 # Configuration
 Remember to configure the plugin in config.json in your home directory inside the .homebridge directory. Configuration parameters:
 + "host": "PUT IP ADDRESS OF YOUR HC2 HERE"
@@ -21,6 +21,8 @@ Remember to configure the plugin in config.json in your home directory inside th
 + "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 2 SECONDS IS THE DEFAULT"
 + "securitysystem": "PUT enabled OR disabled IN ORDER TO MANAGE THE AVAILABILITY OF THE SECURITY SYSTEM"
 + "switchglobalvariables": "PUT A COMMA SEPARATED LIST OF HOME CENTER GLOBAL VARIABLES ACTING LIKE A BISTABLE SWITCH"
++ "adminUsername": "PUT ADMIN USERNAME OF YOUR HC2 HERE TO SET GLOBAL VARIABLES",
++ "adminPassword": "PUT ADMIN PASSWORD OF YOUR HC2 HERE TO SET GLOBAL VARIABLES",
 + "thermostattimeout": "PUT THE NUMBER OF SECONDS FOR THE THERMOSTAT TIMEOUT, DEFAULT: 7200 (2 HOURS). PUT 0 FOR INFINITE"
 + "enablecoolingstatemanagemnt": "PUT on TO AUTOMATICALLY MANAGE HEATING STATE FOR THERMOSTAT, off TO DISABLE IT. DEFAULT off"
 + "doorlocktimeout": "PUT 0 FOR DISABLING THE CHECK. PUT A POSITIVE INTEGER N NUMBER ENABLE IT AFTER N SECONDS. DEFAULT 0"
@@ -166,7 +168,7 @@ Version 2.0.0
 + Rewritten in TypeScript
 + Fixed Security System management (see updated Wiki)
 + Removed room grouping support
-+ Better maintainability and extensibility 
++ Better maintainability and extensibility
 
 Version 1.1.2
 + Fixed RGBW
@@ -269,4 +271,3 @@ Version 0.5.0
 + Virtual devices are managed in the old way: an Accessory for each virtual device that contains a push button for each virtual button
 + Initial support for Fibaro RGB (only on off commands works for now)
 + Initial support for Danfoss Thermostat (only temperature commands works for now)
-

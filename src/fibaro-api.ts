@@ -1,11 +1,11 @@
 //    Copyright 2018 ilcato
-// 
+//
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
 //    You may obtain a copy of the License at
-// 
+//
 //        http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //    Unless required by applicable law or agreed to in writing, software
 //    distributed under the License is distributed on an "AS IS" BASIS,
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,19 +18,25 @@
 
 import request = require("request");
 
-declare const Buffer;	
+declare const Buffer;
 
 export class FibaroClient {
 
 	host: string;
 	auth: string;
 	headers: any;
-	
-	constructor(host, username, password) {
+	adminAuth : any;
+	adminHeaders: any;
+
+	constructor(host, username, password, adminUsername, adminPassword) {
 		this.host = host;
-  		this.auth = "Basic " + new Buffer(username + ":" + password).toString("base64");
+  	this.auth = "Basic " + new Buffer(username + ":" + password).toString("base64");
 		this.headers = {
 					"Authorization" : this.auth
+		}
+		this.adminAuth = "Basic " + new Buffer(adminUsername + ":" + adminPassword).toString("base64");
+		this.adminHeaders = {
+					"Authorization" : this.adminAuth
 		}
 	}
 	getScenes() {
@@ -73,7 +79,7 @@ export class FibaroClient {
 				headers : this.headers,
 				json: true
 			}, function(err, response, json) {
-				if (!err && response.statusCode == 200) 
+				if (!err && response.statusCode == 200)
 					resolve(json);
 				else
 					reject(err);
@@ -89,7 +95,7 @@ export class FibaroClient {
 				headers : this.headers,
 				json: true
 			}, function(err, response, json) {
-				if (!err && response.statusCode == 200) 
+				if (!err && response.statusCode == 200)
 					resolve(json.properties);
 				else
 					reject(err);
@@ -111,7 +117,7 @@ export class FibaroClient {
 				method: method,
 				headers: this.headers
 			}, function(err, response) {
-				if (!err && (response.statusCode == 200 || response.statusCode == 202)) 
+				if (!err && (response.statusCode == 200 || response.statusCode == 202))
 					resolve(response);
 				else
 					reject(err);
@@ -130,7 +136,7 @@ export class FibaroClient {
 				method: method,
 				headers: this.headers
 			}, function(err, response) {
-				if (!err && (response.statusCode == 200 || response.statusCode == 202)) 
+				if (!err && (response.statusCode == 200 || response.statusCode == 202))
 					resolve(response);
 				else
 					reject(err);
@@ -146,7 +152,7 @@ export class FibaroClient {
 				headers : this.headers,
 				json: true
 			}, function(err, response, json) {
-				if (!err && response.statusCode == 200) 
+				if (!err && response.statusCode == 200)
 					resolve(json);
 				else if (!err && response.statusCode != 200)
 					reject(response.statusCode);
@@ -164,7 +170,7 @@ export class FibaroClient {
 				headers : this.headers,
 				json: true
 			}, function(err, response, json) {
-				if (!err && response.statusCode == 200) 
+				if (!err && response.statusCode == 200)
 					resolve(json);
 				else
 					reject(err);
@@ -184,11 +190,11 @@ export class FibaroClient {
 
 			request({
 				url: url,
-				headers : this.headers,
+				headers : this.adminHeaders,
 				body: body,
 				method: method
 			}, function(err, response) {
-				if (!err && response.statusCode == 200) 
+				if (!err && response.statusCode == 200)
 					resolve(response);
 				else
 					reject(err);
@@ -196,5 +202,5 @@ export class FibaroClient {
 		});
 		return p;
 	}
-	
+
 }

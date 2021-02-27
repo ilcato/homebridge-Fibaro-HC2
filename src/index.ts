@@ -1,11 +1,11 @@
 //    Copyright 2018 ilcato
-// 
+//
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
 //    You may obtain a copy of the License at
-// 
+//
 //        http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //    Unless required by applicable law or agreed to in writing, software
 //    distributed under the License is distributed on an "AS IS" BASIS,
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,8 @@
 //            "pollerperiod": "PUT 0 FOR DISABLING POLLING, 1 - 100 INTERVAL IN SECONDS. 5 SECONDS IS THE DEFAULT",
 //            "securitysystem": "PUT enabled OR disabled IN ORDER TO MANAGE THE AVAILABILITY OF THE SECURITY SYSTEM",
 //            "switchglobalvariables": "PUT A COMMA SEPARATED LIST OF HOME CENTER GLOBAL VARIABLES ACTING LIKE A BISTABLE SWITCH",
+//            "adminUsername": "PUT ADMIN USERNAME OF YOUR HC2 HERE TO SET GLOBAL VARIABLES",
+//            "adminPassword": "PUT ADMIN PASSWORD OF YOUR HC2 HERE TO SET GLOBAL VARIABLES",
 //            "thermostattimeout": "PUT THE NUMBER OF SECONDS FOR THE THERMOSTAT TIMEOUT, DEFAULT: 7200 (2 HOURS). PUT 0 FOR INFINITE",
 //            "enablecoolingstatemanagemnt": "PUT on TO AUTOMATICALLY MANAGE HEATING STATE FOR THERMOSTAT, off TO DISABLE IT. DEFAULT off",
 //            "doorlocktimeout": "PUT 0 FOR DISABLING THE CHECK. PUT A POSITIVE INTEGER N NUMBER ENABLE IT AFTER N SECONDS. DEFAULT 0",
@@ -78,6 +80,8 @@ class Config {
 	pollerperiod?: string;
 	securitysystem?: string;
 	switchglobalvariables?: string;
+	adminUsername?: string;
+	adminPassword?: string;
 	thermostattimeout?: string;
 	enablecoolingstatemanagemnt?: string;
 	doorlocktimeout?: string;
@@ -129,6 +133,10 @@ class FibaroHC2 {
 			this.config.securitysystem = "disabled";
 		if (this.config.switchglobalvariables == undefined)
 			this.config.switchglobalvariables = "";
+		if (this.config.adminUsername == undefined)
+			this.config.adminUsername = this.config.username;
+		if (this.config.adminPassword == undefined)
+			this.config.adminPassword = this.config.password;
 		if (this.config.thermostattimeout == undefined)
 			this.config.thermostattimeout = timeOffset.toString();
 		if (this.config.enablecoolingstatemanagemnt == undefined)
@@ -145,7 +153,7 @@ class FibaroHC2 {
 			this.config.LockTargetStateDelay = "2";
 		if (this.config.FibaroTemperatureUnit == undefined)
 			this.config.FibaroTemperatureUnit = "C";
-		this.fibaroClient = new FibaroClient(this.config.host, this.config.username, this.config.password);
+		this.fibaroClient = new FibaroClient(this.config.host, this.config.username, this.config.password, this.config.adminUsername, this.config.adminPassword);
 		if (pollerPeriod != 0)
 			this.poller = new Poller(this, pollerPeriod, Service, Characteristic);
 		this.api.on('didFinishLaunching', this.didFinishLaunching.bind(this));
@@ -218,7 +226,7 @@ class FibaroHC2 {
 
 		// Create Global Variable Switches
 		if (this.config.switchglobalvariables && this.config.switchglobalvariables != "") {
-			let globalVariables = this.config.switchglobalvariables.split(',');
+			let globalVariables = this.config.switchglobalvariables.replace(/\s/g, "").split(',');
 			for (let i = 0; i < globalVariables.length; i++) {
 				let device = { name: globalVariables[i], roomID: 0, id: 0 };
 				let sa = ShadowAccessory.createShadowGlobalVariableSwitchAccessory(device, Accessory, Service, Characteristic, this);
@@ -433,4 +441,3 @@ class FibaroHC2 {
 	}
 
 }
-
