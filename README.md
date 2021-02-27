@@ -33,6 +33,9 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.4.2
++ Revert changes on deprecated library
+
 Version 2.3.9
 + Additional Fixes for homebridge 1.3
 
