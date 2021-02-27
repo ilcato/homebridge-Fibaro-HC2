@@ -43,8 +43,7 @@ export class Poller {
 		this.pollingUpdateRunning = true;
 	
 		this.platform.fibaroClient.refreshStates(this.lastPoll)
-			.then((res) => {
-				const updates = res.body;
+			.then((updates) => {
 				if (updates.last != undefined)
 					this.lastPoll = updates.last;
 				if (updates.changes != undefined) {
@@ -69,8 +68,7 @@ export class Poller {
 				// Manage Security System state
 				if (this.platform.config.securitysystem == "enabled") {
 					this.platform.fibaroClient.getGlobalVariable("SecuritySystem")
-						.then((res) => {
-							const securitySystemStatus = res.body;
+						.then((securitySystemStatus) => {
 							if (this.platform.securitySystemService == undefined)
 								return;
 							let statec = this.platform.getFunctions.getCurrentSecuritySystemStateMapping.get(securitySystemStatus.value);
@@ -87,8 +85,7 @@ export class Poller {
 					let globalVariables = this.platform.config.switchglobalvariables.split(',');
 					for(let i = 0; i < globalVariables.length; i++) {
 						this.platform.fibaroClient.getGlobalVariable(globalVariables[i])
-							.then((res) => {
-								const switchStatus = res.body;
+							.then((switchStatus) => {
 								this.platform.getFunctions.getBool(null, this.searchCharacteristic(globalVariables[i]), null, null, switchStatus);
 							})
 							.catch((err) =>{

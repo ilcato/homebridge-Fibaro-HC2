@@ -105,8 +105,7 @@ export class GetFunctions {
 
 		if (service.floatServiceId) {
 			this.platform.fibaroClient.getDeviceProperties(service.floatServiceId)
-				.then((res) => {
-					const properties = res.body;
+				.then((properties) => {
 					r = parseFloat(properties.value);
 					this.returnValue(r, callback, characteristic);
 				})
@@ -187,8 +186,7 @@ export class GetFunctions {
 	getCurrentHeatingCoolingState(callback, characteristic, service, IDs, properties) {
 		if (service.operatingModeId) {	// Operating mode is availble on Home Center
 			this.platform.fibaroClient.getDeviceProperties(service.operatingModeId)
-				.then((res) => {
-					const properties = res.body;
+				.then((properties) => {
 					switch (properties.mode) {
 						case "0": // OFF
 							this.returnValue(this.hapCharacteristic.CurrentHeatingCoolingState.OFF, callback, characteristic);
@@ -222,8 +220,7 @@ export class GetFunctions {
 	getTargetHeatingCoolingState(callback, characteristic, service, IDs, properties) {
 		if (service.operatingModeId) {	// Operating mode is availble on Home Center
 			this.platform.fibaroClient.getDeviceProperties(service.operatingModeId)
-				.then((res) => {
-					const properties = res.body;
+				.then((properties) => {
 					switch (properties.mode) {
 						case "0": // OFF
 							this.returnValue(this.hapCharacteristic.TargetHeatingCoolingState.OFF, callback, characteristic);
