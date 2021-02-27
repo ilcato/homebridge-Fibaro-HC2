@@ -1,11 +1,11 @@
-//    Copyright 2018 ilcato
-//
+//    Copyright 2021 ilcato
+// 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
 //    You may obtain a copy of the License at
-//
+// 
 //        http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 //    Unless required by applicable law or agreed to in writing, software
 //    distributed under the License is distributed on an "AS IS" BASIS,
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,191 +16,90 @@
 
 'use strict';
 
-import request = require("request");
+import superagent = require('superagent');
 
 declare const Buffer;
 
 export class FibaroClient {
 
+	url: string;
 	host: string;
 	auth: string;
 	headers: any;
-	adminAuth : any;
-	adminHeaders: any;
 
-	constructor(host, username, password, adminUsername, adminPassword) {
+	constructor(url, host, username, password, log) {
+		this.url = url;
 		this.host = host;
-  	this.auth = "Basic " + new Buffer(username + ":" + password).toString("base64");
+		this.auth = "Basic " + new Buffer.from(username + ":" + password).toString("base64");
 		this.headers = {
-					"Authorization" : this.auth
-		}
-		this.adminAuth = "Basic " + new Buffer(adminUsername + ":" + adminPassword).toString("base64");
-		this.adminHeaders = {
-					"Authorization" : this.adminAuth
-		}
+			"Authorization": this.auth
+		};
 	}
+	composeURL(service) {
+		if (this.url)
+			return this.url + service;
+		else
+			return "http://" + this.host + service;
+	}
+	genericGet(service) {
+		const url = this.composeURL(service);
+
+		return superagent
+			.get(url)
+			.set('Authorization', this.auth)
+			.set('accept', 'json');
+	}
+	genericPost(service, body) {
+		const url = this.composeURL(service);
+		return superagent
+			.post(url)
+			.send(body)
+			.set('Authorization', this.auth)
+			.set('accept', 'json');
+	}
+	genericPut(service, body) {
+		const url = this.composeURL(service);
+		return superagent
+			.put(url)
+			.send(body)
+			.set('Authorization', this.auth)
+			.set('accept', 'json');
+	}
+
 	getScenes() {
-		let p = new Promise((resolve, reject) => {
-			let url = "http://"+this.host+"/api/scenes";
-			request.get({
-				url: url,
-				headers : this.headers,
-				json: true
-			}, function(err, response, json) {
-				if (!err && response.statusCode == 200)
-					resolve(json);
-				else
-					reject(err);
-			});
-		});
-		return p;
+		return this.genericGet('/api/scenes');
 	}
 	getRooms() {
-		let p = new Promise((resolve, reject) => {
-			let url = "http://"+this.host+"/api/rooms";
-			request.get({
-				url: url,
-				headers : this.headers,
-				json: true
-			}, function(err, response, json) {
-				if (!err && response.statusCode == 200)
-					resolve(json);
-				else
-					reject(err);
-			});
-		});
-		return p;
+		return this.genericGet('/api/rooms');
 	}
 	getDevices() {
-		let p = new Promise((resolve, reject) => {
-			let url = "http://"+this.host+"/api/devices";
-			request.get({
-				url: url,
-				headers : this.headers,
-				json: true
-			}, function(err, response, json) {
-				if (!err && response.statusCode == 200)
-					resolve(json);
-				else
-					reject(err);
-			});
-		});
-		return p;
+		return this.genericGet('/api/devices');
 	}
 	getDeviceProperties(ID) {
-		let p = new Promise((resolve, reject) => {
-			let url = "http://"+this.host+"/api/devices/"+ID;
-			request.get({
-				url: url,
-				headers : this.headers,
-				json: true
-			}, function(err, response, json) {
-				if (!err && response.statusCode == 200)
-					resolve(json.properties);
-				else
-					reject(err);
-			});
-		});
-		return p;
-	}
-	executeDeviceAction(ID, action, param) {
-		let p = new Promise((resolve, reject) => {
-			let url = "http://"+this.host+"/api/devices/"+ID+"/action/"+action;
-			let body = param != undefined ? JSON.stringify({
-				"args": param,
-				"delay": 0
-			}) : "{}";
-			let method = "post";
-			request({
-				url: url,
-				body: body,
-				method: method,
-				headers: this.headers
-			}, function(err, response) {
-				if (!err && (response.statusCode == 200 || response.statusCode == 202))
-					resolve(response);
-				else
-					reject(err);
-			});
-		});
-		return p;
-	}
-	executeScene(ID) {
-		let p = new Promise((resolve, reject) =>  {
-			let url = "http://"+this.host+"/api/scenes/"+ID+"/action/start";
-			let body = null;
-			let method = "post";
-			request({
-				url: url,
-				body: body,
-				method: method,
-				headers: this.headers
-			}, function(err, response) {
-				if (!err && (response.statusCode == 200 || response.statusCode == 202))
-					resolve(response);
-				else
-					reject(err);
-			});
-		});
-		return p;
+		return this.genericGet('/api/devices/' + ID);
 	}
 	refreshStates(lastPoll) {
-		let p = new Promise((resolve, reject) => {
-			let url = "http://"+this.host +"/api/refreshStates?last=" + lastPoll;
-			request.get({
-				url: url,
-				headers : this.headers,
-				json: true
-			}, function(err, response, json) {
-				if (!err && response.statusCode == 200)
-					resolve(json);
-				else if (!err && response.statusCode != 200)
-					reject(response.statusCode);
-				else
-					reject(err);
-			});
-		});
-		return p;
+		return this.genericGet('/api/refreshStates?last=' + lastPoll);
+	}
+	executeDeviceAction(ID, action, param) {
+		const body = param !== null ? {
+			"args": param,
+			"delay": 0
+		} : {};
+		return this.genericPost('/api/devices/' + ID + '/action/' + action, body)
+	}
+	executeScene(ID) {
+		const body = {};
+		return this.genericPost('/api/scenes/' + ID + '/execute', body)
 	}
 	getGlobalVariable(globalVariableID) {
-		let p = new Promise((resolve, reject) => {
-			let url = "http://"+this.host+"/api/globalVariables/"+globalVariableID;
-			request.get({
-				url: url,
-				headers : this.headers,
-				json: true
-			}, function(err, response, json) {
-				if (!err && response.statusCode == 200)
-					resolve(json);
-				else
-					reject(err);
-			});
-		});
-		return p;
+		return this.genericGet('/api/globalVariables/' + globalVariableID);
 	}
 	setGlobalVariable(globalVariableID, value) {
-		let p = new Promise((resolve, reject) => {
-			let url = "http://"+this.host+"/api/globalVariables/"+globalVariableID;
-			let body = value != undefined ? JSON.stringify({
-				  "value": value,
-				  "invokeScenes": true
-			}) : null;
-
-			let method = "PUT";
-
-			request({
-				url: url,
-				headers : this.adminHeaders,
-				body: body,
-				method: method
-			}, function(err, response) {
-				if (!err && response.statusCode == 200)
-					resolve(response);
-				else
-					reject(err);
-			});
-		});
-		return p;
+		const body = value !== null ? {
+			"value": value,
+			"invokeScenes": true
+		} : null;
+		return this.genericPut('/api/globalVariables/' + globalVariableID, body)
 	}
-
 }
