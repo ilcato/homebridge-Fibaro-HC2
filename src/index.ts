@@ -396,7 +396,7 @@ class FibaroHC2 {
 					this.log("There was a problem getting value from: ", `${IDs[0]} - Err: ${err}`);
 					callback(err, null);
 				});
-		}, getFunction.delay * 1000);
+		}, getFunction.delay * 100);
 	}
 
 	subscribeUpdate(service, characteristic, propertyChanged) {
