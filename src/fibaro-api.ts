@@ -27,8 +27,7 @@ export class FibaroClient {
 	auth: string;
 	headers: any;
 
-	constructor(url, host, username, password, log) {
-		this.url = url;
+	constructor(host, username, password, log) {
 		this.host = host;
 		this.auth = "Basic " + new Buffer.from(username + ":" + password).toString("base64");
 		this.headers = {
@@ -36,10 +35,7 @@ export class FibaroClient {
 		};
 	}
 	composeURL(service) {
-		if (this.url)
-			return this.url + service;
-		else
-			return "http://" + this.host + service;
+		return "http://" + this.host + service;
 	}
 	genericGet(service) {
 		const url = this.composeURL(service);
