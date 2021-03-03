@@ -291,7 +291,7 @@ export class ShadowAccessory {
 		}
 
 		if (device.interfaces && device.interfaces.includes("battery")) {
-			ss.push(new ShadowService(new hapService.BatteryService(device.name), [hapCharacteristic.BatteryLevel, hapCharacteristic.ChargingState, hapCharacteristic.StatusLowBattery]))
+			ss.push(new ShadowService(new hapService.BatteryService(device.name + ' Battery'), [hapCharacteristic.BatteryLevel, hapCharacteristic.ChargingState, hapCharacteristic.StatusLowBattery]))
 		}
 
 		return new ShadowAccessory(device, ss, hapAccessory, hapService, hapCharacteristic, platform);
