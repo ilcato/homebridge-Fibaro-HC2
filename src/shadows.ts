@@ -210,6 +210,7 @@ export class ShadowAccessory {
 				break;
 			case "com.fibaro.FGSS001":
 			case "com.fibaro.smokeSensor":
+			case "com.fibaro.gasDetector":
 				ss = [new ShadowService(new hapService.SmokeSensor(device.name), [hapCharacteristic.SmokeDetected])];
 				break;
 			case "com.fibaro.FGCD001":
