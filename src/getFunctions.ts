@@ -59,9 +59,9 @@ export class GetFunctions {
 			[(new hapCharacteristic.CurrentDoorState()).UUID, { "function": this.getCurrentDoorState, "delay": 0 }],
 			[(new hapCharacteristic.TargetDoorState()).UUID, { "function": this.getCurrentDoorState, "delay": 0 }],
 			[(new hapCharacteristic.ObstructionDetected()).UUID, { "function": this.getObstructionDetected, "delay": 0 }],
-			[(new hapCharacteristic.BatteryLevel()).UUID, { "function": this.getBatteryLevel, "delay": 0 }],
-			[(new hapCharacteristic.ChargingState()).UUID, { "function": this.getChargingState, "delay": 0 }],
-			[(new hapCharacteristic.StatusLowBattery()).UUID, { "function": this.getStatusLowBattery, "delay": 0 }]
+			[(new hapCharacteristic.BatteryLevel()).UUID, { "function": this.getBatteryLevel, "delay": 120 }],
+			[(new hapCharacteristic.ChargingState()).UUID, { "function": this.getChargingState, "delay": 120 }],
+			[(new hapCharacteristic.StatusLowBattery()).UUID, { "function": this.getStatusLowBattery, "delay": 120 }]
 		]);
 		this.getCurrentSecuritySystemStateMapping = new Map([
 			["AwayArmed", this.hapCharacteristic.SecuritySystemCurrentState.AWAY_ARM],
