@@ -368,10 +368,7 @@ class FibaroHC2 {
 		// Manage all other status
 		if (!this.getFunctions) return;
 		let getFunction = this.getFunctions.getFunctionsMapping.get(characteristic.UUID);
-		if (!getFunction) {
-			callback(undefined, characteristic.value);
-			return;
-		}
+
 		setTimeout(() => {
 			if (!this.fibaroClient) return;
 			this.fibaroClient.getDeviceProperties(IDs[0])
@@ -382,7 +379,7 @@ class FibaroHC2 {
 								properties.value = (properties.value - 32) * 5 / 9;
 							}
 						}
-						getFunction.function.call(this.getFunctions, callback, characteristic, service, IDs, properties);
+						getFunction.function.call(this.getFunctions, null, characteristic, service, IDs, properties);
 					}
 					else
 						callback(`No get function defined for: ${characteristic.displayName}`, null);
@@ -392,6 +389,11 @@ class FibaroHC2 {
 					callback(err, null);
 				});
 		}, getFunction.delay * 1000);
+
+		//if (!getFunction) {
+			callback(undefined, characteristic.value);
+		//	return;
+		//}
 	}
 
 	subscribeUpdate(service, characteristic, propertyChanged) {

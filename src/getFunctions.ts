@@ -79,6 +79,7 @@ export class GetFunctions {
 	}
 
 	returnValue(r, callback, characteristic) {
+		console.log('-!!!!-->', callback, characteristic, r);
 		if (callback)
 			callback(undefined, r);
 		else
