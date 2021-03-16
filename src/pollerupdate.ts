@@ -107,21 +107,23 @@ export class Poller {
 	manageValue(change) {
 		for (let i = 0; i < this.platform.updateSubscriptions.length; i++) {
 			let subscription = this.platform.updateSubscriptions[i];
-			let property = subscription.property;
-			if (property === "valueandcolor") property = "value";
-			if (subscription.id == change.id && ((property == "value" && change.value != undefined) || (property == "value2" && change.value2 != undefined))) {
-				if (this.platform.config.FibaroTemperatureUnit == "F") {
-					if (subscription.characteristic.displayName == "Current Temperature") {
-						change.value = (change.value - 32) * 5 / 9;
+			if (!(subscription.service instanceof this.hapService.BatteryService) && subscription.characteristic.displayName != 'Name') {
+				let property = subscription.property;
+				if (property === "valueandcolor") property = "value";
+				if (subscription.id == change.id && ((property == "value" && change.value != undefined) || (property == "value2" && change.value2 != undefined))) {
+					if (this.platform.config.FibaroTemperatureUnit == "F") {
+						if (subscription.characteristic.displayName == "Current Temperature") {
+							change.value = (change.value - 32) * 5 / 9;
+						}
 					}
+					let changePropertyValue = change[property];
+					this.platform.log(`Updating ${property} for device: `, `${subscription.id}  parameter: ${subscription.characteristic.displayName}, ${property}: ${changePropertyValue}`);
+					if (this.platform.config.enableIFTTTnotification == "all" || this.platform.config.enableIFTTTnotification == "hc")
+						this.platform.notifyIFTTT(VALUE_GET, subscription.id, subscription.characteristic.displayName.replace(" ", "_"), changePropertyValue);
+					let getFunction = this.platform.getFunctions.getFunctionsMapping.get(subscription.characteristic.UUID);
+					if (getFunction && getFunction.function)
+						getFunction.function.call(this.platform.getFunctions, null, subscription.characteristic, subscription.service, null, change);
 				}
-				let changePropertyValue = change[property];
-				this.platform.log(`Updating ${property} for device: `, `${subscription.id}  parameter: ${subscription.characteristic.displayName}, ${property}: ${changePropertyValue}`);
-				if (this.platform.config.enableIFTTTnotification == "all" || this.platform.config.enableIFTTTnotification == "hc")
-					this.platform.notifyIFTTT(VALUE_GET, subscription.id, subscription.characteristic.displayName.replace(" ", "_"), changePropertyValue);
-				let getFunction = this.platform.getFunctions.getFunctionsMapping.get(subscription.characteristic.UUID);
-				if (getFunction && getFunction.function)
-					getFunction.function.call(this.platform.getFunctions, null, subscription.characteristic, subscription.service, null, change);
 			}
 		}
 	}	
