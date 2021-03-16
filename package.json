@@ -27,6 +27,7 @@
   ],
   "dependencies": {
     "request": "^2.88.0",
+    "requestretry": "^5.0.0",
     "typescript": "^2.2.2"
   },
   "devDependencies": {},
