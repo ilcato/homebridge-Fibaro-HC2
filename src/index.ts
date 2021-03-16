@@ -337,7 +337,6 @@ class FibaroHC2 {
 	}
 
 	getCharacteristicValue(callback, characteristic, service, IDs) {
-		this.log("Getting value from device: ", `${IDs[0]}  parameter: ${characteristic.displayName}`);
 		// Manage security system status
 		if (service.isSecuritySystem) {
 			if (!this.fibaroClient) return;
