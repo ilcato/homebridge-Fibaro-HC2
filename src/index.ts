@@ -382,7 +382,7 @@ class FibaroHC2 {
 							getFunction.function.call(this.getFunctions, null, characteristic, service, IDs, properties);
 						}
 						else
-							this.log(`No get function defined for: ${characteristic.displayName}`);
+							this.log("No get function defined for: ", `${characteristic.displayName}`);
 					})
 					.catch((err) => {
 						this.log("There was a problem getting value from: ", `${IDs[0]} - Err: ${err}`);
