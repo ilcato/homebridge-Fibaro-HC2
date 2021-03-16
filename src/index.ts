@@ -344,11 +344,11 @@ class FibaroHC2 {
 			this.fibaroClient.getGlobalVariable("SecuritySystem")
 				.then((securitySystemStatus) => {
 					if (this.getFunctions)
-						this.getFunctions.getSecuritySystemState(callback, characteristic, service, IDs, securitySystemStatus);				})
+						this.getFunctions.getSecuritySystemState(null, characteristic, service, IDs, securitySystemStatus);				})
 				.catch((err) => {
 					this.log("There was a problem getting value from Global Variable: SecuritySystem", ` - Err: ${err}`);
-					callback(err, null);
 				});
+			callback(undefined, characteristic.value);
 			return;
 		}
 		// Manage global variable switches
@@ -357,12 +357,12 @@ class FibaroHC2 {
 			this.fibaroClient.getGlobalVariable(IDs[1])
 				.then((switchStatus) => {
 					if (this.getFunctions)
-						this.getFunctions.getBool(callback, characteristic, service, IDs, switchStatus);
+						this.getFunctions.getBool(null, characteristic, service, IDs, switchStatus);
 				})
 				.catch((err) => {
 					this.log("There was a problem getting value from Global Variable: ", `${IDs[1]} - Err: ${err}`);
-					callback(err, null);
 				});
+			callback(undefined, characteristic.value);
 			return;
 		}
 		// Manage all other status
