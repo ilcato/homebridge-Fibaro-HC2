@@ -16,7 +16,7 @@
 
 'use strict';
 
-import requestRetry = require("requestretry")
+import requestRetry = require("requestretry");
 const request = requestRetry.defaults({ maxAttempts: 5, retryDelay: 3000, });
 
 declare const Buffer;
