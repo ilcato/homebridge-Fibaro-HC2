@@ -210,6 +210,7 @@ export class ShadowAccessory {
 				break;
 			case "com.fibaro.FGSS001":
 			case "com.fibaro.smokeSensor":
+			case "com.fibaro.gasDetector":
 				ss = [new ShadowService(new hapService.SmokeSensor(device.name), [hapCharacteristic.SmokeDetected])];
 				break;
 			case "com.fibaro.FGCD001":
@@ -291,7 +292,7 @@ export class ShadowAccessory {
 		}
 
 		if (device.interfaces && device.interfaces.includes("battery")) {
-			ss.push(new ShadowService(new hapService.BatteryService(device.name), [hapCharacteristic.BatteryLevel, hapCharacteristic.ChargingState, hapCharacteristic.StatusLowBattery]))
+			ss.push(new ShadowService(new hapService.BatteryService(device.name + ' Battery'), [hapCharacteristic.BatteryLevel, hapCharacteristic.ChargingState, hapCharacteristic.StatusLowBattery]))
 		}
 
 		return new ShadowAccessory(device, ss, hapAccessory, hapService, hapCharacteristic, platform);
