@@ -344,11 +344,11 @@ class FibaroHC2 {
 			this.fibaroClient.getGlobalVariable("SecuritySystem")
 				.then((securitySystemStatus) => {
 					if (this.getFunctions)
-						this.getFunctions.getSecuritySystemState(callback, characteristic, service, IDs, securitySystemStatus);				})
+						this.getFunctions.getSecuritySystemState(null, characteristic, service, IDs, securitySystemStatus);				})
 				.catch((err) => {
 					this.log("There was a problem getting value from Global Variable: SecuritySystem", ` - Err: ${err}`);
-					callback(err, null);
 				});
+			callback(undefined, characteristic.value);
 			return;
 		}
 		// Manage global variable switches
@@ -357,41 +357,39 @@ class FibaroHC2 {
 			this.fibaroClient.getGlobalVariable(IDs[1])
 				.then((switchStatus) => {
 					if (this.getFunctions)
-						this.getFunctions.getBool(callback, characteristic, service, IDs, switchStatus);
+						this.getFunctions.getBool(null, characteristic, service, IDs, switchStatus);
 				})
 				.catch((err) => {
 					this.log("There was a problem getting value from Global Variable: ", `${IDs[1]} - Err: ${err}`);
-					callback(err, null);
 				});
+			callback(undefined, characteristic.value);
 			return;
 		}
 		// Manage all other status
 		if (!this.getFunctions) return;
 		let getFunction = this.getFunctions.getFunctionsMapping.get(characteristic.UUID);
-		if (!getFunction) {
-			callback(undefined, characteristic.value);
-			return;
-		}
-		setTimeout(() => {
-			if (!this.fibaroClient) return;
-			this.fibaroClient.getDeviceProperties(IDs[0])
-				.then((properties: any) => {
-					if (getFunction.function) {
-						if (this.config.FibaroTemperatureUnit == "F") {
-							if (characteristic.displayName == 'Current Temperature') {
-								properties.value = (properties.value - 32) * 5 / 9;
+		if (getFunction) {
+			setTimeout(() => {
+				if (!this.fibaroClient) return;
+				this.fibaroClient.getDeviceProperties(IDs[0])
+					.then((properties: any) => {
+						if (getFunction.function) {
+							if (this.config.FibaroTemperatureUnit == "F") {
+								if (characteristic.displayName == 'Current Temperature') {
+									properties.value = (properties.value - 32) * 5 / 9;
+								}
 							}
+							getFunction.function.call(this.getFunctions, null, characteristic, service, IDs, properties);
 						}
-						getFunction.function.call(this.getFunctions, callback, characteristic, service, IDs, properties);
-					}
-					else
-						callback(`No get function defined for: ${characteristic.displayName}`, null);
-				})
-				.catch((err) => {
-					this.log("There was a problem getting value from: ", `${IDs[0]} - Err: ${err}`);
-					callback(err, null);
-				});
-		}, getFunction.delay * 1000);
+						else
+							this.log("No get function defined for: ", `${characteristic.displayName}`);
+					})
+					.catch((err) => {
+						this.log("There was a problem getting value from: ", `${IDs[0]} - Err: ${err}`);
+					});
+			}, getFunction.delay * 1000);
+		}
+		callback(undefined, characteristic.value);
 	}
 
 	subscribeUpdate(service, characteristic, propertyChanged) {
