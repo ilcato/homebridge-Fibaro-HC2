@@ -33,6 +33,10 @@ Look for a sample config in [config.json example](https://github.com/ilcato/home
 
 
 # Release notes
+Version 2.4.3 (thanks @xlinur)
++ Fix slowdown
++ Fix batteryinfo
+
 Version 2.4.2
 + Revert changes on deprecated library
 
