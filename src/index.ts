@@ -203,7 +203,7 @@ class FibaroHC2 {
 			}
 			for (let i = 0; i < service.characteristics.length; i++) {
 				let characteristic = service.characteristics[i];
-				this.bindCharacteristicEvents(characteristic, service, accessory);
+				this.bindCharacteristicEvents(characteristic, service);
 			}
 		}
 		this.log("Configured Accessory: ", accessory.displayName);
@@ -284,7 +284,7 @@ class FibaroHC2 {
 		this.accessories.delete(accessory.context.uniqueSeed);
 	}
 
-	bindCharacteristicEvents(characteristic, service, accessory) {
+	bindCharacteristicEvents(characteristic, service) {
 		if (service.subtype == undefined) return;
 		let IDs = service.subtype.split("-"); // IDs[0] is always device ID; for virtual device IDs[1] is the button ID
 		service.isVirtual = IDs[1] != "" ? true : false;
@@ -322,7 +322,7 @@ class FibaroHC2 {
 				// a push button is normally off
 				callback(undefined, false);
 			} else {
-				this.getCharacteristicValue(callback, characteristic, service, accessory, IDs);
+				this.getCharacteristicValue(callback, characteristic, service, IDs);
 			}
 		});
 	}
@@ -340,7 +340,7 @@ class FibaroHC2 {
 		callback();
 	}
 
-	getCharacteristicValue(callback, characteristic, service, accessory, IDs) {
+	getCharacteristicValue(callback, characteristic, service, IDs) {
 		this.log("Getting value from device: ", `${IDs[0]}  parameter: ${characteristic.displayName}`);
 		// Manage security system status
 		if (service.isSecuritySystem) {
