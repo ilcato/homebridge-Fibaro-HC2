@@ -386,8 +386,11 @@ class FibaroHC2 {
 							if (properties.hasOwnProperty('dead') && properties.dead == 'true') {
 								this.log("Get Unresponsive: ", `${characteristic.displayName} -- ${HAPStatus.SERVICE_COMMUNICATION_FAILURE}`);
 								console.log('->', accessory);
-								accessory.updateReachability(false);
-								characteristic.updateValue(new HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE))
+								accessory.reachable = false;
+								if (accessory._updateReachability) {
+									accessory._updateReachability.reachable = false;
+								}
+								//characteristic.updateValue(new HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE))
 							} else {
 								getFunction.function.call(this.getFunctions, null, characteristic, service, IDs, properties);
 							}
