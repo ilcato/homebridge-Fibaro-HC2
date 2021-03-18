@@ -61,12 +61,16 @@ const defaultEnableCoolingStateManagemnt = "off";
 
 let Accessory,
 	Service,
+	HapStatusError,
+	HAPStatus,
 	Characteristic,
 	UUIDGen;
 
 export = function (homebridge) {
 	Accessory = homebridge.platformAccessory
 	Service = homebridge.hap.Service
+	HapStatusError = homebridge.hap.HapStatusError
+	HAPStatus = homebridge.hap.HAPStatus;
 	Characteristic = homebridge.hap.Characteristic
 	UUIDGen = homebridge.hap.uuid
 	homebridge.registerPlatform(pluginName, platformName, FibaroHC2, true)
@@ -379,7 +383,12 @@ class FibaroHC2 {
 									properties.value = (properties.value - 32) * 5 / 9;
 								}
 							}
-							getFunction.function.call(this.getFunctions, null, characteristic, service, IDs, properties);
+							if (properties.hasOwnProperty('dead') && properties.dead === false) {
+								characteristic.updateValue(new HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE))
+							} else {
+								getFunction.function.call(this.getFunctions, null, characteristic, service, IDs, properties);
+							}
+							characteristic.updateValue()
 						}
 						else
 							this.log("No get function defined for: ", `${characteristic.displayName}`);
