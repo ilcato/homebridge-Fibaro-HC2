@@ -383,8 +383,7 @@ class FibaroHC2 {
 									properties.value = (properties.value - 32) * 5 / 9;
 								}
 							}
-							console.log('-properties.dead>', `${characteristic.displayName} -- ${properties.dead} -- !${properties.hasOwnProperty('dead')}! -- !${properties.dead === true}!`);
-							if (properties.hasOwnProperty('dead') && properties.dead === true) {
+							if (properties.hasOwnProperty('dead') && properties.dead) {
 								this.log("Get Unresponsive: ", `${characteristic.displayName}`);
 								characteristic.updateValue(new HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE))
 							} else {
