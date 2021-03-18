@@ -399,7 +399,6 @@ class FibaroHC2 {
 			}, getFunction.delay * 1000);
 		}
 		if (service.dead) {
-			console.log('-service.dead>', service.dead);
 			callback(new HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
 		} else {
 			callback(undefined, characteristic.value);
