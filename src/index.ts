@@ -384,14 +384,9 @@ class FibaroHC2 {
 								}
 							}
 							if (properties.hasOwnProperty('dead') && properties.dead == 'true') {
-								this.log("Get Unresponsive: ", `${characteristic.displayName} -- ${HAPStatus.SERVICE_COMMUNICATION_FAILURE}`);
-								console.log('->', accessory);
-								accessory.reachable = false;
-								if (accessory._associatedHAPAccessory) {
-									accessory._associatedHAPAccessory.reachable = false;
-								}
-								//characteristic.updateValue(new HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE))
+								service.dead = true;
 							} else {
+								service.dead = false;
 								getFunction.function.call(this.getFunctions, null, characteristic, service, IDs, properties);
 							}
 						}
@@ -403,7 +398,13 @@ class FibaroHC2 {
 					});
 			}, getFunction.delay * 1000);
 		}
-		callback(undefined, characteristic.value);
+		if (service.dead) {
+			console.log('-service.dead>', service.dead);
+			callback(new HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE));
+		} else {
+			callback(undefined, characteristic.value);
+		}
+
 	}
 
 	subscribeUpdate(service, characteristic, propertyChanged) {
