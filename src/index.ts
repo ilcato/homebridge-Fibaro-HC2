@@ -389,7 +389,6 @@ class FibaroHC2 {
 							} else {
 								getFunction.function.call(this.getFunctions, null, characteristic, service, IDs, properties);
 							}
-							characteristic.updateValue()
 						}
 						else
 							this.log("No get function defined for: ", `${characteristic.displayName}`);
