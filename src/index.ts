@@ -387,8 +387,8 @@ class FibaroHC2 {
 								this.log("Get Unresponsive: ", `${characteristic.displayName} -- ${HAPStatus.SERVICE_COMMUNICATION_FAILURE}`);
 								console.log('->', accessory);
 								accessory.reachable = false;
-								if (accessory._updateReachability) {
-									accessory._updateReachability.reachable = false;
+								if (accessory._associatedHAPAccessory) {
+									accessory._associatedHAPAccessory.reachable = false;
 								}
 								//characteristic.updateValue(new HapStatusError(HAPStatus.SERVICE_COMMUNICATION_FAILURE))
 							} else {
