@@ -385,6 +385,7 @@ class FibaroHC2 {
 							}
 							if (properties.hasOwnProperty('dead') && properties.dead == 'true') {
 								service.dead = true;
+								this.log("Device dead: ", `${IDs[0]}  parameter: ${characteristic.displayName}`);
 							} else {
 								service.dead = false;
 								getFunction.function.call(this.getFunctions, null, characteristic, service, IDs, properties);
