@@ -1,3 +1,14 @@
+**THIS PLUGIN WILL NOT BE MAINTAINED ANYMORE. PLEASE MIGRATE TO THE NEW ONE THAT SUPPORT ALL FIBARO HOME CENTER APPLIANCES: [homebridge-fibaro-home-center](https://github.com/ilcato/homebridge-fibaro-home-center)**
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
 # homebridge-Fibaro-HC2
 [![npm version](https://badge.fury.io/js/homebridge-fibaro-hc2.svg)](https://badge.fury.io/js/homebridge-fibaro-hc2)
 [![Downloads](https://img.shields.io/npm/dt/homebridge-fibaro-hc2)](https://www.npmjs.com/package/homebridge-fibaro-hc2)
